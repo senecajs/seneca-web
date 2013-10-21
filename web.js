@@ -11,7 +11,7 @@ var parambulator = require('parambulator')
 var mstring      = require('mstring')
 
 //var async   = require('async')
-//var connect = require('connect')
+var connect = require('connect')
 
 var httprouter = require('./http-router')
 
@@ -26,7 +26,7 @@ module.exports = function( options ) {
 
 
   options = senutil.deepextend({
-    prefix:'/seneca'
+    prefix:'/seneca',
   },options)
   
 
@@ -385,16 +385,26 @@ module.exports = function( options ) {
   })
    */
 
+  var app = connect()
+  app.use(connect.static(__dirname+'/web'))
 
   var use = function(req,res,next){
-    if( 0===req.url.indexOf(options.prefix+'/init.js') ) {
-      res.writeHead(200,{'Content-Type':'text/javascript'})
-      return res.end(initsrc);
+    if( 0===req.url.indexOf(options.prefix) ) {
+      if( 0 == req.url.indexOf(options.prefix+'/init.js') ) {
+        res.writeHead(200,{'Content-Type':'text/javascript'})
+        return res.end(initsrc);
+      }
+   
+      req.url = req.url.substring(options.prefix.length)
+      return app( req, res );
     }
     else return next();
   }
 
-  seneca.act({role:plugin, plugin:plugin, config:{prefix:options.prefix}, use:use})
+  var config = {prefix:options.prefix}
+
+  seneca.act({role:plugin, plugin:plugin, config:config, use:use})
+
 
   
   function next_service(req,res,next,i) {

@@ -22,7 +22,8 @@
   "dependencies": {
     "underscore": "~1.5.2",
     "parambulator": "~0.1.3",
-    "mstring": "~0.1.0"
+    "mstring": "~0.1.0",
+    "connect": "~2.9.1"
   },
   "devDependencies": {},
   "repository": {
