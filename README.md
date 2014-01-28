@@ -16,11 +16,9 @@ There are many examples of usage however - see [seneca-examples](http://github.c
 If you're using this module, feel free to contact me on Twitter if you
 have any questions! :) [@rjrodger](http://twitter.com/rjrodger)
 
-Current Version: 0.1.0
+Current Version: 0.1.1
 
-Tested on: Node 0.10.19, Seneca 0.5.14
-
-[![Build Status](https://travis-ci.org/rjrodger/seneca-web.png?branch=master)](https://travis-ci.org/rjrodger/seneca-web)
+Tested on: Node 0.10.24, Seneca 0.5.15
 
 
 
@@ -29,7 +27,28 @@ Tested on: Node 0.10.19, Seneca 0.5.14
 ```JavaScript
 var seneca = require('seneca')()
 
+seneca.add('role:foo,cmd:bar',function(args,done){
+  done(null,{bar:args.zoo+'b'})
+})
 
+seneca.act('role:web',{use:{
+  prefix:'/foo',
+  pin:{role:'foo',cmd:'*'},
+  map:{
+    bar: {GET:true}
+  }
+}})
+
+
+var connect = require('connect')
+var app = connect()
+app.use( connect.query() )
+app.use( seneca.export('web') )
+app.listen(3000)
+
+// run: node test/example.js --seneca.log=type:act
+// try http://localhost:3000/foo/bar?zoo=a
+// returns {"bar":"ab"}
 ```
 
 
