@@ -10,7 +10,6 @@ var _            = require('underscore')
 var parambulator = require('parambulator')
 var mstring      = require('mstring')
 
-//var async   = require('async')
 var connect = require('connect')
 
 var httprouter = require('./http-router')
@@ -142,8 +141,12 @@ module.exports = function( options ) {
     var prefix = spec.prefix || '/api/'
 
 
-    if( !prefix.match(/\/+$/) ) {
+    if( !prefix.match(/\/$/) ) {
       prefix += '/'
+    }
+
+    if( !prefix.match(/^\//) ) {
+      prefix = '/'+prefix
     }
 
     var pin = instance.pin(spec.pin)
@@ -412,7 +415,7 @@ module.exports = function( options ) {
       var service = services[i]
       
       // TODO need some sort of logging here to trace failures to call next()
-      
+
       service.call(req.seneca,req,res,function(err){
         if( err ) return next(err);
 

@@ -3,6 +3,13 @@
 ## A HTTP utility plugin for the [Seneca](http://senecajs.org) toolkit
 
 
+DOCUMENTATION IN PROGRESS
+
+There are many examples of usage however - see [seneca-examples](http://github.com/rjrodger/seneca-examples) and
+[well app](http://github.com/nearform/well).
+
+
+
 
 ## Support
 
