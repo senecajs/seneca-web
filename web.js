@@ -263,11 +263,20 @@ module.exports = function( options ) {
         outobj = obj;
       }
 
+      if( null != outobj.redirect$ ) {
+        delete outobj.redirect$
+      }
+
+      if( null != outobj.httpstatus$ ) {
+        delete outobj.httpstatus$
+      }
+
 
       var objstr = err ? JSON.stringify({error:''+err}) : safe_json_stringify(outobj)
       var code   = err ? (err.seneca && err.seneca.httpstatus ?  err.seneca.httpstatus : 500) : (obj && obj.httpstatus$) ? obj.httpstatus$ : 200;
 
       var redirect = (obj ? obj.redirect$ : false) || (err && err.seneca.httpredirect)
+
 
       if( redirect ) {
         res.writeHead(code,{

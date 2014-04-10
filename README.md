@@ -16,9 +16,9 @@ There are many examples of usage however - see [seneca-examples](http://github.c
 If you're using this module, feel free to contact me on Twitter if you
 have any questions! :) [@rjrodger](http://twitter.com/rjrodger)
 
-Current Version: 0.1.1
+Current Version: 0.1.3
 
-Tested on: Node 0.10.24, Seneca 0.5.15
+Tested on: Node 0.10.24, Seneca 0.5.17
 
 
 
