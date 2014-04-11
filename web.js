@@ -149,7 +149,23 @@ module.exports = function( options ) {
       prefix = '/'+prefix
     }
 
-    var pin = instance.pin(spec.pin)
+    //var pin = instance.pin(spec.pin)
+
+
+    var actmap = {}
+    var patterns = instance.list(spec.pin)
+    
+    _.each(patterns,function(pat){
+      if( pat.method ) {
+        actmap[pat.method] = pat
+      }
+    })
+    
+
+    //console.log('WEB')
+    //console.log(spec.pin)
+    //console.log(patterns)
+    //console.log(actmap)
 
 
     function makedispatch(act,urlspec,handlerspec) {
@@ -203,6 +219,10 @@ module.exports = function( options ) {
         
 
         var act_si = function(args,done){
+          //console.log('ACT_SI')
+          //console.log(seneca.util.clean(args))
+          //console.trace()
+          //console.log(act.toString())
           act.call(si,args,done)
         }
 
@@ -210,6 +230,8 @@ module.exports = function( options ) {
 
         premap.call(si,req,res,function(err){
           if(err ) return next(err);
+          //console.log('WEB A')
+          //console.log(seneca.util.clean(args))
           handler.call( si, req, res, args, act_si, respond, handlerspec)
         })
       }
@@ -296,12 +318,30 @@ module.exports = function( options ) {
 
 
     var maprouter = httprouter(function(http){
-      for( var fname in pin ) {
-        var act = pin[fname]
+      //for( var fname in actmap ) {
+      _.each( actmap, function(actpat,fname) {
+        //var actpat = actmap[fname]
+        var actmeta = seneca.findact(actpat)
+
+        //console.log('MAP')
+        //console.log(actpat)
+        //console.log(actmeta)
+
+        if( actmeta ) {
+          var act = function(args,cb) {
+            //console.log('ACT ZZZ')
+            //console.log(seneca.util.clean(args))
+            this.act.call(this,_.extend({},actpat,args),cb)
+          }
+        }
+        else {
+          next;
+        }
+
         var url = prefix + fname
         
         var urlspec = spec.map.hasOwnProperty(fname) ? spec.map[fname] : null
-        if( !urlspec ) continue;
+        if( !urlspec ) next;
         
         // METHOD:true abbrev
         urlspec = _.isBoolean(urlspec) ? {} : urlspec
@@ -335,7 +375,7 @@ module.exports = function( options ) {
           instance.log.debug('http','get',fullurl)
           http.get(fullurl, dispatch)
         }
-      }
+      })
 
       // FIX: premap may get called twice if map function calls next
 
