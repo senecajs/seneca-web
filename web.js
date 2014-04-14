@@ -11,6 +11,7 @@ var parambulator = require('parambulator')
 var mstring      = require('mstring')
 
 var connect = require('connect')
+var json_stringify_safe = require('json-stringify-safe')
 
 var httprouter = require('./http-router')
 
@@ -40,16 +41,17 @@ module.exports = function( options ) {
   var init_template = _.template(mstring(
     function(){/***
                 ;(function(){
-                var w = this
-                var seneca = w.seneca || (w.seneca={})
-                seneca.config = {}
-                <% _.each(configmap,function(data,name){%>
-                seneca.config[<%=JSON.stringify(name)%>] = <%=JSON.stringify(data)%>
-                <%})%>
+                  var w = this
+                  var seneca = w.seneca || (w.seneca={})
+                  seneca.config = {}
+                  <% _.each(configmap,function(data,name){%>
+                  seneca.config[<%=JSON.stringify(name)%>] = <%=JSON.stringify(data)%>
+                  <%})%>
                 }).call(window);
                 ***/}))
 
   var initsrc = init_template({_:_,configmap:configmap})
+
 
   seneca.add({role:'web'}, web_use)
   seneca.add({role:'web',cmd:'config'}, cmd_config)
@@ -96,7 +98,7 @@ module.exports = function( options ) {
     return function(cb){
       return function(err){ 
         if(err){
-          throw seneca.fail({code:code,msg:err.message})
+          throw seneca.fail(code,{msg:err.message})
         }
         else if( cb ) { 
           return cb();
@@ -106,27 +108,13 @@ module.exports = function( options ) {
   }
 
 
-  function safe_json_stringify(obj,depth) {
-    depth = depth || 0
-    var jsonstr = ''
-    try {
-      jsonstr = JSON.stringify(obj)
-    }
-    catch( e ) {
-      if( 0<depth && ~e.message.indexOf("circular structure") ) {
-        jsonstr = "[Circular...]"
-      }
-      else {
-        var sb = []
-        for( var k in obj ) {
-          sb.push(k+'='+safe_json_stringify(obj[k],depth+1))
-        }
-        jsonstr = '<'+sb.join(',')+'>'
-      }
-    }
-    return jsonstr
-  }
 
+  function stringify(obj,indent,depth,decycler) {
+    indent = indent || null
+    depth  = depth || 0
+    decycler = decycler || null
+    return json_stringify_safe(obj,indent,depth,decycler)
+  }
 
 
 
@@ -149,18 +137,31 @@ module.exports = function( options ) {
       prefix = '/'+prefix
     }
 
-    //var pin = instance.pin(spec.pin)
-
-
     var actmap = {}
+    var pin = instance.pin(spec.pin)
+
+    console.dir(pin)
+
+    for( var fn in pin ) {
+      var f = pin[fn]
+      if( _.isFunction(f) && null != f.pattern$ ) {
+        actmap[f.name$] = f.pattern$
+      }
+    }
+
+    console.log(util.inspect(actmap,true,3))
+
+    /*
     var patterns = instance.list(spec.pin)
     
     _.each(patterns,function(pat){
-      if( pat.method ) {
-        actmap[pat.method] = pat
-      }
+
+      //if( pat.method ) {
+      //  actmap[pat.method] = pat
+      //}
     })
-    
+     */
+
 
     //console.log('WEB')
     //console.log(spec.pin)
@@ -294,7 +295,7 @@ module.exports = function( options ) {
       }
 
 
-      var objstr = err ? JSON.stringify({error:''+err}) : safe_json_stringify(outobj)
+      var objstr = err ? JSON.stringify({error:''+err}) : stringify(outobj)
       var code   = err ? (err.seneca && err.seneca.httpstatus ?  err.seneca.httpstatus : 500) : (obj && obj.httpstatus$) ? obj.httpstatus$ : 200;
 
       var redirect = (obj ? obj.redirect$ : false) || (err && err.seneca.httpredirect)
@@ -334,14 +335,12 @@ module.exports = function( options ) {
             this.act.call(this,_.extend({},actpat,args),cb)
           }
         }
-        else {
-          next;
-        }
+        else return;
 
         var url = prefix + fname
         
         var urlspec = spec.map.hasOwnProperty(fname) ? spec.map[fname] : null
-        if( !urlspec ) next;
+        if( !urlspec ) return;
         
         // METHOD:true abbrev
         urlspec = _.isBoolean(urlspec) ? {} : urlspec

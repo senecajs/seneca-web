@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2013 Richard Rodger */
+/* Copyright (c) 2010-2014 Richard Rodger */
 "use strict";
 
 // mocha user.test.js
