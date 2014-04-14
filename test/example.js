@@ -1,14 +1,26 @@
 var seneca = require('seneca')()
 
+seneca.add('role:foo,cmd:zig',function(args,done){
+  done(null,{bar:args.zoo+'g'})
+})
+
+
 seneca.add('role:foo,cmd:bar',function(args,done){
   done(null,{bar:args.zoo+'b'})
 })
+
+seneca.add('role:foo,cmd:qaz',function(args,done){
+  done(null,{qaz:args.zoo+'z'})
+})
+
 
 seneca.act('role:web',{use:{
   prefix:'/foo',
   pin:{role:'foo',cmd:'*'},
   map:{
-    bar: {GET:true}
+    zig: true,
+    bar: {GET:true},
+    qaz: {GET:true,HEAD:true}
   }
 }})
 
