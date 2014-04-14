@@ -12,6 +12,8 @@ var mstring             = require('mstring')
 var nid                 = require('nid')
 var connect             = require('connect')
 var json_stringify_safe = require('json-stringify-safe')
+var stats               = require('rolling-stats')
+
 
 var httprouter = require('./http-router')
 
@@ -20,19 +22,21 @@ module.exports = function( options ) {
   var seneca = this
   var plugin = 'web'
 
-  var senutil = seneca.export('util')
 
-
-
-
-  options = senutil.deepextend({
+  options = seneca.util.deepextend({
     prefix:'/api/',
-    contentprefix:'/seneca'
+    contentprefix:'/seneca',
+    stats: {
+      size:1024,
+      duration:60000,
+    },
   },options)
   
 
-  options.contentprefix = senutil.pathnorm( options.contentprefix )
+  //options.contentprefix = seneca.util.pathnorm( options.contentprefix )
 
+
+  var timestats = new stats.NamedStats( options.stats.size, options.stats.duration )
 
   var services = []
 
@@ -87,6 +91,11 @@ module.exports = function( options ) {
   }, cmd_routes)
 
 
+  seneca.add({
+    role:  plugin,
+    stats: true
+  }, action_stats)
+
 
 
   // Define service.  
@@ -102,7 +111,7 @@ module.exports = function( options ) {
     
 
     // Add service to middleware layers, order is significant
-    args.use.plugin$ = args.plugin$
+    args.use.plugin$        = args.plugin$
     args.use.serviceid$     = nid()
     var service = _.isFunction( args.use ) ? args.use : define_service(seneca,args.use)
 
@@ -149,6 +158,16 @@ module.exports = function( options ) {
 
 
 
+  function action_stats(args,done) {
+    var stats = {}
+    _.each( timestats.names(), function(name) {
+      stats[name] = timestats.calculate(name)
+    })
+    done(null,stats)
+  }
+
+
+
 
 
   // Service specification schema
@@ -170,24 +189,33 @@ module.exports = function( options ) {
 
     var prefix    = fixprefix( spec.prefix, options.prefix )
     var actmap    = makeactmap( instance, spec.pin )
-    var maprouter = makemaprouter(instance,spec,prefix,actmap,routemap,{plugin:spec.plugin$,serviceid:spec.serviceid$})
+    var maprouter = makemaprouter(instance,spec,prefix,actmap,routemap,{plugin:spec.plugin$,serviceid:spec.serviceid$},timestats)
     
+
     // startware and endware always called, regardless of prefix
 
     var service = function(req,res,next) {
       var si = req.seneca || instance
 
       if( spec.startware ) {
+        var begin_startware = Date.now()
         spec.startware.call(si,req,res,do_maprouter)
       }
       else do_maprouter();
 
       function do_maprouter() {
+        if( begin_startware ) timestats.point( Date.now()-begin_startware, spec.plugin$+';startware;'+req.method+';'+req.url );
+
         maprouter(req,res,function(err){
           if(err ) return next(err);
 
           if( spec.endware ) {
-            spec.endware.call(si,req,res,next)
+            var begin_endware = Date.now()
+            spec.endware.call(si,req,res,function(err){
+              timestats.point( Date.now()-begin_startware, spec.plugin$+';endware;'+req.method+';'+req.url );
+              if(err ) return next(err);
+              next();
+            })
           }
           else next()
         })
@@ -489,8 +517,9 @@ function makehttpargs(spec,urlspec,req) {
 }
 
 
-function makedispatch(act,spec,urlspec,handlerspec) {
+function makedispatch(act,spec,urlspec,handlerspec,timestats) {
   return function( req, res, next ) {
+    var begin = Date.now()
     var args = makehttpargs(spec,urlspec,req)
 
 
@@ -515,6 +544,7 @@ function makedispatch(act,spec,urlspec,handlerspec) {
     
     var si = req.seneca || instance
     var respond = function(err,obj){
+      timestats.point( Date.now()-begin, spec.plugin$+';action;'+req.method+';'+req.url );
       responder.call(si,req,res,handlerspec,err,obj)
     }
     
@@ -535,7 +565,7 @@ function makedispatch(act,spec,urlspec,handlerspec) {
 
 
 
-function makemaprouter(instance,spec,prefix,actmap,routemap,servicedesc) {
+function makemaprouter(instance,spec,prefix,actmap,routemap,servicedesc,timestats) {
   return httprouter(function(http){
     _.each( actmap, function(actpat,fname) {
 
@@ -560,7 +590,7 @@ function makemaprouter(instance,spec,prefix,actmap,routemap,servicedesc) {
         var handlerspec = _.isObject(handler) ? handler : {}
         handlerspec.handler = handlerspec.handler || (_.isFunction(handler) ? handler : defaulthandler)
 
-        var dispatch = makedispatch(act,spec,urlspec,handlerspec)
+        var dispatch = makedispatch(act,spec,urlspec,handlerspec,timestats)
 
         if( handler ) {
           route_method(instance,http,method,urlspec.fullurl,dispatch,routemap,servicedesc,actpat)
@@ -569,7 +599,7 @@ function makemaprouter(instance,spec,prefix,actmap,routemap,servicedesc) {
       })
 
       if( 0 === mC ) {
-        var dispatch = makedispatch(act,spec,urlspec,{})
+        var dispatch = makedispatch(act,spec,urlspec,{},timestats)
         route_method(instance,http,'get',urlspec.fullurl,dispatch,routemap,servicedesc,actpat)
       }
     })

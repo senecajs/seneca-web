@@ -79,7 +79,10 @@ describe('user', function() {
         //console.log(util.inspect(out,{depth:null}))
         assert.equal(out.length,3)
 
-        fin()
+        si.act({role:'web',stats:true},success(fin,function(out){
+          console.dir(out)
+          fin()
+        }))
       }))
     }))
   })

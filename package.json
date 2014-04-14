@@ -11,7 +11,7 @@
   "license": "MIT",
   "main": "web.js",
   "scripts": {
-    "test":  "node_modules/.bin/mocha test/*.test.js",
+    "test": "node_modules/.bin/mocha test/*.test.js",
     "build": "node_modules/.bin/docco web.js -o doc"
   },
   "files": [
@@ -28,7 +28,8 @@
     "connect": "~2.14.4",
     "json-stringify-safe": "~5.0.0",
     "nid": "~0.3.2",
-    "success": "~0.1.0"
+    "success": "~0.1.0",
+    "rolling-stats": "~0.1.0"
   },
   "devDependencies": {
     "chai": "~1.9.1",

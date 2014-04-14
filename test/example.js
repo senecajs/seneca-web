@@ -24,6 +24,8 @@ seneca.act('role:web',{use:{
   }
 }})
 
+seneca.listen()
+
 
 var connect = require('connect')
 var app = connect()
