@@ -110,13 +110,15 @@ module.exports = function( options ) {
     }
     
 
-    // Add service to middleware layers, order is significant
-    args.use.plugin$        = args.plugin$
-    args.use.serviceid$     = nid()
-    var service = _.isFunction( args.use ) ? args.use : define_service(seneca,args.use)
+    if( args.use ) {
+      // Add service to middleware layers, order is significant
+      args.use.plugin$        = args.plugin$
+      args.use.serviceid$     = nid()
+      var service = _.isFunction( args.use ) ? args.use : define_service(seneca,args.use)
 
-    services.push( service )
-    servicemap[service.serviceid$] = service
+      services.push( service )
+      servicemap[service.serviceid$] = service
+    }
 
     done()
   }
@@ -147,7 +149,7 @@ module.exports = function( options ) {
       var urlmap = routemap[method]
       if( urlmap ) {
         _.each( urlmap, function(srv,url) {
-          routes.push({url:url,method:method,service:srv})
+          routes.push({url:url,method:method.toUpperCase(),service:srv})
         })
       }
     })
@@ -160,10 +162,21 @@ module.exports = function( options ) {
 
   function action_stats(args,done) {
     var stats = {}
-    _.each( timestats.names(), function(name) {
-      stats[name] = timestats.calculate(name)
+    this.act('role:web,cmd:routes',function(err,list){
+      if( err ) return done(err);
+
+      _.each(list, function(route){
+        var pluginname = (route.service && route.service.plugin && route.service.plugin.name) || '-'
+        var name = pluginname+';'+route.method+';'+route.url
+        stats[name] = {}
+      })
+
+      _.each( timestats.names(), function(name) {
+        stats[name] = timestats.calculate(name)
+      })
+
+      done(null,stats)
     })
-    done(null,stats)
   }
 
 
@@ -198,13 +211,13 @@ module.exports = function( options ) {
       var si = req.seneca || instance
 
       if( spec.startware ) {
-        var begin_startware = Date.now()
+        //var begin_startware = Date.now()
         spec.startware.call(si,req,res,do_maprouter)
       }
       else do_maprouter();
 
       function do_maprouter() {
-        if( begin_startware ) timestats.point( Date.now()-begin_startware, spec.plugin$+';startware;'+req.method+';'+req.url );
+        //if( begin_startware ) timestats.point( Date.now()-begin_startware, spec.plugin$+';startware;'+req.method+';'+req.url );
 
         maprouter(req,res,function(err){
           if(err ) return next(err);
@@ -212,7 +225,7 @@ module.exports = function( options ) {
           if( spec.endware ) {
             var begin_endware = Date.now()
             spec.endware.call(si,req,res,function(err){
-              timestats.point( Date.now()-begin_startware, spec.plugin$+';endware;'+req.method+';'+req.url );
+              //timestats.point( Date.now()-begin_startware, spec.plugin$+';endware;'+req.method+';'+req.url );
               if(err ) return next(err);
               next();
             })
@@ -251,6 +264,16 @@ module.exports = function( options ) {
   var config = {prefix:options.contentprefix}
 
   seneca.act({role:plugin, plugin:plugin, config:config, use:use})
+
+  seneca.act({role:'util',note:true,cmd:'push',key:'admin/units',value:{
+    unit:'web-service',
+    spec:{title:'Web Services',ng:{module:'senecaWebServiceModule',directive:'seneca-web-service'}},
+    content:[
+      {type:'js',file:__dirname+'/web/web-service.js'},
+    ]
+  }})
+
+
 
 
   
@@ -368,8 +391,8 @@ function makeurlspec( spec, prefix, fname ) {
     url = prefix + urlspec.alias
   }
 
-  urlspec.suffix = urlspec.suffix || ''
-  
+  urlspec.prefix  = prefix
+  urlspec.suffix  = urlspec.suffix || ''
   urlspec.fullurl = url + urlspec.suffix
 
   return urlspec;
@@ -388,7 +411,7 @@ function route_method(instance,http,method,fullurl,dispatch,routemap,servicedesc
 
 
 
-function make_prepostmap( spec, http ) {
+function make_prepostmap( spec, prefix, http ) {
 
   // FIX: premap may get called twice if map function calls next
 
@@ -544,7 +567,11 @@ function makedispatch(act,spec,urlspec,handlerspec,timestats) {
     
     var si = req.seneca || instance
     var respond = function(err,obj){
-      timestats.point( Date.now()-begin, spec.plugin$+';action;'+req.method+';'+req.url );
+      var qi = req.url.indexOf('?')
+      var url = -1 == qi ? req.url : req.url.substring(0,qi)
+      var name = (spec.plugin$ && spec.plugin$.name) || '-'
+      timestats.point( Date.now()-begin, name+';'+req.method+';'+url );
+
       responder.call(si,req,res,handlerspec,err,obj)
     }
     
@@ -605,6 +632,6 @@ function makemaprouter(instance,spec,prefix,actmap,routemap,servicedesc,timestat
     })
 
 
-    make_prepostmap( spec, http )
+    make_prepostmap( spec, prefix, http )
   })
 }

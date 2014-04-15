@@ -8,6 +8,7 @@ var util    = require('util')
 
 var seneca  = require('seneca')
 
+var _       = require('underscore')
 var success = require('success')
 var assert  = require('chai').assert
 
@@ -80,7 +81,8 @@ describe('user', function() {
         assert.equal(out.length,3)
 
         si.act({role:'web',stats:true},success(fin,function(out){
-          console.dir(out)
+          //console.dir(out)
+          assert.equal(3,_.keys(out).length)
           fin()
         }))
       }))
