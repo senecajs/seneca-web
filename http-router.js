@@ -126,8 +126,9 @@ function routerExport(fn){
         var method = req.method || 'unknown_method';
         method = method.toLowerCase();
         var urlName = req.url || 'unknown_url';
-        urlName = urlName.toLowerCase().replace(/\//g, ' ').trim().replace(/\s/g, '.');
-        req.statsdKey = ['http', method, urlName].join('.');
+        var path = parse(urlName).pathname.toLowerCase();
+        path = path.replace(/\//g, ' ').trim().replace(/\s/g, '.');
+        req.statsdKey = ['http', method, path].join('.');
 
         // Param preconditions
         (function param(err) {
