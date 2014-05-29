@@ -121,6 +121,16 @@ function routerExport(fn){
 
         req.params = route.params;
 
+        // Add an express-statsd key that looks like http.post.api.hello.world for a HTTP POST to /api/hello/world URL
+        // See https://github.com/uber/express-statsd
+        var env = process.env.NODE_ENV || 'production';
+        var method = req.method || 'unknown_method';
+        method = method.toLowerCase();
+        var urlName = req.url || 'unknown_url';
+        var path = parse(urlName).pathname.toLowerCase();
+        path = path.replace(/\//g, ' ').trim().replace(/\s/g, '.');
+        req.statsdKey = [env, 'http', method, path].join('.');
+
         // Param preconditions
         (function param(err) {
           try {
