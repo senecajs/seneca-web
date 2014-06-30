@@ -31,7 +31,7 @@ module.exports = function( options ) {
       duration:60000,
     },
   },options)
-  
+
 
   //options.contentprefix = seneca.util.pathnorm( options.contentprefix )
 
@@ -65,7 +65,7 @@ module.exports = function( options ) {
 
   seneca.add({
     role:plugin,
-    
+
     config: {object$:true},
     plugin: {string$:true},
   }, web_use)
@@ -98,7 +98,7 @@ module.exports = function( options ) {
 
 
 
-  // Define service.  
+  // Define service.
   // Pattern: _role:web, use:..._
   function web_use( args, done ) {
     var seneca = this
@@ -108,7 +108,7 @@ module.exports = function( options ) {
       configmap[args.plugin] = _.extend( {}, configmap[args.plugin]||{}, args.config )
       initsrc = init_template({_:_,configmap:configmap})
     }
-    
+
 
     if( args.use ) {
       // Add service to middleware layers, order is significant
@@ -125,7 +125,7 @@ module.exports = function( options ) {
 
 
 
-  // Define plugin web configuration.  
+  // Define plugin web configuration.
   // Pattern _role:web, cmd:config_
   function cmd_config( args, done ) {
     done( null, _.extend({}, null!=args.plugin ? (configmap[args.plugin]||{}) : {} ) )
@@ -133,14 +133,14 @@ module.exports = function( options ) {
 
 
 
-  // List services.  
+  // List services.
   // Pattern: _role:web, cmd:list pattern_
   function cmd_list( args, done ) {
     done( null, _.clone(services) )
   }
 
 
-  // List routes.  
+  // List routes.
   // Pattern: _role:web, cmd:routes pattern_
   function cmd_routes( args, done ) {
     var routes = []
@@ -203,7 +203,7 @@ module.exports = function( options ) {
     var prefix    = fixprefix( spec.prefix, options.prefix )
     var actmap    = makeactmap( instance, spec.pin )
     var maprouter = makemaprouter(instance,spec,prefix,actmap,routemap,{plugin:spec.plugin$,serviceid:spec.serviceid$},timestats)
-    
+
 
     // startware and endware always called, regardless of prefix
 
@@ -254,7 +254,7 @@ module.exports = function( options ) {
         res.writeHead(200,{'Content-Type':'text/javascript'})
         return res.end(initsrc);
       }
-   
+
       req.url = req.url.substring(options.contentprefix.length)
       return app( req, res );
     }
@@ -276,7 +276,7 @@ module.exports = function( options ) {
 
 
 
-  
+
   function next_service(req,res,next,i) {
     if( i < services.length ) {
       var service = services[i]
@@ -316,11 +316,11 @@ module.exports = function( options ) {
 
 function paramerr(code){
   return function(cb){
-    return function(err){ 
+    return function(err){
       if(err){
         throw seneca.fail(code,{msg:err.message})
       }
-      else if( cb ) { 
+      else if( cb ) {
         return cb();
       }
     }
@@ -381,12 +381,12 @@ function defaulthandler(req,res,args,act,respond) {
 function makeurlspec( spec, prefix, fname ) {
   var urlspec = spec.map.hasOwnProperty(fname) ? spec.map[fname] : null
   if( !urlspec ) return;
-  
+
   var url = prefix + fname
-  
+
   // METHOD:true abbrev
   urlspec = _.isBoolean(urlspec) ? {} : urlspec
-  
+
   if( urlspec.alias ) {
     url = prefix + urlspec.alias
   }
@@ -424,9 +424,9 @@ function make_prepostmap( spec, prefix, http ) {
       spec.premap.call(si,req,res,next)
     })
       }
-  
+
   // FIX: should always be called if premap was called?
-  
+
   if( spec.postmap ) {
     http.all(prefix, function(req,res,next){
       var si = req.seneca || instance
@@ -490,11 +490,23 @@ function defaultresponder(req,res,handlerspec,err,obj) {
 
 
   var objstr = err ? JSON.stringify({error:''+err}) : stringify(outobj)
-  var code   = err ? (err.seneca && err.seneca.httpstatus ?  err.seneca.httpstatus : 500) : (obj && obj.httpstatus$) ? obj.httpstatus$ : 200;
+  var code   = 200
+
+  if(err) {
+    if(err.httpstatus) {
+      code = err.httpstatus
+    } else if(err.seneca && err.seneca.httpstatus) {
+      code = err.seneca.httpstatus
+    } else {
+      code = 500
+    }
+  } else if(obj && obj.httpstatus$) {
+    code = obj && obj.httpstatus$
+  }
 
   var redirect = (obj ? obj.redirect$ : false) || (err && err.seneca && err.seneca.httpredirect)
 
-  
+
   if( redirect ) {
     res.writeHead(code,{
       'Location': redirect
@@ -504,7 +516,7 @@ function defaultresponder(req,res,handlerspec,err,obj) {
     res.writeHead(code,{
       'Content-Type': 'application/json',
       'Cache-Control': 'private, max-age=0, no-cache, no-store',
-      "Content-Length": buffer.Buffer.byteLength(objstr) 
+      "Content-Length": buffer.Buffer.byteLength(objstr)
     })
     res.end( objstr )
   }
@@ -564,7 +576,7 @@ function makedispatch(act,spec,urlspec,handlerspec,timestats) {
     var handler   = handlerspec.handler   || defaulthandler
     var responder = handlerspec.responder || defaultresponder
 
-    
+
     var si = req.seneca || instance
     var respond = function(err,obj){
       var qi = req.url.indexOf('?')
@@ -574,7 +586,7 @@ function makedispatch(act,spec,urlspec,handlerspec,timestats) {
 
       responder.call(si,req,res,handlerspec,err,obj)
     }
-    
+
 
     var act_si = function(args,done){
       act.call(si,args,done)
