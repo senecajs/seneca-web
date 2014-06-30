@@ -492,7 +492,7 @@ function defaultresponder(req,res,handlerspec,err,obj) {
   var objstr = err ? JSON.stringify({error:''+err}) : stringify(outobj)
   var code   = err ? (err.seneca && err.seneca.httpstatus ?  err.seneca.httpstatus : 500) : (obj && obj.httpstatus$) ? obj.httpstatus$ : 200;
 
-  var redirect = (obj ? obj.redirect$ : false) || (err && err.seneca.httpredirect)
+  var redirect = (obj ? obj.redirect$ : false) || (err && err.seneca && err.seneca.httpredirect)
 
   
   if( redirect ) {
