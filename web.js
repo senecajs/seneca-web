@@ -508,9 +508,10 @@ function defaultresponder(req,res,handlerspec,err,obj) {
 
 
   if( redirect ) {
-    res.writeHead(code,{
+    res.writeHead(code, {
       'Location': redirect
     })
+    res.end()
   }
   else {
     res.writeHead(code,{
