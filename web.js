@@ -473,7 +473,7 @@ function defaultresponder(req,res,handlerspec,err,obj) {
       })
     }
   }
-  else if( _.isUndefined(obj) ) {
+  else if( _.isUndefined(obj) || _.isNull(obj) ) {
     outobj = ''
   }
   else {
