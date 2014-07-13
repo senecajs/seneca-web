@@ -6,8 +6,6 @@
 
 var util    = require('util')
 
-var seneca  = require('seneca')
-
 var _       = require('underscore')
 var success = require('success')
 var assert  = require('chai').assert
@@ -15,13 +13,13 @@ var assert  = require('chai').assert
 
 
 var seneca  = require('seneca')
-seneca.use('../web.js')
 
 
 
 describe('user', function() {
 
-  var si = seneca()
+  var si = seneca({log:'silent'})
+  si.use('../web.js')
 
   it('empty', function() {
     si.act({role:'web',use:{pin:{},map:{}}})
@@ -41,8 +39,8 @@ describe('user', function() {
 
 
   it('plugin', function(fin) {
-    var si = seneca()
-
+    var si = seneca({log:'silent'})
+    si.use('../web.js')
 
     si.use(function qaz(){
       this.add('role:foo,cmd:zig',function(args,done){
@@ -74,7 +72,7 @@ describe('user', function() {
 
     si.act('role:web,cmd:list',success(fin,function(out){
       //console.log(out)
-      assert.equal(out.length,3)
+      assert.equal(out.length,4)
 
       si.act('role:web,cmd:routes',success(fin,function(out){
         //console.log(util.inspect(out,{depth:null}))
