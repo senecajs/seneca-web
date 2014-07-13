@@ -261,20 +261,6 @@ module.exports = function( options ) {
     else return next();
   }
 
-  var config = {prefix:options.contentprefix}
-
-  seneca.act({role:plugin, plugin:plugin, config:config, use:use})
-
-  seneca.act({role:'util',note:true,cmd:'push',key:'admin/units',value:{
-    unit:'web-service',
-    spec:{title:'Web Services',ng:{module:'senecaWebServiceModule',directive:'seneca-web-service'}},
-    content:[
-      {type:'js',file:__dirname+'/web/web-service.js'},
-    ]
-  }})
-
-
-
 
   
   function next_service(req,res,next,i) {
@@ -299,6 +285,26 @@ module.exports = function( options ) {
 
     next_service(req,res,next,0)
   }
+
+
+
+  seneca.add({init:plugin},function(args,done) {
+    var seneca = this
+
+    var config = {prefix:options.contentprefix}
+
+    seneca.act({role:plugin, plugin:plugin, config:config, use:use})
+
+    seneca.act({role:'util',note:true,cmd:'push',key:'admin/units',value:{
+      unit:'web-service',
+      spec:{title:'Web Services',ng:{module:'senecaWebServiceModule',directive:'seneca-web-service'}},
+      content:[
+        {type:'js',file:__dirname+'/web/web-service.js'},
+      ]
+    }})
+
+    done()
+  })
 
 
   return {
@@ -492,7 +498,8 @@ function defaultresponder(req,res,handlerspec,err,obj) {
   var objstr = err ? JSON.stringify({error:''+err}) : stringify(outobj)
   var code   = err ? (err.seneca && err.seneca.httpstatus ?  err.seneca.httpstatus : 500) : (obj && obj.httpstatus$) ? obj.httpstatus$ : 200;
 
-  var redirect = (obj ? obj.redirect$ : false) || (err && err.seneca.httpredirect)
+  var redirect = (obj ? obj.redirect$ : false) || 
+        (err && err.senecca && err.seneca.httpredirect)
 
   
   if( redirect ) {

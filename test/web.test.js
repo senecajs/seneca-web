@@ -15,7 +15,7 @@ var assert  = require('chai').assert
 
 
 var seneca  = require('seneca')
-seneca.use('..')
+seneca.use('../web.js')
 
 
 
