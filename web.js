@@ -488,8 +488,7 @@ function defaultresponder(req,res,handlerspec,err,obj) {
     delete outobj.httpstatus$
   }
 
-
-  var objstr = err ? JSON.stringify({error:''+err}) : stringify(outobj)
+  var objstr = err ? err.toString() : stringify(outobj)
   var code   = 200
 
   if(err) {
