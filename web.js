@@ -59,6 +59,7 @@ module.exports = function( options ) {
 
   var initsrc = init_template({_:_,configmap:configmap})
 
+  var sourcelist = []
 
 
   // ### Define action patterns
@@ -97,6 +98,11 @@ module.exports = function( options ) {
   }, action_stats)
 
 
+  seneca.add({
+    role: plugin,
+    cmd:  'source',
+  }, cmd_source)
+
 
   // Define service.  
   // Pattern: _role:web, use:..._
@@ -105,7 +111,9 @@ module.exports = function( options ) {
 
     // The plugin is defining some web client configuration.
     if( args.config && args.plugin ) {
-      configmap[args.plugin] = _.extend( {}, configmap[args.plugin]||{}, args.config )
+      configmap[args.plugin] = 
+        _.extend( {}, configmap[args.plugin]||{}, args.config )
+
       initsrc = init_template({_:_,configmap:configmap})
     }
     
@@ -114,12 +122,20 @@ module.exports = function( options ) {
       // Add service to middleware layers, order is significant
       args.use.plugin$        = args.plugin$
       args.use.serviceid$     = nid()
-      var service = _.isFunction( args.use ) ? args.use : define_service(seneca,args.use)
+      var service 
+            = _.isFunction( args.use ) ? args.use : 
+            define_service(seneca,args.use)
 
       services.push( service )
       servicemap[service.serviceid$] = service
     }
 
+    done()
+  }
+
+
+  function cmd_source( args, done ) {
+    sourcelist.push('\n;// '+args.title+'\n'+args.source)
     done()
   }
 
@@ -183,6 +199,7 @@ module.exports = function( options ) {
 
 
 
+
   // Service specification schema
   var spec_check = parambulator({
     type$: 'object',
@@ -202,6 +219,7 @@ module.exports = function( options ) {
 
     var prefix    = fixprefix( spec.prefix, options.prefix )
     var actmap    = makeactmap( instance, spec.pin )
+
     var maprouter = makemaprouter(instance,spec,prefix,actmap,routemap,{plugin:spec.plugin$,serviceid:spec.serviceid$},timestats)
     
 
@@ -252,7 +270,7 @@ module.exports = function( options ) {
     if( 0===req.url.indexOf(options.contentprefix) ) {
       if( 0 == req.url.indexOf(options.contentprefix+'/init.js') ) {
         res.writeHead(200,{'Content-Type':'text/javascript'})
-        return res.end(initsrc);
+        return res.end(initsrc+sourcelist.join('\n'));
       }
    
       req.url = req.url.substring(options.contentprefix.length)
@@ -401,13 +419,21 @@ function makeurlspec( spec, prefix, fname ) {
   urlspec.suffix  = urlspec.suffix || ''
   urlspec.fullurl = url + urlspec.suffix
 
+  urlspec.fname = fname
+
   return urlspec;
 }
 
 
 
 // Create route for url over method with handler
-function route_method(instance,http,method,fullurl,dispatch,routemap,servicedesc,actpat) {
+function route_method( 
+  instance,http,method,urlspec,dispatch,routemap,servicedesc,actpat) 
+{
+  var fullurl = urlspec.fullurl
+
+  //console.log('WEB',method,urlspec,servicedesc,actpat)
+
   instance.log.debug('http',method,fullurl)
   http[method](fullurl, dispatch)
 
@@ -627,14 +653,14 @@ function makemaprouter(instance,spec,prefix,actmap,routemap,servicedesc,timestat
         var dispatch = makedispatch(act,spec,urlspec,handlerspec,timestats)
 
         if( handler ) {
-          route_method(instance,http,method,urlspec.fullurl,dispatch,routemap,servicedesc,actpat)
+          route_method(instance,http,method,urlspec,dispatch,routemap,servicedesc,actpat)
           mC++
         }
       })
 
       if( 0 === mC ) {
         var dispatch = makedispatch(act,spec,urlspec,{},timestats)
-        route_method(instance,http,'get',urlspec.fullurl,dispatch,routemap,servicedesc,actpat)
+        route_method(instance,http,'get',urlspec,dispatch,routemap,servicedesc,actpat)
       }
     })
 
