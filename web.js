@@ -104,6 +104,9 @@ module.exports = function( options ) {
   }, cmd_source)
 
 
+
+
+
   // Define service.  
   // Pattern: _role:web, use:..._
   function web_use( args, done ) {
@@ -173,6 +176,8 @@ module.exports = function( options ) {
     routes.sort(function(a,b){return a.url == b.url ? 0 : a.url < b.url ? -1 : +1 })
     done( null, routes )
   }
+
+
 
 
 
@@ -532,6 +537,7 @@ function defaultresponder(req,res,handlerspec,err,obj) {
     res.writeHead(code,{
       'Location': redirect
     })
+    res.end()
   }
   else {
     res.writeHead(code,{
