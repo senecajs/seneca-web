@@ -504,7 +504,9 @@ function defaultresponder(req,res,handlerspec,err,obj) {
   }
 
   var redirect = (obj ? obj.redirect$ : false) || (err && err.seneca && err.seneca.httpredirect)
-
+  if(obj && obj.httpResponseProcessed$) {
+    return;
+  }
 
   if( redirect ) {
     res.writeHead(code, {
