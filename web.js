@@ -1,16 +1,18 @@
-/* Copyright (c) 2013 Richard Rodger, MIT License */
+/* Copyright (c) 2013-2015 Richard Rodger, MIT License */
 "use strict";
+
 
 
 var util   = require('util')
 var buffer = require('buffer')
 
 
-var _                   = require('underscore')
+var _                   = require('lodash')
 var parambulator        = require('parambulator')
 var mstring             = require('mstring')
 var nid                 = require('nid')
 var connect             = require('connect')
+var serve_static        = require('serve-static')
 var json_stringify_safe = require('json-stringify-safe')
 var stats               = require('rolling-stats')
 
@@ -267,9 +269,10 @@ module.exports = function( options ) {
 
 
 
-
+  // TODO connect is a very heavyweight way to do this!!!
+  
   var app = connect()
-  app.use(connect.static(__dirname+'/web'))
+  app.use(serve_static(__dirname+'/web'))
 
   var use = function(req,res,next){
     if( 0===req.url.indexOf(options.contentprefix) ) {

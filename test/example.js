@@ -1,5 +1,6 @@
 var seneca = require('seneca')()
 
+
 seneca.add('role:foo,cmd:zig',function(args,done){
   done(null,{bar:args.zoo+'g'})
 })
@@ -24,12 +25,8 @@ seneca.act('role:web',{use:{
   }
 }})
 
-seneca.listen()
-
-
-var connect = require('connect')
-var app = connect()
-app.use( connect.query() )
+var express = require('express')
+var app = express()
 app.use( seneca.export('web') )
 app.listen(3000)
 

@@ -1,14 +1,14 @@
-/* Copyright (c) 2010-2014 Richard Rodger */
+/* Copyright (c) 2010-2015 Richard Rodger */
 "use strict";
 
-// mocha user.test.js
 
+// mocha web.test.js
 
 var util    = require('util')
 
-var _       = require('underscore')
+var _       = require('lodash')
 var success = require('success')
-var assert  = require('chai').assert
+var assert  = require('assert')
 
 
 
@@ -21,20 +21,32 @@ describe('user', function() {
   var si = seneca({log:'silent'})
   si.use('../web.js')
 
+
   it('empty', function() {
     si.act({role:'web',use:{pin:{},map:{}}})
   })
 
 
   it('config', function() {
-    si.act({role:'web',use:{pin:{},map:{}},config:{a:1},plugin:'aaa'}, function(err,out){
-      assert.isNull(err)
+    si.act(
+      {
+        role:'web',
+        use:{
+          pin:{},
+          map:{}
+        },
+        config:{a:1},
+        plugin:'aaa'
+      }, 
+      function(err,out){
+        assert.ok( null == err)
 
-      si.act({role:'web',cmd:'config', plugin:'aaa'}, function(err,out){
-        assert.isNull(err)
-        assert.equal( out.a, 1 )
-      })
-    })
+        si.act({role:'web',cmd:'config', plugin:'aaa'}, function(err,out){
+          assert.ok( null == err)
+          assert.equal( out.a, 1 )
+        })
+      }
+    )
   })
 
 
@@ -54,7 +66,7 @@ describe('user', function() {
       })
 
       this.act('role:web',{use:function(req,res,next){next();}}, function(err){
-        assert.isNull(err)
+        assert.ok( null == err)
       })
 
       this.act('role:web',{use:{
@@ -66,20 +78,17 @@ describe('user', function() {
           qaz: {GET:true,HEAD:true}
         }
       }}, function(err){
-        assert.isNull(err)
+        assert.ok( null == err)
       })
     })
 
     si.act('role:web,cmd:list',success(fin,function(out){
-      //console.log(out)
       assert.equal(out.length,4)
 
       si.act('role:web,cmd:routes',success(fin,function(out){
-        //console.log(util.inspect(out,{depth:null}))
         assert.equal(out.length,3)
 
         si.act({role:'web',stats:true},success(fin,function(out){
-          //console.dir(out)
           assert.equal(3,_.keys(out).length)
           fin()
         }))
