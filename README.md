@@ -85,6 +85,28 @@ app.listen(3000)
 // returns {"bar":"ab"}
 ```
 
+## Usage
+
+The primary purpose of this plugin is to define URL routes that map to
+action patterns. This lets you turn your action patterns into a
+well-defined web service API.
+
+The `role:web` action accepts a `use` parameter that is a declarative
+definition of a set of routes. You specify a set of action patterns
+that will be exposed, and the URL routes that map to each
+pattern. Each call to the `role:web` action defines a middleware
+service with a set of routes. Incoming requests are passed to each
+service in turn until one matches. If none match, the request is
+passed onwards down the middleware chain.
+
+The `use` parameter can also be an express-style middleware function
+of the form `function( req, res, next )`. You are then free to handle
+the action mapping yourself.
+
+To use the services in your app, call `seneca.export('web')` to obtain
+a wrapper middleware function that performs the route matching.
+
+
 
 ## DOCUMENTATION IN PROGRESS
 
