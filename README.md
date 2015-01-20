@@ -116,9 +116,9 @@ There are many examples of usage however - see
 
 
 
-## Patterns
+## Action Patterns
 
-### role: web, {use: ...}
+### `role:web`
 
 This command maps a route to a command pattern, which are provided as fields to the `use` option. For example:
 
