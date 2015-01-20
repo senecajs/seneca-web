@@ -1,5 +1,5 @@
 var seneca = require('seneca')()
-
+seneca.use('../web.js')
 
 seneca.add('role:foo,cmd:zig',function(args,done){
   done(null,{bar:args.zoo+'g'})
@@ -32,6 +32,8 @@ seneca.add('zed:1',function(args,done){
 
 seneca.act('role:web', {use: function( req, res, next ){
   if( '/zed' == req.url ) {
+
+    // NOTE: req.seneca reference
     req.seneca.act('zed:1',function(err,out){
       if(err) return next(err);
 
@@ -40,6 +42,29 @@ seneca.act('role:web', {use: function( req, res, next ){
     })
   }
   else return next();
+}})
+
+
+seneca.add('role:color,cmd:red', function( args, done ){
+  done( null, {color:'#F00'} )
+})
+
+seneca.add('role:color,cmd:green', function( args, done ){
+  done( null, {color:'#0F0'} )
+})
+
+seneca.add('role:color,cmd:blue', function( args, done ){
+  done( null, {color:'#00F'} )
+})
+
+seneca.act('role:web', {use:{
+  prefix: '/color',
+  pin:    'role:color,cmd:*',
+  map: {
+    red:   true,
+    green: true,
+    blue:  true,
+  }
 }})
 
 

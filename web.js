@@ -204,13 +204,10 @@ module.exports = function( options ) {
 
 
 
-
-
-
   // Service specification schema
   var spec_check = parambulator({
     type$: 'object',
-    pin:    {required$:true,object$:true},
+    pin:    {required$:true},
     map:    {required$:true,object$:true},
     prefix: 'string$'
   }, {
@@ -218,6 +215,7 @@ module.exports = function( options ) {
     msgprefix:'http(spec): ',
     callbackmaker:paramerr('seneca/http_invalid_spec')
   })
+
 
 
   // Define service middleware
@@ -350,7 +348,7 @@ function paramerr(code){
   return function(cb){
     return function(err){ 
       if(err){
-        throw seneca.fail(code,{msg:err.message})
+        throw err;
       }
       else if( cb ) { 
         return cb();

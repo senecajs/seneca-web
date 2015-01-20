@@ -106,13 +106,8 @@ the action mapping yourself.
 To use the services in your app, call `seneca.export('web')` to obtain
 a wrapper middleware function that performs the route matching.
 
-
-
-## DOCUMENTATION IN PROGRESS
-
-There are many examples of usage however - see
-[seneca-examples](http://github.com/rjrodger/seneca-examples) and
-[well app](http://github.com/nearform/well).
+This plugin also provides a client-side configuration system for
+plugins that have client-side code.
 
 
 
@@ -146,6 +141,8 @@ seneca.add('zed:1',function(args,done){
 
 seneca.act('role:web', {use: function( req, res, next ){
   if( '/zed' == req.url ) {
+
+    // NOTE: req.seneca reference
     req.seneca.act('zed:1',function(err,out){
       if(err) return next(err);
 
@@ -159,65 +156,152 @@ seneca.act('role:web', {use: function( req, res, next ){
 
 #### Route Action Mapping
 
-The `prefix` field indicates the prefix used in the URL before the command. For instance, to call the `zig` command, the URL would end in `/foo/zig`. The `pin` field is required, and must be a JavaScript object that would work for the `seneca.pin` method. The `map` field is an object that lists out all of the commands, and provides an optional object for determining which methods the route can use. 
+The action mapping object is a convenience format for declarative
+definition of a HTTP API based on Seneca actions. You can see examples
+of this use-case in these projects:
 
-Optionally, `use` can be passed an express-style middleware function with the signature `function(req, res, next) {...}`. For example:
+   * [seneca-examples project](http://github.com/rjrodger/seneca-examples)
+   * [Well App](http://github.com/nearform/well)
+   * [Nodezoo module search engine](http://github.com/rjrodger/nodezoo)
 
-```JavaScript
-seneca.act('role:web', {
-  use: function(req, res, next) {
-    res.write('Hello World!\n');
-    next();
+You specify a set of action patterns, and the URL routes that map to
+these patterns. The set of pattern is specified using a _pin_, an
+example pattern that includes wildcards for some properties.
+
+For example, if you have defined the patterns:
+
+   * `seneca.add( 'role:color,cmd:red', ... )`
+   * `seneca.add( 'role:color,cmd:green', ... )`
+   * `seneca.add( 'role:color,cmd:blue', ... )`
+   * `seneca.add( 'role:sound,cmd:piano', ... )`
+
+Then the pin `role:foo,cmd:*` will pick out the first three patterns:
+
+   * `role:color,cmd:red`
+   * `role:color,cmd:green`
+   * `role:color,cmd:blue`
+
+but not `role:sound,cmd:piano` as that does not match the pin pattern.
+
+A simple mapping can then be defined as follows:
+
+```
+seneca.add('role:color,cmd:red', function( args, done ){
+  done( null, {color:'#F00'} )
+})
+
+seneca.add('role:color,cmd:green', function( args, done ){
+  done( null, {color:'#0F0'} )
+})
+
+seneca.add('role:color,cmd:blue', function( args, done ){
+  done( null, {color:'#00F'} )
+})
+
+seneca.act('role:web', {use:{
+  prefix: '/color',
+  pin:    'role:color,cmd:*',
+  map: {
+    red:   true,
+    green: true,
+    blue:  true,
   }
-});
+}})
 ```
 
-This will then be called on any routes.
+Which creates an HTTP API that responds like so (see [test.sh](test.sh)):
 
-### role: web, {plugin: ..., config: ...}
+```bash
+$ curl -m 1 -s http://localhost:3000/color/red
+  {"color":"#F00"}
 
-This command adds configuration options to a specified plugin string. For instance:
+$ curl -m 1 -s http://localhost:3000/color/green
+  {"color":"#0F0"}
 
-```JavaScript
-seneca.act('role:web', {
-  plugin: 'aaa',
-  config: {
-    test: true
+$ curl -m 1 -s http://localhost:3000/color/blue
+  {"color":"#00F"}
+```
+
+The properties of the mapping define the routes and the action patterns to call:
+
+    * `prefix`: prefix string for the URL, in this case _/color_
+    * `pin`:    the pin that selects the actions
+    * `map`:    each property of this sub-object should correspond to a matched wildcard value, in this case: red, green, and blue
+
+The map entries define the nature of the route. In the above example,
+the default case is to respond to HTTP GET requests, and to append the
+name of the wildcard value to the prefix to form the full URL. So you
+end up with these endpoints:
+
+    * `GET /color/red`   - responds with: application/json
+    * `GET /color/green` - responds with: application/json
+    * `GET /color/blue`  - responds with: application/json
+
+To respond to POST requests, do this:
+
+```
+seneca.act('role:web', {use:{
+  prefix: '/color',
+  pin:    'role:color,cmd:*',
+  map: {
+    red: { POST:true }
   }
-});
+}})
 ```
 
-This plugin information can be retrieved using the pattern `role: web, cmd: config`.
+**Note: you do not have to list all the matching wildcards. Only those you list explicitly will be supported.**
 
-### role: web, cmd: config
+The wildcard mapping object accepts the following optional properties that let you refine the route:
 
-This command retrieves configuration information about a specific plugin. For example:
+    * _VERB_: any HTTP verb (GET, POST, PUT, DELETE, etc); the value can be _true_, or a middleware function, allowing you to completely customize the route.
+    * _alias_: custom URL path, concatenated to top level prefix; can contain express-style route parameters: /foo/:bar gives req.params.bar
+    * _redirect_: perform a 302 redirection with the value as the new location URL
+    * _handler_: function that translates inbound requests to Seneca actions
+    * _responder_: function that translates outbound Seneca results into HTTP response data
+    * _filter_: function that modifies the output object in some way (usually to delete sensitive fields)
 
-```JavaScript
-seneca.act('role:web, cmd:config', {
-  plugin: 'aaa'
-}, function(err, config) {
-  console.log(config);
-});
+The response object that you provide to the seneca-web plugin, either via custom function, or a Seneca action response, can contain special purpose fields to control the HTTP response. These are:
+
+    * _httpstatus$_: set the HTTP status code
+    * _redirect$_: set the HTTP redirect location header
+
+At the top level, you can also provide general middleware
+functions that get called before the mapping handlers are
+executed. These functions allow you to perform shared operations, such
+as extracting a cookie token, for example.
+
+```
+seneca.act('role:web', {use:{
+  prefix: '/color',
+  pin:    'role:color,cmd:*',
+  startware: function(req,res,next){
+    // attach something to each request
+    req.foo = "bar"
+    next()
+  }
+  map: {
+    red: { POST:true }
+  }
+}})
 ```
 
-Will print out the configuration object associated with the `'aaa'` plugin.
+These general middleware functions are:
 
-### role: web, cmd: list
+    * _startware_: always executed, before any mappings, even when there is no route match
+    * _endware_: always executed, after any mapping, even when there is no route match
+    * _premap_: executed before mapping, but only if there is a mapping
+    * _postmap_: executed after mapping, but only if there is a mapping
 
-This command returns the array of services registered in `seneca-web`. For example:
+The primary advantage of using the mapping specification over a custom
+middleware function is that seneca-web maintains a list of mapped
+routes, and also performance statistics for those routes. Each time
+you call `role:web` you define a service, and the service defines a
+number of routes.
 
-```JavaScript
-seneca.act('role:web, cmd:list', function(err, services) {
-  console.log(services);
-});
-```
 
-This will print out the array of services, which are express-style middleware functions that are called whenever the associated route is requested. In addition, each route has a unique `serviceid$` identifier.
+### `role:web,cmd:routes`
 
-### role: web, cmd: routes
-
-This command returns an array of all of the routes that have services registered to them. For example: 
+This command returns an array of all of the routes that have been defined.
 
 ```JavaScript
 seneca.act('role:web, cmd:routes', function(err, routes) {
@@ -225,10 +309,24 @@ seneca.act('role:web, cmd:routes', function(err, routes) {
 });
 ```
 
-### role: web, stats: true
+Each route is described as an object with properties:
+
+   * _url_: the route URL
+   * _method_: the HTTP method
+   * _srv_: the service that defined the route
 
 
-### role: web, cmd: source
+### `role:web,cmd:list`
+
+This command returns an array of all of the service functions that have been defined.
+
+```JavaScript
+seneca.act('role:web, cmd:list', function(err, services) {
+  console.log(service);
+});
+```
+
+
 
 
 
