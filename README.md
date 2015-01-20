@@ -165,7 +165,7 @@ of this use-case in these projects:
    * [Nodezoo module search engine](http://github.com/rjrodger/nodezoo)
 
 You specify a set of action patterns, and the URL routes that map to
-these patterns. The set of pattern is specified using a _pin_, an
+these patterns. The set of patterns is specified using a _pin_, an
 example pattern that includes wildcards for some properties.
 
 For example, if you have defined the patterns:
@@ -175,7 +175,7 @@ For example, if you have defined the patterns:
    * `seneca.add( 'role:color,cmd:blue', ... )`
    * `seneca.add( 'role:sound,cmd:piano', ... )`
 
-Then the pin `role:foo,cmd:*` will pick out the first three patterns:
+Then the pin `role:color,cmd:*` will pick out the first three patterns:
 
    * `role:color,cmd:red`
    * `role:color,cmd:green`
@@ -209,7 +209,7 @@ seneca.act('role:web', {use:{
 }})
 ```
 
-Which creates an HTTP API that responds like so (see [test.sh](test.sh)):
+Which creates an HTTP API that responds like so (see [test.sh](test.sh) and [test/example.js](test/example.js)):
 
 ```bash
 $ curl -m 1 -s http://localhost:3000/color/red
@@ -224,18 +224,18 @@ $ curl -m 1 -s http://localhost:3000/color/blue
 
 The properties of the mapping define the routes and the action patterns to call:
 
-    * `prefix`: prefix string for the URL, in this case _/color_
-    * `pin`:    the pin that selects the actions
-    * `map`:    each property of this sub-object should correspond to a matched wildcard value, in this case: red, green, and blue
+   * `prefix`: prefix string for the URL, in this case _/color_
+   * `pin`:    the pin that selects the actions
+   * `map`:    each property of this sub-object should correspond to a matched wildcard value, in this case: red, green, and blue
 
 The map entries define the nature of the route. In the above example,
 the default case is to respond to HTTP GET requests, and to append the
 name of the wildcard value to the prefix to form the full URL. So you
 end up with these endpoints:
 
-    * `GET /color/red`   - responds with: application/json
-    * `GET /color/green` - responds with: application/json
-    * `GET /color/blue`  - responds with: application/json
+   * `GET /color/red`   - responds with: application/json
+   * `GET /color/green` - responds with: application/json
+   * `GET /color/blue`  - responds with: application/json
 
 To respond to POST requests, do this:
 
@@ -253,17 +253,17 @@ seneca.act('role:web', {use:{
 
 The wildcard mapping object accepts the following optional properties that let you refine the route:
 
-    * _VERB_: any HTTP verb (GET, POST, PUT, DELETE, etc); the value can be _true_, or a middleware function, allowing you to completely customize the route.
-    * _alias_: custom URL path, concatenated to top level prefix; can contain express-style route parameters: /foo/:bar gives req.params.bar
-    * _redirect_: perform a 302 redirection with the value as the new location URL
-    * _handler_: function that translates inbound requests to Seneca actions
-    * _responder_: function that translates outbound Seneca results into HTTP response data
-    * _filter_: function that modifies the output object in some way (usually to delete sensitive fields)
+   * _VERB_: any HTTP verb (GET, POST, PUT, DELETE, etc); the value can be _true_, or a middleware function, allowing you to completely customize the route.
+   * _alias_: custom URL path, concatenated to top level prefix; can contain express-style route parameters: /foo/:bar gives req.params.bar
+   * _redirect_: perform a 302 redirection with the value as the new location URL
+   * _handler_: function that translates inbound requests to Seneca actions
+   * _responder_: function that translates outbound Seneca results into HTTP response data
+   * _filter_: function that modifies the output object in some way (usually to delete sensitive fields)
 
 The response object that you provide to the seneca-web plugin, either via custom function, or a Seneca action response, can contain special purpose fields to control the HTTP response. These are:
 
-    * _httpstatus$_: set the HTTP status code
-    * _redirect$_: set the HTTP redirect location header
+   * _httpstatus$_: set the HTTP status code
+   * _redirect$_: set the HTTP redirect location header
 
 At the top level, you can also provide general middleware
 functions that get called before the mapping handlers are
@@ -287,10 +287,10 @@ seneca.act('role:web', {use:{
 
 These general middleware functions are:
 
-    * _startware_: always executed, before any mappings, even when there is no route match
-    * _endware_: always executed, after any mapping, even when there is no route match
-    * _premap_: executed before mapping, but only if there is a mapping
-    * _postmap_: executed after mapping, but only if there is a mapping
+   * _startware_: always executed, before any mappings, even when there is no route match
+   * _endware_: always executed, after any mapping, even when there is no route match
+   * _premap_: executed before mapping, but only if there is a mapping
+   * _postmap_: executed after mapping, but only if there is a mapping
 
 The primary advantage of using the mapping specification over a custom
 middleware function is that seneca-web maintains a list of mapped
