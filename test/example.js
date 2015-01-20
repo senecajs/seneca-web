@@ -25,6 +25,24 @@ seneca.act('role:web',{use:{
   }
 }})
 
+
+seneca.add('zed:1',function(args,done){
+  done(null,{dez:2})
+})
+
+seneca.act('role:web', {use: function( req, res, next ){
+  if( '/zed' == req.url ) {
+    req.seneca.act('zed:1',function(err,out){
+      if(err) return next(err);
+
+      // assumes an express app
+      res.send(out)
+    })
+  }
+  else return next();
+}})
+
+
 var express = require('express')
 var app = express()
 app.use( seneca.export('web') )

@@ -120,19 +120,44 @@ There are many examples of usage however - see
 
 ### `role:web`
 
-This command maps a route to a command pattern, which are provided as fields to the `use` option. For example:
+Define a web service as a mapping from URL routes to action patterns.
+
+_Parameters_
+
+   * `use`: mapping object, or middleware function
+
+#### Middleware Function
+
+When `use` is a function of the form `function(req,res,next) { ... }`
+it is considered to be a middleware function, and placed into the list
+of middleware provided by the _seneca-web_ plugin.
+
+Use this approach when you need to write special case custom code. The
+`req` parameter will contain a `seneca` property that gives you access
+to the Seneca instance bound to the current HTTP request. In a HTTP
+middleware context it's important to use the request specific Seneca
+instance, as other plugins may have added context to that
+instance. See, for example: (seneca-user)[/rjrodger/seneca-user].
 
 ```JavaScript
-seneca.act('role:web', {use: {
-  prefix: '/foo',
-  pin: {role:'foo', cmd:'*'},
-  map: {
-    zig: true,
-    bar: {GET: true},
-    qaz: {GET: true, HEAD:true}
+seneca.add('zed:1',function(args,done){
+  done(null,{dez:2})
+})
+
+seneca.act('role:web', {use: function( req, res, next ){
+  if( '/zed' == req.url ) {
+    req.seneca.act('zed:1',function(err,out){
+      if(err) return next(err);
+
+      // assumes an express app
+      res.send(out)
+    })
   }
-}});
+  else return next();
+}})
 ```
+
+#### Route Action Mapping
 
 The `prefix` field indicates the prefix used in the URL before the command. For instance, to call the `zig` command, the URL would end in `/foo/zig`. The `pin` field is required, and must be a JavaScript object that would work for the `seneca.pin` method. The `map` field is an object that lists out all of the commands, and provides an optional object for determining which methods the route can use. 
 
