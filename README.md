@@ -137,7 +137,7 @@ Use this approach when you need to write special case custom code. The
 to the Seneca instance bound to the current HTTP request. In a HTTP
 middleware context it's important to use the request specific Seneca
 instance, as other plugins may have added context to that
-instance. See, for example: [seneca-user](github.com/rjrodger/seneca-user).
+instance. See, for example: [seneca-user](//github.com/rjrodger/seneca-user).
 
 ```JavaScript
 seneca.add('zed:1',function(args,done){
