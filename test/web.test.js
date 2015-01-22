@@ -27,6 +27,19 @@ describe('user', function() {
   })
 
 
+  it('bad', function(fin) {
+    var cc = 0
+    var si = seneca({log:'silent',debug:{undead:true},errhandler:function(err){
+      assert.equal('seneca: Action role:web failed: web-use: The property \'pin\' is missing and is always required (parent: spec)..',err.message)
+      cc++ && fin()
+    }})
+    si.use('../web.js')
+    si.use( function bad(){
+      this.act({role:'web',use:{}})
+    })
+  })
+
+
   it('config', function() {
     si.act(
       {
@@ -51,7 +64,7 @@ describe('user', function() {
 
 
   it('plugin', function(fin) {
-    var si = seneca({log:'silent'})
+    var si = seneca({log:'silent',errhandler:fin})
     si.use('../web.js')
 
     si.use(function qaz(){
@@ -65,9 +78,7 @@ describe('user', function() {
         done(null,{qaz:args.zoo+'z'})
       })
 
-      this.act('role:web',{use:function(req,res,next){next();}}, function(err){
-        assert.ok( null == err)
-      })
+      this.act('role:web',{use:function(req,res,next){next();}})
 
       this.act('role:web',{use:{
         prefix:'/foo',
@@ -77,9 +88,7 @@ describe('user', function() {
           bar: {GET:true},
           qaz: {GET:true,HEAD:true}
         }
-      }}, function(err){
-        assert.ok( null == err)
-      })
+      }})
     })
 
     si.act('role:web,cmd:list',success(fin,function(out){

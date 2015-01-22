@@ -22,99 +22,69 @@ var httprouter = require('./http-router')
 
 module.exports = function( options ) {
   var seneca = this
-  var plugin = 'web'
-
 
   options = seneca.util.deepextend({
-    prefix:'/api/',
-    contentprefix:'/seneca',
+    prefix: '/api/',
+    contentprefix: '/seneca',
     stats: {
-      size:1024,
-      duration:60000,
+      size:     1024,
+      duration: 60000,
     },
   },options)
   
-
-  //options.contentprefix = seneca.util.pathnorm( options.contentprefix )
-
-
   var timestats = new stats.NamedStats( options.stats.size, options.stats.duration )
 
+  // Ordered list of middleware services.
   var services = []
 
   var configmap  = {}
   var routemap   = {}
   var servicemap = {}
 
-
   var init_template = _.template(mstring(
     function(){/***
-                ;(function(){
-                  var w = this
-                  var seneca = w.seneca || (w.seneca={})
-                  seneca.config = {}
-                  <% _.each(configmap,function(data,name){%>
-                  seneca.config[<%=JSON.stringify(name)%>] = <%=JSON.stringify(data)%>
-                  <%})%>
-                }).call(window);
-                ***/}))
+      ;(function(){
+        var w = this
+        var seneca = w.seneca || (w.seneca={})
+        seneca.config = {}
+        <% _.each(configmap,function(data,name){%>
+        seneca.config[<%=JSON.stringify(name)%>] = <%=JSON.stringify(data)%>
+        <%})%>
+      }).call(window);
+      ***/}))
 
   var initsrc = init_template({_:_,configmap:configmap})
 
   var sourcelist = []
 
 
-  // ### Define action patterns
+  function add_action_patterns() {
+    seneca
+    // Define a web service API
+      .add( 'role:web', web_use)
 
-  seneca.add({
-    role:plugin,
-    
-    config: {object$:true},
-    plugin: {string$:true},
-  }, web_use)
+    // List known web services
+      .add( 'role:web, cmd:list',   cmd_list)
 
+    // List known routes
+      .add( 'role:web, cmd:routes', cmd_routes)
 
-  seneca.add({
-    role: plugin,
-    cmd:  'config',
+    // Provide route performance statistics
+      .add( 'role:web, stats:true', action_stats)
 
-    plugin: {string$:true},
-  }, cmd_config)
+    // Set client-side configuration
+      .add( 'role:web, cmd:config', cmd_config)
 
-
-  seneca.add({
-    role: plugin,
-    cmd:  'list',
-  }, cmd_list)
+    // Set client-side source code
+      .add( 'role:web, cmd:source', cmd_source)
+  }
 
 
-  seneca.add({
-    role: plugin,
-    cmd:  'routes',
-  }, cmd_routes)
-
-
-  seneca.add({
-    role:  plugin,
-    stats: true
-  }, action_stats)
-
-
-  seneca.add({
-    role: plugin,
-    cmd:  'source',
-  }, cmd_source)
-
-
-
-
-
-  // Define service.  
-  // Pattern: _role:web, use:..._
+  // Implementation of _role:web_ action.
   function web_use( args, done ) {
     var seneca = this
 
-    // The plugin is defining some web client configuration.
+    // The plugin is defining some client-side configuration.
     if( args.config && args.plugin ) {
       configmap[args.plugin] = 
         _.extend( {}, configmap[args.plugin]||{}, args.config )
@@ -127,18 +97,33 @@ module.exports = function( options ) {
       // Add service to middleware layers, order is significant
       args.use.plugin$        = args.plugin$
       args.use.serviceid$     = nid()
-      var service 
-            = _.isFunction( args.use ) ? args.use : 
-            define_service(seneca,args.use)
 
-      services.push( service )
-      servicemap[service.serviceid$] = service
+      define_service(seneca,args.use,function(err,service){
+        if( err ) return done(err);
+
+        if( service ) {
+          services.push( service )
+          servicemap[service.serviceid$] = service
+        }
+      })
     }
-
-    done()
+    else done();
   }
 
+  web_use.validate = {
+    // Use a mapping, or custom middleware function
+    use: {},
 
+    // Client-side configuration for named plugin.
+    config: {object$:true},
+    
+    // Client-side name for the plugin.
+    plugin: {string$:true},
+  } 
+
+
+
+  // Implementation of _role:web, cmd:source_ action.
   function cmd_source( args, done ) {
     sourcelist.push('\n;// '+args.title+'\n'+args.source)
     done()
@@ -146,23 +131,25 @@ module.exports = function( options ) {
 
 
 
-  // Define plugin web configuration.  
-  // Pattern _role:web, cmd:config_
+  // Implementation of _role:web, cmd:config_ action.
   function cmd_config( args, done ) {
-    done( null, _.extend({}, null!=args.plugin ? (configmap[args.plugin]||{}) : {} ) )
+    done( null, 
+          _.extend({}, null!=args.plugin ? (configmap[args.plugin]||{}) : {} ) )
+  }
+
+  cmd_config.validate = {
+    plugin: {string$:true},
   }
 
 
 
-  // List services.  
-  // Pattern: _role:web, cmd:list pattern_
+  // Implementation of _role:web, cmd:list_ action.
   function cmd_list( args, done ) {
     done( null, _.clone(services) )
   }
 
 
-  // List routes.  
-  // Pattern: _role:web, cmd:routes pattern_
+  // Implementation of _role:web, cmd:routes_ pattern.
   function cmd_routes( args, done ) {
     var routes = []
     var methods = _.keys(routemap)
@@ -180,16 +167,16 @@ module.exports = function( options ) {
   }
 
 
-
-
-
+  // Implementation of _role:web, stats:true_ pattern.
   function action_stats(args,done) {
     var stats = {}
     this.act('role:web,cmd:routes',function(err,list){
       if( err ) return done(err);
 
       _.each(list, function(route){
-        var pluginname = (route.service && route.service.plugin && route.service.plugin.name) || '-'
+        var pluginname = (route.service && 
+                          route.service.plugin && 
+                          route.service.plugin.name) || '-'
         var name = pluginname+';'+route.method+';'+route.url
         stats[name] = {}
       })
@@ -204,7 +191,10 @@ module.exports = function( options ) {
 
 
 
-  // Service specification schema
+  add_action_patterns()
+
+
+  // Service specification schema.
   var spec_check = parambulator({
     type$: 'object',
     pin:    {required$:true},
@@ -212,56 +202,58 @@ module.exports = function( options ) {
     prefix: 'string$'
   }, {
     topname:'spec',
-    msgprefix:'http(spec): ',
-    callbackmaker:paramerr('seneca/http_invalid_spec')
+    msgprefix:'web-use: ',
   })
 
 
 
   // Define service middleware
-  function define_service( instance, spec ) {
-    spec_check.validate(spec)
+  function define_service( instance, spec, done ) {
+    if( _.isFunction( spec ) ) return done( null, spec );
 
-    var prefix    = fixprefix( spec.prefix, options.prefix )
-    var actmap    = makeactmap( instance, spec.pin )
+    spec_check.validate(spec,function(err){
+      if( err ) return done(err)
 
-    var maprouter = makemaprouter(instance,spec,prefix,actmap,routemap,{plugin:spec.plugin$,serviceid:spec.serviceid$},timestats)
-    
+      var prefix    = fixprefix( spec.prefix, options.prefix )
+      var actmap    = makeactmap( instance, spec.pin )
 
-    // startware and endware always called, regardless of prefix
+      var maprouter = makemaprouter(
+        instance,spec,prefix,actmap,routemap,
+        {plugin:spec.plugin$,serviceid:spec.serviceid$},timestats)
+      
+      // startware and endware always called, regardless of prefix
 
-    var service = function(req,res,next) {
-      var si = req.seneca || instance
+      var service = function(req,res,next) {
+        var si = req.seneca || instance
 
-      if( spec.startware ) {
-        //var begin_startware = Date.now()
-        spec.startware.call(si,req,res,do_maprouter)
+        if( spec.startware ) {
+          spec.startware.call(si,req,res,do_maprouter)
+        }
+        else do_maprouter();
+
+        function do_maprouter() {
+          maprouter(req,res,function(err){
+            if(err ) return next(err);
+
+            if( spec.endware ) {
+              var begin_endware = Date.now()
+              spec.endware.call(si,req,res,function(err){
+                if(err ) return next(err);
+                next();
+              })
+            }
+            else next()
+          })
+        }
       }
-      else do_maprouter();
 
-      function do_maprouter() {
-        //if( begin_startware ) timestats.point( Date.now()-begin_startware, spec.plugin$+';startware;'+req.method+';'+req.url );
+      service.pin$       = spec.pin
+      service.plugin$    = spec.plugin$
+      service.serviceid$ = spec.serviceid$
+      service.routes$    = maprouter.routes$
 
-        maprouter(req,res,function(err){
-          if(err ) return next(err);
-
-          if( spec.endware ) {
-            var begin_endware = Date.now()
-            spec.endware.call(si,req,res,function(err){
-              //timestats.point( Date.now()-begin_startware, spec.plugin$+';endware;'+req.method+';'+req.url );
-              if(err ) return next(err);
-              next();
-            })
-          }
-          else next()
-        })
-      }
-    }
-
-    service.plugin$    = spec.plugin$
-    service.serviceid$ = spec.serviceid$
-
-    return service
+      return done(null,service)
+    })
   }
 
 
@@ -312,16 +304,19 @@ module.exports = function( options ) {
 
 
 
-  seneca.add({init:plugin},function(args,done) {
+  seneca.add({init:'web'},function(args,done) {
     var seneca = this
 
     var config = {prefix:options.contentprefix}
 
-    seneca.act({role:plugin, plugin:plugin, config:config, use:use})
+    seneca.act({role:'web', plugin:'web', config:config, use:use})
 
     seneca.act({role:'util',note:true,cmd:'push',key:'admin/units',value:{
       unit:'web-service',
-      spec:{title:'Web Services',ng:{module:'senecaWebServiceModule',directive:'seneca-web-service'}},
+      spec:{
+        title:'Web Services',
+        ng:{module:'senecaWebServiceModule',directive:'seneca-web-service'}
+      },
       content:[
         {type:'js',file:__dirname+'/web/web-service.js'},
       ]
@@ -332,8 +327,8 @@ module.exports = function( options ) {
 
 
   return {
-    name: plugin,
-    export:web,
+    name: 'web',
+    export: web,
     exportmap: {
       httprouter:httprouter
     }
@@ -343,20 +338,6 @@ module.exports = function( options ) {
 
 
 // ### Utility functions
-
-function paramerr(code){
-  return function(cb){
-    return function(err){ 
-      if(err){
-        throw err;
-      }
-      else if( cb ) { 
-        return cb();
-      }
-    }
-  }
-}
-
 
 // Convert an object to a JSON string, handling circular refs.
 function stringify(obj,indent,depth,decycler) {
@@ -437,8 +418,6 @@ function route_method(
   instance,http,method,urlspec,dispatch,routemap,servicedesc,actpat) 
 {
   var fullurl = urlspec.fullurl
-
-  //console.log('WEB',method,urlspec,servicedesc,actpat)
 
   instance.log.debug('http',method,fullurl)
   http[method](fullurl, dispatch)
@@ -528,7 +507,9 @@ function defaultresponder(req,res,handlerspec,err,obj) {
 
 
   var objstr = err ? JSON.stringify({error:''+err}) : stringify(outobj)
-  var code   = err ? (err.seneca && err.seneca.httpstatus ?  err.seneca.httpstatus : 500) : (obj && obj.httpstatus$) ? obj.httpstatus$ : 200;
+  var code   = err ? 
+        (err.seneca && err.seneca.httpstatus ? err.seneca.httpstatus : 500) : 
+      (obj && obj.httpstatus$) ? obj.httpstatus$ : 200;
 
   var redirect = (obj ? obj.redirect$ : false) || 
         (err && err.senecca && err.seneca.httpredirect)
@@ -633,7 +614,8 @@ function makedispatch(act,spec,urlspec,handlerspec,timestats) {
 
 
 function makemaprouter(instance,spec,prefix,actmap,routemap,servicedesc,timestats) {
-  return httprouter(function(http){
+  var routes = []
+  var mr = httprouter(function(http){
     _.each( actmap, function(actpat,fname) {
 
       var actmeta = instance.findact(actpat)
@@ -661,6 +643,7 @@ function makemaprouter(instance,spec,prefix,actmap,routemap,servicedesc,timestat
 
         if( handler ) {
           route_method(instance,http,method,urlspec,dispatch,routemap,servicedesc,actpat)
+          routes.push( method.toUpperCase()+' '+urlspec.fullurl )
           mC++
         }
       })
@@ -668,10 +651,15 @@ function makemaprouter(instance,spec,prefix,actmap,routemap,servicedesc,timestat
       if( 0 === mC ) {
         var dispatch = makedispatch(act,spec,urlspec,{},timestats)
         route_method(instance,http,'get',urlspec,dispatch,routemap,servicedesc,actpat)
+        routes.push( 'GET '+urlspec.fullurl )
       }
     })
 
 
     make_prepostmap( spec, prefix, http )
   })
+
+  mr.routes$ = routes
+
+  return mr;
 }
