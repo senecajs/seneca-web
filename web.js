@@ -247,15 +247,19 @@ module.exports = function( options ) {
     spec_check.validate(spec,function(err){
       if( err ) return done(err)
 
-      var prefix    = fixprefix( spec.prefix, options.prefix )
-      var actmap    = makeactmap( instance, spec.pin )
+      var prefix     = fixprefix( spec.prefix, options.prefix )
+      var pin        = instance.pin( spec.pin )
+      var actmap     = make_actmap( pin )
+      var routespecs = make_routespecs( actmap, spec, prefix, options )
+      
+      //console.log( routespecs )
+
+      // TODO: refactor
 
       var maprouter = makemaprouter(
-        instance,spec,prefix,actmap,routemap,
-        {plugin:spec.plugin$,serviceid:spec.serviceid$},timestats)
+        instance,spec,routespecs,actmap,routemap,
+        {prefix:prefix,plugin:spec.plugin$,serviceid:spec.serviceid$},timestats)
       
-      // startware and endware always called, regardless of prefix
-
       var service = function(req,res,next) {
         var si = req.seneca || instance
 
@@ -377,43 +381,7 @@ function defaulthandler(req,res,args,act,respond) {
 
 
 function defaultresponder(req,res,err,obj) {
-//function defaultresponder(req,res,handlerspec,err,obj) {
   var outobj
-
-  /*
-  if( _.isObject(obj) ) {
-    outobj = _.clone(obj)
-
-    // TODO: test filtering
-
-    var remove_dollar = false
-    if( !_.isUndefined(handlerspec.filter) ) {
-      if( _.isFunction( handlerspec.filter ) ) {
-        outobj = handlerspec.filter(outobj)
-      }
-      else if( _.isArray( handlerspec.filter ) ) {
-        _.each(handlerspec.filter,function(p){
-          delete outobj[p]
-          remove_dollar = remove_dollar || '$'==p
-        })
-      }
-    }
-
-    // default filter
-    // removes $ from entity objects
-    else {
-      remove_dollar = true
-    }
-
-    if( remove_dollar ) {
-      _.keys(outobj,function(k){
-        if(~k.indexOf('$')){
-          delete outobj[k]
-        }
-      })
-    }
-  }
-  else */
 
   if( _.isUndefined(obj) || _.isNull(obj) ) {
     outobj = ''
@@ -459,6 +427,38 @@ function defaultresponder(req,res,err,obj) {
 
 // ### Spec parsing functions
 
+function make_routespecs( actmap, spec, prefix, options ) {
+  var routespecs = []
+
+  _.each( actmap, function(pattern,fname) {
+    var routespec = spec.map.hasOwnProperty(fname) ? spec.map[fname] : null
+
+    // Only build a route if explicitly defined in map
+    if( !routespec ) return;
+  
+    var url = prefix + fname
+  
+    // METHOD:true abbrev
+    routespec = _.isBoolean(routespec) ? {} : routespec
+  
+    if( routespec.alias ) {
+      url = prefix + routespec.alias
+    }
+
+    routespec.prefix  = prefix
+    routespec.suffix  = routespec.suffix || ''
+    routespec.fullurl = url + routespec.suffix
+
+    routespec.fname = fname
+    routespec.pattern = pattern
+
+    routespecs.push( routespec )
+  })
+
+  return routespecs
+}
+
+
 // Create URL spec for each action from pin
 function makeurlspec( spec, prefix, fname ) {
   var urlspec = spec.map.hasOwnProperty(fname) ? spec.map[fname] : null
@@ -485,7 +485,7 @@ function makeurlspec( spec, prefix, fname ) {
 
 // Create route for url over method with handler
 function route_method( 
-  instance,http,method,urlspec,dispatch,routemap,servicedesc,actpat) 
+  instance,http,method,urlspec,dispatch,routemap,servicedesc,pattern) 
 {
   var fullurl = urlspec.fullurl
 
@@ -493,7 +493,7 @@ function route_method(
   http[method](fullurl, dispatch)
 
   var rm = (routemap[method] = (routemap[method]||{}))
-  rm[fullurl] = _.extend({},servicedesc,{pattern:actpat})
+  rm[fullurl] = _.extend({},servicedesc,{pattern:pattern})
 }
 
 
@@ -604,45 +604,48 @@ function makedispatch(instance,act,spec,urlspec,handlerspec,timestats) {
 }
 
 
-function makemaprouter(instance,spec,prefix,actmap,routemap,servicedesc,timestats) {
+function makemaprouter(instance,spec,routespecs,actmap,routemap,servicedesc,timestats) {
+  var prefix = servicedesc.prefix
+
   var routes = []
   var mr = httprouter(function(http){
-    _.each( actmap, function(actpat,fname) {
+    _.each( routespecs, function( routespec ) {
+      var pattern = routespec.pattern
 
-      var actmeta = instance.findact(actpat)
+      var actmeta = instance.findact( pattern )
       if( !actmeta ) return;
 
       var act = function(args,cb) {
-        this.act.call(this,_.extend({},actpat,args),cb)
+        this.act.call(this,_.extend({},pattern,args),cb)
       }
 
-      var urlspec = makeurlspec( spec, prefix, fname )
-      if( !urlspec ) return;
+      //var urlspec = makeurlspec( spec, prefix, fname )
+      //if( !urlspec ) return;
 
       var mC = 0
 
       _.each( httprouter.methods, function(method) {
-        var handler = urlspec[method] || urlspec[method.toUpperCase()]
+        var handler = routespec[method] || routespec[method.toUpperCase()]
 
         var handlerspec     = _.isObject(handler) ? handler : {}
         handlerspec.handler = handlerspec.handler || 
           (_.isFunction(handler) ? handler : defaulthandler)
         handlerspec.modify = handlerspec.modify || remove_dollar_modify
 
-        var dispatch = makedispatch(instance,act,spec,urlspec,handlerspec,timestats)
+        var dispatch = makedispatch(instance,act,spec,routespec,handlerspec,timestats)
 
         if( handler ) {
-          route_method(instance,http,method,urlspec,dispatch,routemap,servicedesc,actpat)
-          routes.push( method.toUpperCase()+' '+urlspec.fullurl )
+          route_method(instance,http,method,routespec,dispatch,routemap,servicedesc,pattern)
+          routes.push( method.toUpperCase()+' '+routespec.fullurl )
           mC++
         }
       })
 
       if( 0 === mC ) {
         var handlerspec = { modify:remove_dollar_modify }
-        var dispatch = makedispatch(instance,act,spec,urlspec,handlerspec,timestats)
-        route_method(instance,http,'get',urlspec,dispatch,routemap,servicedesc,actpat)
-        routes.push( 'GET '+urlspec.fullurl )
+        var dispatch = makedispatch(instance,act,spec,routespec,handlerspec,timestats)
+        route_method(instance,http,'get',routespec,dispatch,routemap,servicedesc,pattern)
+        routes.push( 'GET '+routespec.fullurl )
       }
     })
 
@@ -686,9 +689,8 @@ function fixprefix( prefix, defaultprefix ) {
 
 // Map action pin function names to action patterns.
 // The function names form part of the URL.
-function makeactmap( instance, pindef ) {
+function make_actmap( pin ) {
   var actmap = {}
-  var pin = instance.pin(pindef)
 
   for( var fn in pin ) {
     var f = pin[fn]

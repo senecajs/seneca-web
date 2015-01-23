@@ -255,6 +255,7 @@ The wildcard mapping object accepts the following optional properties that let y
 
    * _VERB_: any HTTP verb (GET, POST, PUT, DELETE, etc); the value can be _true_, or a middleware function, allowing you to completely customize the route.
    * _alias_: custom URL path, concatenated to top level prefix; can contain express-style route parameters: /foo/:bar gives req.params.bar
+   * _suffix_: appended to route URL
    * _redirect_: perform a 302 redirection with the value as the new location URL
    * _handler_: function that translates inbound requests to Seneca actions
    * _responder_: function that translates outbound Seneca results into HTTP response data
