@@ -368,6 +368,294 @@ module.exports = function( options ) {
 }
 
 
+// ### Route functions
+
+// Default action handler; just calls the action.
+function defaulthandler(req,res,args,act,respond) {
+  act(args,respond)
+}
+
+
+function defaultresponder(req,res,err,obj) {
+//function defaultresponder(req,res,handlerspec,err,obj) {
+  var outobj
+
+  /*
+  if( _.isObject(obj) ) {
+    outobj = _.clone(obj)
+
+    // TODO: test filtering
+
+    var remove_dollar = false
+    if( !_.isUndefined(handlerspec.filter) ) {
+      if( _.isFunction( handlerspec.filter ) ) {
+        outobj = handlerspec.filter(outobj)
+      }
+      else if( _.isArray( handlerspec.filter ) ) {
+        _.each(handlerspec.filter,function(p){
+          delete outobj[p]
+          remove_dollar = remove_dollar || '$'==p
+        })
+      }
+    }
+
+    // default filter
+    // removes $ from entity objects
+    else {
+      remove_dollar = true
+    }
+
+    if( remove_dollar ) {
+      _.keys(outobj,function(k){
+        if(~k.indexOf('$')){
+          delete outobj[k]
+        }
+      })
+    }
+  }
+  else */
+
+  if( _.isUndefined(obj) || _.isNull(obj) ) {
+    outobj = ''
+  }
+  else {
+    outobj = obj;
+  }
+
+  if( null != outobj.redirect$ ) {
+    delete outobj.redirect$
+  }
+
+  if( null != outobj.httpstatus$ ) {
+    delete outobj.httpstatus$
+  }
+
+
+  var objstr = err ? JSON.stringify({error:''+err}) : stringify(outobj)
+  var code   = err ? 
+        (err.seneca && err.seneca.httpstatus ? err.seneca.httpstatus : 500) : 
+      (obj && obj.httpstatus$) ? obj.httpstatus$ : 200;
+
+  var redirect = (obj ? obj.redirect$ : false) || 
+        (err && err.senecca && err.seneca.httpredirect)
+
+  
+  if( redirect ) {
+    res.writeHead(code,{
+      'Location': redirect
+    })
+    res.end()
+  }
+  else {
+    res.writeHead(code,{
+      'Content-Type': 'application/json',
+      'Cache-Control': 'private, max-age=0, no-cache, no-store',
+      "Content-Length": buffer.Buffer.byteLength(objstr) 
+    })
+    res.end( objstr )
+  }
+}
+
+
+// ### Spec parsing functions
+
+// Create URL spec for each action from pin
+function makeurlspec( spec, prefix, fname ) {
+  var urlspec = spec.map.hasOwnProperty(fname) ? spec.map[fname] : null
+  if( !urlspec ) return;
+  
+  var url = prefix + fname
+  
+  // METHOD:true abbrev
+  urlspec = _.isBoolean(urlspec) ? {} : urlspec
+  
+  if( urlspec.alias ) {
+    url = prefix + urlspec.alias
+  }
+
+  urlspec.prefix  = prefix
+  urlspec.suffix  = urlspec.suffix || ''
+  urlspec.fullurl = url + urlspec.suffix
+
+  urlspec.fname = fname
+
+  return urlspec;
+}
+
+
+// Create route for url over method with handler
+function route_method( 
+  instance,http,method,urlspec,dispatch,routemap,servicedesc,actpat) 
+{
+  var fullurl = urlspec.fullurl
+
+  instance.log.debug('http',method,fullurl)
+  http[method](fullurl, dispatch)
+
+  var rm = (routemap[method] = (routemap[method]||{}))
+  rm[fullurl] = _.extend({},servicedesc,{pattern:actpat})
+}
+
+
+function make_prepostmap( instance, spec, prefix, http ) {
+
+  // FIX: premap may get called twice if map function calls next
+
+  // lastly, try premap by itself against prefix if nothing else matches
+  // needed for common auth checks etc
+  // ensures premap is always called
+  if( spec.premap ) {
+    http.all(prefix, function(req,res,next){
+      var si = req.seneca || instance
+      spec.premap.call(si,req,res,next)
+    })
+      }
+  
+  // FIX: should always be called if premap was called?
+  
+  if( spec.postmap ) {
+    http.all(prefix, function(req,res,next){
+      var si = req.seneca || instance
+      spec.postmap.call(si,req,res,next)
+    })
+  }
+}
+
+
+// TODO: use options to control where args come from
+
+function makehttpargs(spec,urlspec,req) {
+  var args = _.extend(
+    {},
+    _.isObject(req.params)?req.params:{},
+    _.isObject(req.query)?req.query:{}
+  )
+
+  // data flag means put JSON body into separate data field
+  // otherwise mix it all in
+  var data = _.isObject(req.body)?req.body:{}
+  if( urlspec.data ) {
+    args.data = data
+  }
+  else {
+    args = _.extend(data,args)
+  }
+
+  // modify args
+  for( var argname in spec.args) {
+    args[argname] = spec.args[argname](args[argname])
+  }
+
+  return args
+}
+
+
+function makedispatch(instance,act,spec,urlspec,handlerspec,timestats) {
+  return function( req, res, next ) {
+    var begin = Date.now()
+    var args  = makehttpargs(spec,urlspec,req)
+
+    if( handlerspec.redirect && 
+        'application/x-www-form-urlencoded' == req.headers['content-type']) 
+    {
+
+      handlerspec.responder = function(req,res,err,obj) {
+        // TODO: put obj into engagement if present
+        var url = handlerspec.redirect
+        if( err ) {
+          url+='?ec='+(err.seneca?err.seneca.code:err.message)
+        }
+        res.writeHead(302,{
+          'Location': url
+        })
+        res.end()
+      }
+    }
+
+    var handler   = handlerspec.handler   || defaulthandler
+    var responder = handlerspec.responder || defaultresponder
+
+    
+    var si = req.seneca || instance
+    var respond = function(err,obj){
+      var qi = req.url.indexOf('?')
+      var url = -1 == qi ? req.url : req.url.substring(0,qi)
+      var name = (spec.plugin$ && spec.plugin$.name) || '-'
+      timestats.point( Date.now()-begin, name+';'+req.method+';'+url );
+
+      handlerspec.modify(obj)
+
+      //responder.call(si,req,res,handlerspec,err,obj)
+      responder.call(si,req,res,err,obj)
+    }
+    
+
+    var act_si = function(args,done){
+      act.call(si,args,done)
+    }
+
+    var premap = spec.premap || function(){arguments[2]()}
+
+    premap.call(si,req,res,function(err){
+      if(err ) return next(err);
+      handler.call( si, req, res, args, act_si, respond, handlerspec)
+    })
+  }
+}
+
+
+function makemaprouter(instance,spec,prefix,actmap,routemap,servicedesc,timestats) {
+  var routes = []
+  var mr = httprouter(function(http){
+    _.each( actmap, function(actpat,fname) {
+
+      var actmeta = instance.findact(actpat)
+      if( !actmeta ) return;
+
+      var act = function(args,cb) {
+        this.act.call(this,_.extend({},actpat,args),cb)
+      }
+
+      var urlspec = makeurlspec( spec, prefix, fname )
+      if( !urlspec ) return;
+
+      var mC = 0
+
+      _.each( httprouter.methods, function(method) {
+        var handler = urlspec[method] || urlspec[method.toUpperCase()]
+
+        var handlerspec     = _.isObject(handler) ? handler : {}
+        handlerspec.handler = handlerspec.handler || 
+          (_.isFunction(handler) ? handler : defaulthandler)
+        handlerspec.modify = handlerspec.modify || remove_dollar_modify
+
+        var dispatch = makedispatch(instance,act,spec,urlspec,handlerspec,timestats)
+
+        if( handler ) {
+          route_method(instance,http,method,urlspec,dispatch,routemap,servicedesc,actpat)
+          routes.push( method.toUpperCase()+' '+urlspec.fullurl )
+          mC++
+        }
+      })
+
+      if( 0 === mC ) {
+        var handlerspec = { modify:remove_dollar_modify }
+        var dispatch = makedispatch(instance,act,spec,urlspec,handlerspec,timestats)
+        route_method(instance,http,'get',urlspec,dispatch,routemap,servicedesc,actpat)
+        routes.push( 'GET '+urlspec.fullurl )
+      }
+    })
+
+
+    make_prepostmap( instance, spec, prefix, http )
+  })
+
+  mr.routes$ = routes
+
+  return mr;
+}
+
+
 
 // ### Utility functions
 
@@ -413,285 +701,12 @@ function makeactmap( instance, pindef ) {
 }
 
 
-// Default action handler; just calls the action.
-function defaulthandler(req,res,args,act,respond) {
-  act(args,respond)
-}
 
-
-
-// Create URL spec for each action from pin
-function makeurlspec( spec, prefix, fname ) {
-  var urlspec = spec.map.hasOwnProperty(fname) ? spec.map[fname] : null
-  if( !urlspec ) return;
-  
-  var url = prefix + fname
-  
-  // METHOD:true abbrev
-  urlspec = _.isBoolean(urlspec) ? {} : urlspec
-  
-  if( urlspec.alias ) {
-    url = prefix + urlspec.alias
-  }
-
-  urlspec.prefix  = prefix
-  urlspec.suffix  = urlspec.suffix || ''
-  urlspec.fullurl = url + urlspec.suffix
-
-  urlspec.fname = fname
-
-  return urlspec;
-}
-
-
-
-// Create route for url over method with handler
-function route_method( 
-  instance,http,method,urlspec,dispatch,routemap,servicedesc,actpat) 
-{
-  var fullurl = urlspec.fullurl
-
-  instance.log.debug('http',method,fullurl)
-  http[method](fullurl, dispatch)
-
-  var rm = (routemap[method] = (routemap[method]||{}))
-  rm[fullurl] = _.extend({},servicedesc,{pattern:actpat})
-}
-
-
-
-function make_prepostmap( instance, spec, prefix, http ) {
-
-  // FIX: premap may get called twice if map function calls next
-
-  // lastly, try premap by itself against prefix if nothing else matches
-  // needed for common auth checks etc
-  // ensures premap is always called
-  if( spec.premap ) {
-    http.all(prefix, function(req,res,next){
-      var si = req.seneca || instance
-      spec.premap.call(si,req,res,next)
-    })
-      }
-  
-  // FIX: should always be called if premap was called?
-  
-  if( spec.postmap ) {
-    http.all(prefix, function(req,res,next){
-      var si = req.seneca || instance
-      spec.postmap.call(si,req,res,next)
-    })
-  }
-}
-
-
-
-
-function defaultresponder(req,res,handlerspec,err,obj) {
-  var outobj;
-
-  if( _.isObject(obj) ) {
-    outobj = _.clone(obj)
-
-    // TODO: test filtering
-
-    var remove_dollar = false
-    if( !_.isUndefined(handlerspec.filter) ) {
-      if( _.isFunction( handlerspec.filter ) ) {
-        outobj = handlerspec.filter(outobj)
-      }
-      else if( _.isArray( handlerspec.filter ) ) {
-        _.each(handlerspec.filter,function(p){
-          delete outobj[p]
-          remove_dollar = remove_dollar || '$'==p
-        })
-      }
+function remove_dollar_modify( obj ) {
+  _.keys(obj,function(k){
+    if(~k.indexOf('$')){
+      delete obj[k]
     }
-
-    // default filter
-    // removes $ from entity objects
-    else {
-      remove_dollar = true
-    }
-
-    if( remove_dollar ) {
-      _.keys(outobj,function(k){
-        if(~k.indexOf('$')){
-          delete outobj[k]
-        }
-      })
-    }
-  }
-  else if( _.isUndefined(obj) || _.isNull(obj) ) {
-    outobj = ''
-  }
-  else {
-    outobj = obj;
-  }
-
-  if( null != outobj.redirect$ ) {
-    delete outobj.redirect$
-  }
-
-  if( null != outobj.httpstatus$ ) {
-    delete outobj.httpstatus$
-  }
-
-
-  var objstr = err ? JSON.stringify({error:''+err}) : stringify(outobj)
-  var code   = err ? 
-        (err.seneca && err.seneca.httpstatus ? err.seneca.httpstatus : 500) : 
-      (obj && obj.httpstatus$) ? obj.httpstatus$ : 200;
-
-  var redirect = (obj ? obj.redirect$ : false) || 
-        (err && err.senecca && err.seneca.httpredirect)
-
-  
-  if( redirect ) {
-    res.writeHead(code,{
-      'Location': redirect
-    })
-    res.end()
-  }
-  else {
-    res.writeHead(code,{
-      'Content-Type': 'application/json',
-      'Cache-Control': 'private, max-age=0, no-cache, no-store',
-      "Content-Length": buffer.Buffer.byteLength(objstr) 
-    })
-    res.end( objstr )
-  }
-}
-
-
-
-// TODO: use options to control where args come from
-
-function makehttpargs(spec,urlspec,req) {
-  var args = _.extend(
-    {},
-    _.isObject(req.params)?req.params:{},
-    _.isObject(req.query)?req.query:{}
-  )
-
-  // data flag means put JSON body into separate data field
-  // otherwise mix it all in
-  var data = _.isObject(req.body)?req.body:{}
-  if( urlspec.data ) {
-    args.data = data
-  }
-  else {
-    args = _.extend(data,args)
-  }
-
-  // modify args
-  for( var argname in spec.args) {
-    args[argname] = spec.args[argname](args[argname])
-  }
-
-  return args
-}
-
-
-function makedispatch(instance,act,spec,urlspec,handlerspec,timestats) {
-  return function( req, res, next ) {
-    var begin = Date.now()
-    var args = makehttpargs(spec,urlspec,req)
-
-
-    if( handlerspec.redirect && 'application/x-www-form-urlencoded' == req.headers['content-type']) {
-
-      handlerspec.responder = function(req,res,handlerspec,err,obj) {
-        // TODO: put obj into engagement if present
-        var url = handlerspec.redirect
-        if( err ) {
-          url+='?ec='+(err.seneca?err.seneca.code:err.message)
-        }
-        res.writeHead(302,{
-          'Location': url
-        })
-        res.end()
-      }
-    }
-
-    var handler   = handlerspec.handler   || defaulthandler
-    var responder = handlerspec.responder || defaultresponder
-
-    
-    var si = req.seneca || instance
-    var respond = function(err,obj){
-      var qi = req.url.indexOf('?')
-      var url = -1 == qi ? req.url : req.url.substring(0,qi)
-      var name = (spec.plugin$ && spec.plugin$.name) || '-'
-      timestats.point( Date.now()-begin, name+';'+req.method+';'+url );
-
-      responder.call(si,req,res,handlerspec,err,obj)
-    }
-    
-
-    var act_si = function(args,done){
-      act.call(si,args,done)
-    }
-
-    var premap = spec.premap || function(){arguments[2]()}
-
-    premap.call(si,req,res,function(err){
-      if(err ) return next(err);
-      handler.call( si, req, res, args, act_si, respond, handlerspec)
-    })
-  }
-}
-
-
-
-
-function makemaprouter(instance,spec,prefix,actmap,routemap,servicedesc,timestats) {
-  var routes = []
-  var mr = httprouter(function(http){
-    _.each( actmap, function(actpat,fname) {
-
-      var actmeta = instance.findact(actpat)
-      if( !actmeta ) return;
-
-      var act = function(args,cb) {
-        this.act.call(this,_.extend({},actpat,args),cb)
-      }
-
-
-      var urlspec = makeurlspec( spec, prefix, fname )
-      if( !urlspec ) return;
-
-
-
-      var mC = 0
-
-      _.each( httprouter.methods, function(method) {
-        var handler = urlspec[method] || urlspec[method.toUpperCase()]
-
-        var handlerspec = _.isObject(handler) ? handler : {}
-        handlerspec.handler = handlerspec.handler || (_.isFunction(handler) ? handler : defaulthandler)
-
-        var dispatch = makedispatch(instance,act,spec,urlspec,handlerspec,timestats)
-
-        if( handler ) {
-          route_method(instance,http,method,urlspec,dispatch,routemap,servicedesc,actpat)
-          routes.push( method.toUpperCase()+' '+urlspec.fullurl )
-          mC++
-        }
-      })
-
-      if( 0 === mC ) {
-        var dispatch = makedispatch(instance,act,spec,urlspec,{},timestats)
-        route_method(instance,http,'get',urlspec,dispatch,routemap,servicedesc,actpat)
-        routes.push( 'GET '+urlspec.fullurl )
-      }
-    })
-
-
-    make_prepostmap( instance, spec, prefix, http )
   })
-
-  mr.routes$ = routes
-
-  return mr;
 }
+

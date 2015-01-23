@@ -8,7 +8,7 @@ fi
 
 ./node_modules/.bin/mocha test/*.test.js
 
-node test/example.js --seneca.log.quiet &
+node test/example.js --seneca.log=level:error &
 NODE_PID=$!
 sleep 1
 FOO_BAR=`curl -m 1 -s http://localhost:3000/foo/bar?zoo=a`

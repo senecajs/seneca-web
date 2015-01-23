@@ -258,7 +258,7 @@ The wildcard mapping object accepts the following optional properties that let y
    * _redirect_: perform a 302 redirection with the value as the new location URL
    * _handler_: function that translates inbound requests to Seneca actions
    * _responder_: function that translates outbound Seneca results into HTTP response data
-   * _filter_: function that modifies the output object in some way (usually to delete sensitive fields)
+   * _modify_: function that modifies the output object in some way (usually to delete sensitive fields)
 
 The response object that you provide to the seneca-web plugin, either via custom function, or a Seneca action response, can contain special purpose fields to control the HTTP response. These are:
 
