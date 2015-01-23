@@ -19,6 +19,8 @@ var stats               = require('rolling-stats')
 
 
 var httprouter = require('./http-router')
+var methodlist = _.clone(httprouter.methods)
+
 
 
 module.exports = function( options ) {
@@ -45,7 +47,6 @@ module.exports = function( options ) {
 
   var routemap = {}
   var route_list_cache = null
-
 
   var init_template = _.template(mstring(
     function(){/***
@@ -253,8 +254,9 @@ module.exports = function( options ) {
       var routespecs = make_routespecs( actmap, spec, prefix, options )
       
       resolve_actions( instance, routespecs )
+      resolve_methods( routespecs )
 
-      console.log( routespecs )
+      //console.log( util.inspect(routespecs,{depth:null}) )
 
       // TODO: refactor
 
@@ -475,6 +477,60 @@ function resolve_actions( instance, routespecs ) {
   })
 }
 
+
+function resolve_methods( routespecs ) {
+  _.each( routespecs, function( routespec ) {
+
+    var mC = 0
+    var methods = {}
+
+    _.each( methodlist, function(method) {
+      var methodspec = routespec[method] || routespec[method.toUpperCase()]
+      if( !methodspec ) return;
+
+      var handler = methodspec
+      if( _.isFunction( methodspec ) || !_.isObject( methodspec ) ) {
+        methodspec = { handler:handler }
+      }
+      
+      methodspec.method = method
+
+      methodspec.handler = 
+        _.isFunction( methodspec.handler ) ? methodspec.handler : 
+        _.isFunction( routespec.handler ) ? routespec.handler : 
+        defaulthandler
+
+      methodspec.responder = 
+        _.isFunction( methodspec.responder ) ? methodspec.responder : 
+        _.isFunction( routespec.responder ) ? routespec.responder : 
+        defaultresponder
+
+      methodspec.modify = 
+        _.isFunction( methodspec.modify ) ? methodspec.modify : 
+        _.isFunction( routespec.modify ) ? routespec.modify : 
+        defaultmodify
+
+      methodspec.redirect = methodspec.redirect || routespec.redirect
+
+      methods[method] = methodspec
+      
+      mC++
+    })
+
+    if( 0 === mC ) {
+      methods.get = {
+        method:    'get',
+        handler:   defaulthandler,
+        responder: defaultresponder,
+        modify:    defaultmodify
+      }
+    }
+
+    routespec.methods = methods
+  })
+}
+
+
 // Create URL spec for each action from pin
 function makeurlspec( spec, prefix, fname ) {
   var urlspec = spec.map.hasOwnProperty(fname) ? spec.map[fname] : null
@@ -501,12 +557,13 @@ function makeurlspec( spec, prefix, fname ) {
 
 // Create route for url over method with handler
 function route_method( 
-  instance,http,method,urlspec,dispatch,routemap,servicedesc,pattern) 
+  instance,http,method,routespec,dispatch,routemap,servicedesc) 
 {
-  var fullurl = urlspec.fullurl
+  var pattern = routespec.pattern
+  var fullurl = routespec.fullurl
 
   instance.log.debug('http',method,fullurl)
-  http[method](fullurl, dispatch)
+  http[method.toLowerCase()](fullurl, dispatch)
 
   var rm = (routemap[method] = (routemap[method]||{}))
   rm[fullurl] = _.extend({},servicedesc,{pattern:pattern})
@@ -540,7 +597,7 @@ function make_prepostmap( instance, spec, prefix, http ) {
 
 // TODO: use options to control where args come from
 
-function makehttpargs(spec,urlspec,req) {
+function makehttpargs(spec,routespec,req) {
   var args = _.extend(
     {},
     _.isObject(req.params)?req.params:{},
@@ -550,7 +607,7 @@ function makehttpargs(spec,urlspec,req) {
   // data flag means put JSON body into separate data field
   // otherwise mix it all in
   var data = _.isObject(req.body)?req.body:{}
-  if( urlspec.data ) {
+  if( routespec.data ) {
     args.data = data
   }
   else {
@@ -566,18 +623,18 @@ function makehttpargs(spec,urlspec,req) {
 }
 
 
-function makedispatch(instance,act,spec,urlspec,handlerspec,timestats) {
+function makedispatch(instance,spec,routespec,methodspec,timestats) {
   return function( req, res, next ) {
     var begin = Date.now()
-    var args  = makehttpargs(spec,urlspec,req)
+    var args  = makehttpargs(spec,routespec,req)
 
-    if( handlerspec.redirect && 
+    if( methodspec.redirect && 
         'application/x-www-form-urlencoded' == req.headers['content-type']) 
     {
 
-      handlerspec.responder = function(req,res,err,obj) {
+      methodspec.responder = function(req,res,err,obj) {
         // TODO: put obj into engagement if present
-        var url = handlerspec.redirect
+        var url = methodspec.redirect
         if( err ) {
           url+='?ec='+(err.seneca?err.seneca.code:err.message)
         }
@@ -588,8 +645,8 @@ function makedispatch(instance,act,spec,urlspec,handlerspec,timestats) {
       }
     }
 
-    var handler   = handlerspec.handler   || defaulthandler
-    var responder = handlerspec.responder || defaultresponder
+    var handler   = methodspec.handler   || defaulthandler
+    var responder = methodspec.responder || defaultresponder
 
     
     var si = req.seneca || instance
@@ -599,22 +656,21 @@ function makedispatch(instance,act,spec,urlspec,handlerspec,timestats) {
       var name = (spec.plugin$ && spec.plugin$.name) || '-'
       timestats.point( Date.now()-begin, name+';'+req.method+';'+url );
 
-      handlerspec.modify(obj)
+      methodspec.modify(obj)
 
-      //responder.call(si,req,res,handlerspec,err,obj)
       responder.call(si,req,res,err,obj)
     }
     
 
     var act_si = function(args,done){
-      act.call(si,args,done)
+      routespec.act.call(si,args,done)
     }
 
     var premap = spec.premap || function(){arguments[2]()}
 
     premap.call(si,req,res,function(err){
       if(err ) return next(err);
-      handler.call( si, req, res, args, act_si, respond, handlerspec)
+      handler.call( si, req, res, args, act_si, respond, methodspec)
     })
   }
 }
@@ -626,46 +682,16 @@ function makemaprouter(instance,spec,routespecs,actmap,routemap,servicedesc,time
   var routes = []
   var mr = httprouter(function(http){
     _.each( routespecs, function( routespec ) {
-      var pattern = routespec.pattern
+      _.each( routespec.methods, function( methodspec, method ) {
+        var dispatch = makedispatch(
+          instance,spec,routespec,methodspec,timestats)
 
+        route_method(
+          instance,http,method,routespec,dispatch,routemap,servicedesc)
 
-      //var actmeta = instance.findact( pattern )
-      //if( !actmeta ) return;
-
-      //var act = function(args,cb) {
-      //  this.act.call(this,_.extend({},pattern,args),cb)
-      //}
-
-      //var urlspec = makeurlspec( spec, prefix, fname )
-      //if( !urlspec ) return;
-
-      var mC = 0
-
-      _.each( httprouter.methods, function(method) {
-        var handler = routespec[method] || routespec[method.toUpperCase()]
-
-        var handlerspec     = _.isObject(handler) ? handler : {}
-        handlerspec.handler = handlerspec.handler || 
-          (_.isFunction(handler) ? handler : defaulthandler)
-        handlerspec.modify = handlerspec.modify || remove_dollar_modify
-
-        var dispatch = makedispatch(instance,routespec.act,spec,routespec,handlerspec,timestats)
-
-        if( handler ) {
-          route_method(instance,http,method,routespec,dispatch,routemap,servicedesc,pattern)
-          routes.push( method.toUpperCase()+' '+routespec.fullurl )
-          mC++
-        }
+        routes.push( method.toUpperCase()+' '+routespec.fullurl )
       })
-
-      if( 0 === mC ) {
-        var handlerspec = { modify:remove_dollar_modify }
-        var dispatch = makedispatch(instance,routespec.act,spec,routespec,handlerspec,timestats)
-        route_method(instance,http,'get',routespec,dispatch,routemap,servicedesc,pattern)
-        routes.push( 'GET '+routespec.fullurl )
-      }
-    })
-
+    })      
 
     make_prepostmap( instance, spec, prefix, http )
   })
@@ -721,7 +747,7 @@ function make_actmap( pin ) {
 
 
 
-function remove_dollar_modify( obj ) {
+function defaultmodify( obj ) {
   _.keys(obj,function(k){
     if(~k.indexOf('$')){
       delete obj[k]

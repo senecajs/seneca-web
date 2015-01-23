@@ -110,7 +110,7 @@ describe('user', function() {
         map:{
           zig: true,
           bar: {GET:true},
-          qaz: {GET:true,HEAD:true}
+          qaz: {GET:true,POST:true}
         }
       }})
     })
@@ -119,10 +119,10 @@ describe('user', function() {
       assert.equal(out.length,4)
 
       si.act('role:web,list:route',success(fin,function(out){
-        assert.equal(out.length,3)
+        assert.equal(out.length,4)
 
         si.act({role:'web',stats:true},success(fin,function(out){
-          assert.equal(3,_.keys(out).length)
+          assert.equal(4,_.keys(out).length)
           fin()
         }))
       }))
