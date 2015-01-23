@@ -12,7 +12,7 @@
   "main": "web.js",
   "scripts": {
     "test": "./test.sh",
-    "build": "node_modules/.bin/docco web.js -o doc"
+    "build": "./build.sh"
   },
   "files": [
     "LICENSE.txt",
@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "docco": "~0.6.3",
+    "jshint": "^2.6.0",
     "mocha": "~1.20.1"
   },
   "repository": {

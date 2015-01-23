@@ -1,4 +1,5 @@
 /* Copyright (c) 2013-2015 Richard Rodger, MIT License */
+/* jshint node:true, asi:true, eqnull:true */
 "use strict";
 
 
@@ -21,6 +22,8 @@ var httprouter = require('./http-router')
 
 
 module.exports = function( options ) {
+  /* jshint validthis:true */
+
   var seneca = this
 
   options = seneca.util.deepextend({
@@ -222,10 +225,14 @@ module.exports = function( options ) {
 
   // Service specification schema.
   var spec_check = parambulator({
-    type$: 'object',
-    pin:    {required$:true},
-    map:    {required$:true,object$:true},
-    prefix: 'string$'
+    type$:     'object',
+    pin:       {required$:true},
+    map:       {required$:true,object$:true},
+    prefix:    'string$',
+    startware: 'function$',
+    endware:   'function$',
+    premap:    'function$',
+    postmap:   'function$',
   }, {
     topname:'spec',
     msgprefix:'web-use: ',
@@ -262,7 +269,6 @@ module.exports = function( options ) {
             if(err ) return next(err);
 
             if( spec.endware ) {
-              var begin_endware = Date.now()
               spec.endware.call(si,req,res,function(err){
                 if(err ) return next(err);
                 next();
@@ -291,8 +297,8 @@ module.exports = function( options ) {
   app.use(serve_static(__dirname+'/web'))
 
   var use = function(req,res,next){
-    if( 0===req.url.indexOf(options.contentprefix) ) {
-      if( 0 == req.url.indexOf(options.contentprefix+'/init.js') ) {
+    if( 0 === req.url.indexOf(options.contentprefix) ) {
+      if( 0 === req.url.indexOf(options.contentprefix+'/init.js') ) {
         res.writeHead(200,{'Content-Type':'text/javascript'})
         return res.end(initsrc+sourcelist.join('\n'));
       }
@@ -392,9 +398,9 @@ function fixprefix( prefix, defaultprefix ) {
 
 // Map action pin function names to action patterns.
 // The function names form part of the URL.
-function makeactmap( instance, pin ) {
+function makeactmap( instance, pindef ) {
   var actmap = {}
-  var pin = instance.pin(pin)
+  var pin = instance.pin(pindef)
 
   for( var fn in pin ) {
     var f = pin[fn]
@@ -454,7 +460,7 @@ function route_method(
 
 
 
-function make_prepostmap( spec, prefix, http ) {
+function make_prepostmap( instance, spec, prefix, http ) {
 
   // FIX: premap may get called twice if map function calls next
 
@@ -587,7 +593,7 @@ function makehttpargs(spec,urlspec,req) {
 }
 
 
-function makedispatch(act,spec,urlspec,handlerspec,timestats) {
+function makedispatch(instance,act,spec,urlspec,handlerspec,timestats) {
   return function( req, res, next ) {
     var begin = Date.now()
     var args = makehttpargs(spec,urlspec,req)
@@ -665,7 +671,7 @@ function makemaprouter(instance,spec,prefix,actmap,routemap,servicedesc,timestat
         var handlerspec = _.isObject(handler) ? handler : {}
         handlerspec.handler = handlerspec.handler || (_.isFunction(handler) ? handler : defaulthandler)
 
-        var dispatch = makedispatch(act,spec,urlspec,handlerspec,timestats)
+        var dispatch = makedispatch(instance,act,spec,urlspec,handlerspec,timestats)
 
         if( handler ) {
           route_method(instance,http,method,urlspec,dispatch,routemap,servicedesc,actpat)
@@ -675,14 +681,14 @@ function makemaprouter(instance,spec,prefix,actmap,routemap,servicedesc,timestat
       })
 
       if( 0 === mC ) {
-        var dispatch = makedispatch(act,spec,urlspec,{},timestats)
+        var dispatch = makedispatch(instance,act,spec,urlspec,{},timestats)
         route_method(instance,http,'get',urlspec,dispatch,routemap,servicedesc,actpat)
         routes.push( 'GET '+urlspec.fullurl )
       }
     })
 
 
-    make_prepostmap( spec, prefix, http )
+    make_prepostmap( instance, spec, prefix, http )
   })
 
   mr.routes$ = routes

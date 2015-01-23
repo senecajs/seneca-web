@@ -31,6 +31,7 @@
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-comment">/* Copyright (c) 2013-2015 Richard Rodger, MIT License */</span>
+<span class="hljs-comment">/* jshint node:true, asi:true, eqnull:true */</span>
 <span class="hljs-pi">"use strict"</span>;
 
 
@@ -53,6 +54,8 @@
 
 
 <span class="hljs-built_in">module</span>.exports = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( options )</span> </span>{
+  <span class="hljs-comment">/* jshint validthis:true */</span>
+
   <span class="hljs-keyword">var</span> seneca = <span class="hljs-keyword">this</span>
 
   options = seneca.util.deepextend({
@@ -82,8 +85,11 @@
             <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> services = []
 
   <span class="hljs-keyword">var</span> configmap  = {}
-  <span class="hljs-keyword">var</span> routemap   = {}
   <span class="hljs-keyword">var</span> servicemap = {}
+
+  <span class="hljs-keyword">var</span> routemap = {}
+  <span class="hljs-keyword">var</span> route_list_cache = <span class="hljs-literal">null</span>
+
 
   <span class="hljs-keyword">var</span> init_template = _.template(mstring(
     <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span>{<span class="hljs-comment">/***
@@ -114,7 +120,7 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <p>Define a web service API</p>
+              <p>Define a web service API.</p>
 
             </div>
             
@@ -129,11 +135,11 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
-              <p>List known web services</p>
+              <p>List known web services.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      .add( <span class="hljs-string">'role:web, cmd:list'</span>,   cmd_list)</pre></div></div>
+            <div class="content"><div class='highlight'><pre>      .add( <span class="hljs-string">'role:web, list:service'</span>, list_service)</pre></div></div>
             
         </li>
         
@@ -144,11 +150,11 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
-              <p>List known routes</p>
+              <p>List known routes.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      .add( <span class="hljs-string">'role:web, cmd:routes'</span>, cmd_routes)</pre></div></div>
+            <div class="content"><div class='highlight'><pre>      .add( <span class="hljs-string">'role:web, list:route'</span>, list_route)</pre></div></div>
             
         </li>
         
@@ -159,7 +165,7 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
-              <p>Provide route performance statistics</p>
+              <p>Provide route performance statistics.</p>
 
             </div>
             
@@ -174,11 +180,11 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
-              <p>Set client-side configuration</p>
+              <p>Get client-side configuration.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      .add( <span class="hljs-string">'role:web, cmd:config'</span>, cmd_config)</pre></div></div>
+            <div class="content"><div class='highlight'><pre>      .add( <span class="hljs-string">'role:web, get:config'</span>, get_config)</pre></div></div>
             
         </li>
         
@@ -189,12 +195,11 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
-              <p>Set client-side source code</p>
+              <p>Set client-side source code.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      .add( <span class="hljs-string">'role:web, cmd:source'</span>, cmd_source)
-  }</pre></div></div>
+            <div class="content"><div class='highlight'><pre>      .add( <span class="hljs-string">'role:web, set:source'</span>, set_source)</pre></div></div>
             
         </li>
         
@@ -205,12 +210,12 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
-              <p>Implementation of <em>role:web</em> action.</p>
+              <p>Get client-side source code list.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">web_use</span><span class="hljs-params">( args, done )</span> </span>{
-    <span class="hljs-keyword">var</span> seneca = <span class="hljs-keyword">this</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>      .add( <span class="hljs-string">'role:web, get:sourcelist'</span>, get_sourcelist)
+  }</pre></div></div>
             
         </li>
         
@@ -220,6 +225,22 @@
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Action: <em>role:web</em></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">web_use</span><span class="hljs-params">( args, done )</span> </span>{
+    <span class="hljs-keyword">var</span> seneca = <span class="hljs-keyword">this</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
               <p>The plugin is defining some client-side configuration.</p>
 
@@ -238,18 +259,19 @@
         </li>
         
         
-        <li id="section-11">
+        <li id="section-12">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-11">&#182;</a>
+                <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
               <p>Add service to middleware layers, order is significant</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      args.use.plugin$        = args.plugin$
-      args.use.serviceid$     = nid()
+            <div class="content"><div class='highlight'><pre>      args.use.plugin$    = args.plugin$
+      args.use.serviceid$ = nid()
+      route_list_cache    = <span class="hljs-literal">null</span>
 
       define_service(seneca,args.use,<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(err,service)</span></span>{
         <span class="hljs-keyword">if</span>( err ) <span class="hljs-keyword">return</span> done(err);
@@ -258,27 +280,15 @@
           services.push( service )
           servicemap[service.serviceid$] = service
         }
+
+        done();
       })
     }
     <span class="hljs-keyword">else</span> done();
   }
 
-  web_use.validate = {</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-12">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-12">&#182;</a>
-              </div>
-              <p>Use a mapping, or custom middleware function</p>
 
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>    use: {},</pre></div></div>
+  web_use.validate = {</pre></div></div>
             
         </li>
         
@@ -289,11 +299,11 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-13">&#182;</a>
               </div>
-              <p>Client-side configuration for named plugin.</p>
+              <p>Use a mapping, or custom middleware function</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    config: {object$:<span class="hljs-literal">true</span>},</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    use: {},</pre></div></div>
             
         </li>
         
@@ -303,6 +313,21 @@
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>Client-side configuration for named plugin.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    config: {object$:<span class="hljs-literal">true</span>},</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
               <p>Client-side name for the plugin.</p>
 
@@ -314,41 +339,24 @@
         </li>
         
         
-        <li id="section-15">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-15">&#182;</a>
-              </div>
-              <p>Implementation of <em>role:web, cmd:source</em> action.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">cmd_source</span><span class="hljs-params">( args, done )</span> </span>{
-    sourcelist.push(<span class="hljs-string">'\n;// '</span>+args.title+<span class="hljs-string">'\n'</span>+args.source)
-    done()
-  }</pre></div></div>
-            
-        </li>
-        
-        
         <li id="section-16">
             <div class="annotation">
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
-              <p>Implementation of <em>role:web, cmd:config</em> action.</p>
+              <p>Action: <em>role:web, cmd:source</em></p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">cmd_config</span><span class="hljs-params">( args, done )</span> </span>{
-    done( <span class="hljs-literal">null</span>, 
-          _.extend({}, <span class="hljs-literal">null</span>!=args.plugin ? (configmap[args.plugin]||{}) : {} ) )
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">set_source</span><span class="hljs-params">( args, done )</span> </span>{
+    sourcelist.push(<span class="hljs-string">'\n;// '</span>+args.title+<span class="hljs-string">'\n'</span>+args.source)
+    done()
   }
 
-  cmd_config.validate = {
-    plugin: {string$:<span class="hljs-literal">true</span>},
+  set_source.validate = {
+    title:  { string$:<span class="hljs-literal">true</span> },
+    source: { required$:<span class="hljs-literal">true</span>, string$:<span class="hljs-literal">true</span> },
   }</pre></div></div>
             
         </li>
@@ -360,12 +368,12 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-17">&#182;</a>
               </div>
-              <p>Implementation of <em>role:web, cmd:list</em> action.</p>
+              <p>Action <em>role:web, get:sourcelist</em></p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">cmd_list</span><span class="hljs-params">( args, done )</span> </span>{
-    done( <span class="hljs-literal">null</span>, _.clone(services) )
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">get_sourcelist</span><span class="hljs-params">( args, done )</span> </span>{
+    done( <span class="hljs-literal">null</span>, _.clone(sourcelist) )
   }</pre></div></div>
             
         </li>
@@ -377,24 +385,16 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-18">&#182;</a>
               </div>
-              <p>Implementation of <em>role:web, cmd:routes</em> pattern.</p>
+              <p>Action <em>role:web, get:config</em></p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">cmd_routes</span><span class="hljs-params">( args, done )</span> </span>{
-    <span class="hljs-keyword">var</span> routes = []
-    <span class="hljs-keyword">var</span> methods = _.keys(routemap)
-    _.each(methods,<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(method)</span></span>{
-      <span class="hljs-keyword">var</span> urlmap = routemap[method]
-      <span class="hljs-keyword">if</span>( urlmap ) {
-        _.each( urlmap, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(srv,url)</span> </span>{
-          routes.push({url:url,method:method.toUpperCase(),service:srv})
-        })
-      }
-    })
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">get_config</span><span class="hljs-params">( args, done )</span> </span>{
+    done( <span class="hljs-literal">null</span>, _.clone(configmap[args.plugin] || {}) )
+  }
 
-    routes.sort(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(a,b)</span></span>{<span class="hljs-keyword">return</span> a.url == b.url ? <span class="hljs-number">0</span> : a.url &lt; b.url ? -<span class="hljs-number">1</span> : +<span class="hljs-number">1</span> })
-    done( <span class="hljs-literal">null</span>, routes )
+  get_config.validate = {
+    plugin: { required:<span class="hljs-literal">true</span>, string$:<span class="hljs-literal">true</span> },
   }</pre></div></div>
             
         </li>
@@ -406,13 +406,67 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-19">&#182;</a>
               </div>
-              <p>Implementation of <em>role:web, stats:true</em> pattern.</p>
+              <p>Action <em>role:web, list:service</em>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">list_service</span><span class="hljs-params">( args, done )</span> </span>{
+    done( <span class="hljs-literal">null</span>, _.clone(services) )
+  }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>Action <em>role:web, list:route</em>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">list_route</span><span class="hljs-params">( args, done )</span> </span>{
+    <span class="hljs-keyword">if</span>( <span class="hljs-literal">null</span> == route_list_cache ) {
+      route_list_cache = []
+      <span class="hljs-keyword">var</span> methods = _.keys(routemap)
+      _.each(methods,<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(method)</span></span>{
+        <span class="hljs-keyword">var</span> urlmap = routemap[method]
+        <span class="hljs-keyword">if</span>( urlmap ) {
+          _.each( urlmap, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(srv,url)</span> </span>{
+            route_list_cache.push({
+              url:     url,
+              method:  method.toUpperCase(),
+              service: srv
+            })
+          })
+        }
+      })
+      route_list_cache.sort(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(a,b)</span></span>{
+        <span class="hljs-keyword">return</span> a.url == b.url ? <span class="hljs-number">0</span> : a.url &lt; b.url ? -<span class="hljs-number">1</span> : +<span class="hljs-number">1</span> 
+      })
+    }
+
+    done( <span class="hljs-literal">null</span>, _.clone(route_list_cache) )
+  }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>Action <em>role:web, stats:true</em>.</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">action_stats</span><span class="hljs-params">(args,done)</span> </span>{
     <span class="hljs-keyword">var</span> stats = {}
-    <span class="hljs-keyword">this</span>.act(<span class="hljs-string">'role:web,cmd:routes'</span>,<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(err,list)</span></span>{
+    <span class="hljs-keyword">this</span>.act(<span class="hljs-string">'role:web,list:route'</span>,<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(err,list)</span></span>{
       <span class="hljs-keyword">if</span>( err ) <span class="hljs-keyword">return</span> done(err);
 
       _.each(list, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(route)</span></span>{
@@ -432,27 +486,30 @@
   }
 
 
-
   add_action_patterns()</pre></div></div>
             
         </li>
         
         
-        <li id="section-20">
+        <li id="section-22">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-20">&#182;</a>
+                <a class="pilcrow" href="#section-22">&#182;</a>
               </div>
               <p>Service specification schema.</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> spec_check = parambulator({
-    type$: <span class="hljs-string">'object'</span>,
-    pin:    {required$:<span class="hljs-literal">true</span>},
-    map:    {required$:<span class="hljs-literal">true</span>,object$:<span class="hljs-literal">true</span>},
-    prefix: <span class="hljs-string">'string$'</span>
+    type$:     <span class="hljs-string">'object'</span>,
+    pin:       {required$:<span class="hljs-literal">true</span>},
+    map:       {required$:<span class="hljs-literal">true</span>,object$:<span class="hljs-literal">true</span>},
+    prefix:    <span class="hljs-string">'string$'</span>,
+    startware: <span class="hljs-string">'function$'</span>,
+    endware:   <span class="hljs-string">'function$'</span>,
+    premap:    <span class="hljs-string">'function$'</span>,
+    postmap:   <span class="hljs-string">'function$'</span>,
   }, {
     topname:<span class="hljs-string">'spec'</span>,
     msgprefix:<span class="hljs-string">'web-use: '</span>,
@@ -461,11 +518,11 @@
         </li>
         
         
-        <li id="section-21">
+        <li id="section-23">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-21">&#182;</a>
+                <a class="pilcrow" href="#section-23">&#182;</a>
               </div>
               <p>Define service middleware</p>
 
@@ -487,11 +544,11 @@
         </li>
         
         
-        <li id="section-22">
+        <li id="section-24">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-22">&#182;</a>
+                <a class="pilcrow" href="#section-24">&#182;</a>
               </div>
               <p>startware and endware always called, regardless of prefix</p>
 
@@ -511,7 +568,6 @@
             <span class="hljs-keyword">if</span>(err ) <span class="hljs-keyword">return</span> next(err);
 
             <span class="hljs-keyword">if</span>( spec.endware ) {
-              <span class="hljs-keyword">var</span> begin_endware = <span class="hljs-built_in">Date</span>.now()
               spec.endware.call(si,req,res,<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(err)</span></span>{
                 <span class="hljs-keyword">if</span>(err ) <span class="hljs-keyword">return</span> next(err);
                 next();
@@ -534,11 +590,11 @@
         </li>
         
         
-        <li id="section-23">
+        <li id="section-25">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-23">&#182;</a>
+                <a class="pilcrow" href="#section-25">&#182;</a>
               </div>
               <p>TODO connect is a very heavyweight way to do this!!!</p>
 
@@ -549,8 +605,8 @@
   app.use(serve_static(__dirname+<span class="hljs-string">'/web'</span>))
 
   <span class="hljs-keyword">var</span> use = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(req,res,next)</span></span>{
-    <span class="hljs-keyword">if</span>( <span class="hljs-number">0</span>===req.url.indexOf(options.contentprefix) ) {
-      <span class="hljs-keyword">if</span>( <span class="hljs-number">0</span> == req.url.indexOf(options.contentprefix+<span class="hljs-string">'/init.js'</span>) ) {
+    <span class="hljs-keyword">if</span>( <span class="hljs-number">0</span> === req.url.indexOf(options.contentprefix) ) {
+      <span class="hljs-keyword">if</span>( <span class="hljs-number">0</span> === req.url.indexOf(options.contentprefix+<span class="hljs-string">'/init.js'</span>) ) {
         res.writeHead(<span class="hljs-number">200</span>,{<span class="hljs-string">'Content-Type'</span>:<span class="hljs-string">'text/javascript'</span>})
         <span class="hljs-keyword">return</span> res.end(initsrc+sourcelist.join(<span class="hljs-string">'\n'</span>));
       }
@@ -570,11 +626,11 @@
         </li>
         
         
-        <li id="section-24">
+        <li id="section-26">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-24">&#182;</a>
+                <a class="pilcrow" href="#section-26">&#182;</a>
               </div>
               <p>TODO need some sort of logging here to trace failures to call next()</p>
 
@@ -634,11 +690,11 @@
         </li>
         
         
-        <li id="section-25">
+        <li id="section-27">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-25">&#182;</a>
+                <a class="pilcrow" href="#section-27">&#182;</a>
               </div>
               <h3 id="utility-functions">Utility functions</h3>
 
@@ -647,11 +703,11 @@
         </li>
         
         
-        <li id="section-26">
+        <li id="section-28">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-26">&#182;</a>
+                <a class="pilcrow" href="#section-28">&#182;</a>
               </div>
               <p>Convert an object to a JSON string, handling circular refs.</p>
 
@@ -667,11 +723,11 @@
         </li>
         
         
-        <li id="section-27">
+        <li id="section-29">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-27">&#182;</a>
+                <a class="pilcrow" href="#section-29">&#182;</a>
               </div>
               <p>Ensure the URL prefix is well-formed.</p>
 
@@ -694,20 +750,20 @@
         </li>
         
         
-        <li id="section-28">
+        <li id="section-30">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-28">&#182;</a>
+                <a class="pilcrow" href="#section-30">&#182;</a>
               </div>
               <p>Map action pin function names to action patterns.
 The function names form part of the URL.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">makeactmap</span><span class="hljs-params">( instance, pin )</span> </span>{
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">makeactmap</span><span class="hljs-params">( instance, pindef )</span> </span>{
   <span class="hljs-keyword">var</span> actmap = {}
-  <span class="hljs-keyword">var</span> pin = instance.pin(pin)
+  <span class="hljs-keyword">var</span> pin = instance.pin(pindef)
 
   <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> fn <span class="hljs-keyword">in</span> pin ) {
     <span class="hljs-keyword">var</span> f = pin[fn]
@@ -722,11 +778,11 @@ The function names form part of the URL.</p>
         </li>
         
         
-        <li id="section-29">
+        <li id="section-31">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-29">&#182;</a>
+                <a class="pilcrow" href="#section-31">&#182;</a>
               </div>
               <p>Default action handler; just calls the action.</p>
 
@@ -739,11 +795,11 @@ The function names form part of the URL.</p>
         </li>
         
         
-        <li id="section-30">
+        <li id="section-32">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-30">&#182;</a>
+                <a class="pilcrow" href="#section-32">&#182;</a>
               </div>
               <p>Create URL spec for each action from pin</p>
 
@@ -758,11 +814,11 @@ The function names form part of the URL.</p>
         </li>
         
         
-        <li id="section-31">
+        <li id="section-33">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-31">&#182;</a>
+                <a class="pilcrow" href="#section-33">&#182;</a>
               </div>
               <p>METHOD:true abbrev</p>
 
@@ -786,11 +842,11 @@ The function names form part of the URL.</p>
         </li>
         
         
-        <li id="section-32">
+        <li id="section-34">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-32">&#182;</a>
+                <a class="pilcrow" href="#section-34">&#182;</a>
               </div>
               <p>Create route for url over method with handler</p>
 
@@ -810,16 +866,16 @@ The function names form part of the URL.</p>
 
 
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_prepostmap</span><span class="hljs-params">( spec, prefix, http )</span> </span>{</pre></div></div>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_prepostmap</span><span class="hljs-params">( instance, spec, prefix, http )</span> </span>{</pre></div></div>
             
         </li>
         
         
-        <li id="section-33">
+        <li id="section-35">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-33">&#182;</a>
+                <a class="pilcrow" href="#section-35">&#182;</a>
               </div>
               <p>FIX: premap may get called twice if map function calls next</p>
 
@@ -828,11 +884,11 @@ The function names form part of the URL.</p>
         </li>
         
         
-        <li id="section-34">
+        <li id="section-36">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-34">&#182;</a>
+                <a class="pilcrow" href="#section-36">&#182;</a>
               </div>
               <p>lastly, try premap by itself against prefix if nothing else matches
 needed for common auth checks etc
@@ -850,11 +906,11 @@ ensures premap is always called</p>
         </li>
         
         
-        <li id="section-35">
+        <li id="section-37">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-35">&#182;</a>
+                <a class="pilcrow" href="#section-37">&#182;</a>
               </div>
               <p>FIX: should always be called if premap was called?</p>
 
@@ -881,11 +937,11 @@ ensures premap is always called</p>
         </li>
         
         
-        <li id="section-36">
+        <li id="section-38">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-36">&#182;</a>
+                <a class="pilcrow" href="#section-38">&#182;</a>
               </div>
               <p>TODO: test filtering</p>
 
@@ -908,11 +964,11 @@ ensures premap is always called</p>
         </li>
         
         
-        <li id="section-37">
+        <li id="section-39">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-37">&#182;</a>
+                <a class="pilcrow" href="#section-39">&#182;</a>
               </div>
               <p>default filter
 removes $ from entity objects</p>
@@ -975,11 +1031,11 @@ removes $ from entity objects</p>
         </li>
         
         
-        <li id="section-38">
+        <li id="section-40">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-38">&#182;</a>
+                <a class="pilcrow" href="#section-40">&#182;</a>
               </div>
               <p>TODO: use options to control where args come from</p>
 
@@ -996,11 +1052,11 @@ removes $ from entity objects</p>
         </li>
         
         
-        <li id="section-39">
+        <li id="section-41">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-39">&#182;</a>
+                <a class="pilcrow" href="#section-41">&#182;</a>
               </div>
               <p>data flag means put JSON body into separate data field
 otherwise mix it all in</p>
@@ -1018,11 +1074,11 @@ otherwise mix it all in</p>
         </li>
         
         
-        <li id="section-40">
+        <li id="section-42">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-40">&#182;</a>
+                <a class="pilcrow" href="#section-42">&#182;</a>
               </div>
               <p>modify args</p>
 
@@ -1036,7 +1092,7 @@ otherwise mix it all in</p>
 }
 
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">makedispatch</span><span class="hljs-params">(act,spec,urlspec,handlerspec,timestats)</span> </span>{
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">makedispatch</span><span class="hljs-params">(instance,act,spec,urlspec,handlerspec,timestats)</span> </span>{
   <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( req, res, next )</span> </span>{
     <span class="hljs-keyword">var</span> begin = <span class="hljs-built_in">Date</span>.now()
     <span class="hljs-keyword">var</span> args = makehttpargs(spec,urlspec,req)
@@ -1049,11 +1105,11 @@ otherwise mix it all in</p>
         </li>
         
         
-        <li id="section-41">
+        <li id="section-43">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-41">&#182;</a>
+                <a class="pilcrow" href="#section-43">&#182;</a>
               </div>
               <p>TODO: put obj into engagement if present</p>
 
@@ -1127,7 +1183,7 @@ otherwise mix it all in</p>
         <span class="hljs-keyword">var</span> handlerspec = _.isObject(handler) ? handler : {}
         handlerspec.handler = handlerspec.handler || (_.isFunction(handler) ? handler : defaulthandler)
 
-        <span class="hljs-keyword">var</span> dispatch = makedispatch(act,spec,urlspec,handlerspec,timestats)
+        <span class="hljs-keyword">var</span> dispatch = makedispatch(instance,act,spec,urlspec,handlerspec,timestats)
 
         <span class="hljs-keyword">if</span>( handler ) {
           route_method(instance,http,method,urlspec,dispatch,routemap,servicedesc,actpat)
@@ -1137,14 +1193,14 @@ otherwise mix it all in</p>
       })
 
       <span class="hljs-keyword">if</span>( <span class="hljs-number">0</span> === mC ) {
-        <span class="hljs-keyword">var</span> dispatch = makedispatch(act,spec,urlspec,{},timestats)
+        <span class="hljs-keyword">var</span> dispatch = makedispatch(instance,act,spec,urlspec,{},timestats)
         route_method(instance,http,<span class="hljs-string">'get'</span>,urlspec,dispatch,routemap,servicedesc,actpat)
         routes.push( <span class="hljs-string">'GET '</span>+urlspec.fullurl )
       }
     })
 
 
-    make_prepostmap( spec, prefix, http )
+    make_prepostmap( instance, spec, prefix, http )
   })
 
   mr.routes$ = routes
