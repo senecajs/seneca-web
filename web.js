@@ -252,7 +252,9 @@ module.exports = function( options ) {
       var actmap     = make_actmap( pin )
       var routespecs = make_routespecs( actmap, spec, prefix, options )
       
-      //console.log( routespecs )
+      resolve_actions( instance, routespecs )
+
+      console.log( routespecs )
 
       // TODO: refactor
 
@@ -459,6 +461,20 @@ function make_routespecs( actmap, spec, prefix, options ) {
 }
 
 
+function resolve_actions( instance, routespecs ) {
+  _.each( routespecs, function( routespec ) {
+    var actmeta = instance.findact( routespec.pattern )
+    if( !actmeta ) return;
+
+    var act = function(args,cb) {
+      this.act.call(this,_.extend({},routespec.pattern,args),cb)
+    }
+
+    routespec.act     = act
+    routespec.actmeta = actmeta
+  })
+}
+
 // Create URL spec for each action from pin
 function makeurlspec( spec, prefix, fname ) {
   var urlspec = spec.map.hasOwnProperty(fname) ? spec.map[fname] : null
@@ -612,12 +628,13 @@ function makemaprouter(instance,spec,routespecs,actmap,routemap,servicedesc,time
     _.each( routespecs, function( routespec ) {
       var pattern = routespec.pattern
 
-      var actmeta = instance.findact( pattern )
-      if( !actmeta ) return;
 
-      var act = function(args,cb) {
-        this.act.call(this,_.extend({},pattern,args),cb)
-      }
+      //var actmeta = instance.findact( pattern )
+      //if( !actmeta ) return;
+
+      //var act = function(args,cb) {
+      //  this.act.call(this,_.extend({},pattern,args),cb)
+      //}
 
       //var urlspec = makeurlspec( spec, prefix, fname )
       //if( !urlspec ) return;
@@ -632,7 +649,7 @@ function makemaprouter(instance,spec,routespecs,actmap,routemap,servicedesc,time
           (_.isFunction(handler) ? handler : defaulthandler)
         handlerspec.modify = handlerspec.modify || remove_dollar_modify
 
-        var dispatch = makedispatch(instance,act,spec,routespec,handlerspec,timestats)
+        var dispatch = makedispatch(instance,routespec.act,spec,routespec,handlerspec,timestats)
 
         if( handler ) {
           route_method(instance,http,method,routespec,dispatch,routemap,servicedesc,pattern)
@@ -643,7 +660,7 @@ function makemaprouter(instance,spec,routespecs,actmap,routemap,servicedesc,time
 
       if( 0 === mC ) {
         var handlerspec = { modify:remove_dollar_modify }
-        var dispatch = makedispatch(instance,act,spec,routespec,handlerspec,timestats)
+        var dispatch = makedispatch(instance,routespec.act,spec,routespec,handlerspec,timestats)
         route_method(instance,http,'get',routespec,dispatch,routemap,servicedesc,pattern)
         routes.push( 'GET '+routespec.fullurl )
       }
