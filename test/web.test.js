@@ -40,7 +40,7 @@ describe('user', function() {
   })
 
 
-  it('config', function() {
+  it('config', function(fin) {
     si.act(
       {
         role:'web',
@@ -54,9 +54,33 @@ describe('user', function() {
       function(err,out){
         assert.ok( null == err)
 
-        si.act({role:'web',cmd:'config', plugin:'aaa'}, function(err,out){
+        si.act({role:'web',get:'config', plugin:'aaa'}, function(err,out){
           assert.ok( null == err)
           assert.equal( out.a, 1 )
+          fin()
+        })
+      }
+    )
+  })
+
+
+  it('source', function(fin) {
+    si.act(
+      {
+        role:'web',
+        set:'source',
+        title:'t1',
+        source:'s1',
+      }, 
+      function(err,out){
+        assert.ok( null == err)
+
+        si.act({role:'web',get:'sourcelist'}, function(err,out){
+          //console.log(out)
+          assert.ok( null == err)
+          assert.equal( out.length, 1 )
+          assert.equal( '\n;// t1\ns1', out[0] )
+          fin()
         })
       }
     )
@@ -91,10 +115,10 @@ describe('user', function() {
       }})
     })
 
-    si.act('role:web,cmd:list',success(fin,function(out){
+    si.act('role:web,list:service',success(fin,function(out){
       assert.equal(out.length,4)
 
-      si.act('role:web,cmd:routes',success(fin,function(out){
+      si.act('role:web,list:route',success(fin,function(out){
         assert.equal(out.length,3)
 
         si.act({role:'web',stats:true},success(fin,function(out){

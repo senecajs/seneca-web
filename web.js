@@ -38,8 +38,11 @@ module.exports = function( options ) {
   var services = []
 
   var configmap  = {}
-  var routemap   = {}
   var servicemap = {}
+
+  var routemap = {}
+  var route_list_cache = null
+
 
   var init_template = _.template(mstring(
     function(){/***
@@ -60,27 +63,30 @@ module.exports = function( options ) {
 
   function add_action_patterns() {
     seneca
-    // Define a web service API
+    // Define a web service API.
       .add( 'role:web', web_use)
 
-    // List known web services
-      .add( 'role:web, cmd:list',   cmd_list)
+    // List known web services.
+      .add( 'role:web, list:service', list_service)
 
-    // List known routes
-      .add( 'role:web, cmd:routes', cmd_routes)
+    // List known routes.
+      .add( 'role:web, list:route', list_route)
 
-    // Provide route performance statistics
+    // Provide route performance statistics.
       .add( 'role:web, stats:true', action_stats)
 
-    // Set client-side configuration
-      .add( 'role:web, cmd:config', cmd_config)
+    // Get client-side configuration.
+      .add( 'role:web, get:config', get_config)
 
-    // Set client-side source code
-      .add( 'role:web, cmd:source', cmd_source)
+    // Set client-side source code.
+      .add( 'role:web, set:source', set_source)
+
+    // Get client-side source code list.
+      .add( 'role:web, get:sourcelist', get_sourcelist)
   }
 
 
-  // Implementation of _role:web_ action.
+  // Action: _role:web_
   function web_use( args, done ) {
     var seneca = this
 
@@ -95,8 +101,9 @@ module.exports = function( options ) {
 
     if( args.use ) {
       // Add service to middleware layers, order is significant
-      args.use.plugin$        = args.plugin$
-      args.use.serviceid$     = nid()
+      args.use.plugin$    = args.plugin$
+      args.use.serviceid$ = nid()
+      route_list_cache    = null
 
       define_service(seneca,args.use,function(err,service){
         if( err ) return done(err);
@@ -105,10 +112,13 @@ module.exports = function( options ) {
           services.push( service )
           servicemap[service.serviceid$] = service
         }
+
+        done();
       })
     }
     else done();
   }
+
 
   web_use.validate = {
     // Use a mapping, or custom middleware function
@@ -123,54 +133,71 @@ module.exports = function( options ) {
 
 
 
-  // Implementation of _role:web, cmd:source_ action.
-  function cmd_source( args, done ) {
+  // Action: _role:web, cmd:source_
+  function set_source( args, done ) {
     sourcelist.push('\n;// '+args.title+'\n'+args.source)
     done()
   }
 
-
-
-  // Implementation of _role:web, cmd:config_ action.
-  function cmd_config( args, done ) {
-    done( null, 
-          _.extend({}, null!=args.plugin ? (configmap[args.plugin]||{}) : {} ) )
-  }
-
-  cmd_config.validate = {
-    plugin: {string$:true},
+  set_source.validate = {
+    title:  { string$:true },
+    source: { required$:true, string$:true },
   }
 
 
+  // Action _role:web, get:sourcelist_
+  function get_sourcelist( args, done ) {
+    done( null, _.clone(sourcelist) )
+  }
 
-  // Implementation of _role:web, cmd:list_ action.
-  function cmd_list( args, done ) {
+
+  // Action _role:web, get:config_
+  function get_config( args, done ) {
+    done( null, _.clone(configmap[args.plugin] || {}) )
+  }
+
+  get_config.validate = {
+    plugin: { required:true, string$:true },
+  }
+
+
+
+  // Action _role:web, list:service_.
+  function list_service( args, done ) {
     done( null, _.clone(services) )
   }
 
 
-  // Implementation of _role:web, cmd:routes_ pattern.
-  function cmd_routes( args, done ) {
-    var routes = []
-    var methods = _.keys(routemap)
-    _.each(methods,function(method){
-      var urlmap = routemap[method]
-      if( urlmap ) {
-        _.each( urlmap, function(srv,url) {
-          routes.push({url:url,method:method.toUpperCase(),service:srv})
-        })
-      }
-    })
+  // Action _role:web, list:route_.
+  function list_route( args, done ) {
+    if( null == route_list_cache ) {
+      route_list_cache = []
+      var methods = _.keys(routemap)
+      _.each(methods,function(method){
+        var urlmap = routemap[method]
+        if( urlmap ) {
+          _.each( urlmap, function(srv,url) {
+            route_list_cache.push({
+              url:     url,
+              method:  method.toUpperCase(),
+              service: srv
+            })
+          })
+        }
+      })
+      route_list_cache.sort(function(a,b){
+        return a.url == b.url ? 0 : a.url < b.url ? -1 : +1 
+      })
+    }
 
-    routes.sort(function(a,b){return a.url == b.url ? 0 : a.url < b.url ? -1 : +1 })
-    done( null, routes )
+    done( null, _.clone(route_list_cache) )
   }
 
 
-  // Implementation of _role:web, stats:true_ pattern.
+  // Action _role:web, stats:true_.
   function action_stats(args,done) {
     var stats = {}
-    this.act('role:web,cmd:routes',function(err,list){
+    this.act('role:web,list:route',function(err,list){
       if( err ) return done(err);
 
       _.each(list, function(route){
@@ -188,7 +215,6 @@ module.exports = function( options ) {
       done(null,stats)
     })
   }
-
 
 
   add_action_patterns()
