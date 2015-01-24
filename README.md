@@ -290,8 +290,6 @@ These general middleware functions are:
 
    * _startware_: always executed, before any mappings, even when there is no route match
    * _endware_: always executed, after any mapping, even when there is no route match
-   * _premap_: executed before mapping, but only if there is a mapping
-   * _postmap_: executed after mapping, but only if there is a mapping
 
 The primary advantage of using the mapping specification over a custom
 middleware function is that seneca-web maintains a list of mapped

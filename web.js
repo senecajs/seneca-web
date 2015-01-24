@@ -248,10 +248,10 @@ module.exports = function( options ) {
     spec_check.validate(spec,function(err){
       if( err ) return done(err)
 
-      var prefix     = fixprefix( spec.prefix, options.prefix )
+      spec.prefix    = fixprefix( spec.prefix, options.prefix )
       var pin        = instance.pin( spec.pin )
       var actmap     = make_actmap( pin )
-      var routespecs = make_routespecs( actmap, spec, prefix, options )
+      var routespecs = make_routespecs( actmap, spec, options )
       
       resolve_actions( instance, routespecs )
       resolve_methods( routespecs )
@@ -259,13 +259,8 @@ module.exports = function( options ) {
 
       //console.log( util.inspect(routespecs,{depth:null}) )
 
+      var maprouter = make_router( instance, spec, routespecs, routemap )
 
-      // TODO: refactor
-
-      var maprouter = makemaprouter(
-        instance,spec,routespecs,actmap,routemap,
-        {prefix:prefix,plugin:spec.plugin$,serviceid:spec.serviceid$},timestats)
-      
       var service = function(req,res,next) {
         var si = req.seneca || instance
 
@@ -456,7 +451,7 @@ function make_redirectresponder( routespec, methodspec ) {
 
 var defaultflags = {useparams:true,usequery:true,dataprop:false}
 
-function make_routespecs( actmap, spec, prefix, options ) {
+function make_routespecs( actmap, spec, options ) {
   var routespecs = []
 
   _.each( actmap, function(pattern,fname) {
@@ -465,16 +460,16 @@ function make_routespecs( actmap, spec, prefix, options ) {
     // Only build a route if explicitly defined in map
     if( !routespec ) return;
   
-    var url = prefix + fname
+    var url = spec.prefix + fname
   
     // METHOD:true abbrev
     routespec = _.isBoolean(routespec) ? {} : routespec
   
     if( routespec.alias ) {
-      url = prefix + routespec.alias
+      url = spec.prefix + routespec.alias
     }
 
-    routespec.prefix  = prefix
+    routespec.prefix  = spec.prefix
     routespec.suffix  = routespec.suffix || ''
     routespec.fullurl = url + routespec.suffix
 
@@ -634,76 +629,32 @@ function resolve_dispatch( routespecs, timestats ) {
 }
 
 
-
-
-
-// Create route for url over method with handler
-function route_method( 
-  instance,http,methodspec,routespec,routemap,servicedesc) 
-{
-  var method  = methodspec.method
-  var pattern = routespec.pattern
-  var fullurl = routespec.fullurl
-
-  instance.log.debug('http',method,fullurl)
-  http[method.toLowerCase()](fullurl, methodspec.dispatch)
-
-  var rm = (routemap[method] = (routemap[method]||{}))
-  rm[fullurl] = _.extend({},servicedesc,{pattern:pattern})
-}
-
-
-function make_prepostmap( instance, spec, prefix, http ) {
-
-  // FIX: premap may get called twice if map function calls next
-
-  // lastly, try premap by itself against prefix if nothing else matches
-  // needed for common auth checks etc
-  // ensures premap is always called
-  if( spec.premap ) {
-    http.all(prefix, function(req,res,next){
-      var si = req.seneca || instance
-      spec.premap.call(si,req,res,next)
-    })
-      }
-  
-  // FIX: should always be called if premap was called?
-  
-  if( spec.postmap ) {
-    http.all(prefix, function(req,res,next){
-      var si = req.seneca || instance
-      spec.postmap.call(si,req,res,next)
-    })
-  }
-}
-
-
-
-function makemaprouter(instance,spec,routespecs,actmap,routemap,servicedesc,timestats) {
-  var prefix = servicedesc.prefix
-
+function make_router(instance,spec,routespecs,routemap) {
   var routes = []
   var mr = httprouter(function(http){
     _.each( routespecs, function( routespec ) {
       _.each( routespec.methods, function( methodspec, method ) {
-        //var dispatch = makedispatch(
-        //  instance,spec,routespec,methodspec,timestats)
 
-        route_method(
-          instance,http,methodspec,routespec,routemap,servicedesc)
+        instance.log.debug('http',method,routespec.fullurl)
+        http[method](routespec.fullurl, methodspec.dispatch)
+
+        var rm = (routemap[method] = (routemap[method]||{}))
+        rm[routespec.fullurl] = {
+          pattern:   routespec.pattern,
+          plugin:    spec.plugin$,
+          serviceid: spec.serviceid$,
+          prefix:    spec.prefix
+        }
 
         routes.push( method.toUpperCase()+' '+routespec.fullurl )
       })
     })      
-
-    make_prepostmap( instance, spec, prefix, http )
   })
 
   mr.routes$ = routes
 
   return mr;
 }
-
 
 
 // ### Utility functions
