@@ -258,6 +258,7 @@ module.exports = function( options ) {
 
       //console.log( util.inspect(routespecs,{depth:null}) )
 
+
       // TODO: refactor
 
       var maprouter = makemaprouter(
@@ -336,12 +337,12 @@ module.exports = function( options ) {
     }
   }
 
+
   var web = function( req, res, next ) {
     res.seneca = req.seneca = seneca.delegate({req$:req,res$:res})
 
     next_service(req,res,next,0)
   }
-
 
 
   seneca.add({init:'web'},function(args,done) {
@@ -429,6 +430,27 @@ function defaultresponder(req,res,err,obj) {
 }
 
 
+function make_redirectresponder( routespec, methodspec ) {
+  return function(req,res,err,obj) {
+    var url = methodspec.redirect || routespec.redirect
+  
+    var status = 302 || methodspec.status || routespec.status
+
+    if( err ) {
+      url += '?ec='+encodeURIComponent(err.code?err.code:err.message)
+      status = err.httpstatus$ || (err.http$ && err.http$.status) || status
+    }
+
+    res.writeHead( status, {
+      'Location': url
+    })
+    res.end()
+  }
+}
+
+
+
+
 // ### Spec parsing functions
 
 function make_routespecs( actmap, spec, prefix, options ) {
@@ -481,6 +503,11 @@ function resolve_actions( instance, routespecs ) {
 function resolve_methods( routespecs ) {
   _.each( routespecs, function( routespec ) {
 
+
+    if( _.isString(routespec.redirect) && !routespec.responder) {
+      routespec.responder = make_redirectresponder( routespec, {} )
+    }
+
     var mC = 0
     var methods = {}
 
@@ -499,6 +526,11 @@ function resolve_methods( routespecs ) {
         _.isFunction( methodspec.handler ) ? methodspec.handler : 
         _.isFunction( routespec.handler ) ? routespec.handler : 
         defaulthandler
+
+
+      if( _.isString(methodspec.redirect) && !methodspec.responder) {
+        methodspec.responder = make_redirectresponder( routespec, methodspec )
+      }
 
       methodspec.responder = 
         _.isFunction( methodspec.responder ) ? methodspec.responder : 
@@ -531,28 +563,19 @@ function resolve_methods( routespecs ) {
 }
 
 
-// Create URL spec for each action from pin
-function makeurlspec( spec, prefix, fname ) {
-  var urlspec = spec.map.hasOwnProperty(fname) ? spec.map[fname] : null
-  if( !urlspec ) return;
-  
-  var url = prefix + fname
-  
-  // METHOD:true abbrev
-  urlspec = _.isBoolean(urlspec) ? {} : urlspec
-  
-  if( urlspec.alias ) {
-    url = prefix + urlspec.alias
-  }
+function resolve_dispatch( routespec ) {
+  _.each( routespecs, function( routespec ) {
+    _.each( routespec.methods, function( methodspec, method ) {
 
-  urlspec.prefix  = prefix
-  urlspec.suffix  = urlspec.suffix || ''
-  urlspec.fullurl = url + urlspec.suffix
-
-  urlspec.fname = fname
-
-  return urlspec;
+      methodspec.dispatch = makedispatch(
+        instance,spec,routespec,methodspec,timestats)
+      
+    })
+  })      
 }
+
+
+
 
 
 // Create route for url over method with handler
@@ -628,6 +651,7 @@ function makedispatch(instance,spec,routespec,methodspec,timestats) {
     var begin = Date.now()
     var args  = makehttpargs(spec,routespec,req)
 
+/*
     if( methodspec.redirect && 
         'application/x-www-form-urlencoded' == req.headers['content-type']) 
     {
@@ -644,11 +668,14 @@ function makedispatch(instance,spec,routespec,methodspec,timestats) {
         res.end()
       }
     }
+*/
 
-    var handler   = methodspec.handler   || defaulthandler
-    var responder = methodspec.responder || defaultresponder
+    //var handler   = methodspec.handler   || defaulthandler
+    //var responder = methodspec.responder || defaultresponder
 
-    
+    var handler   = methodspec.handler
+    var responder = methodspec.responder
+
     var si = req.seneca || instance
     var respond = function(err,obj){
       var qi = req.url.indexOf('?')
