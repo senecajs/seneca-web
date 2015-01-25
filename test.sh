@@ -6,6 +6,15 @@ if [ ! -d "./node_modules/express" ]; then
   npm install express@4
 fi
 
+if [ ! -d "./node_modules/body-parser" ]; then
+  npm install body-parser@1
+fi
+
+if [ ! -d "./node_modules/needle" ]; then
+  npm install needle@0
+fi
+
+
 ./node_modules/.bin/mocha test/*.test.js
 
 node test/example.js --seneca.log=level:error &
@@ -56,3 +65,8 @@ fi
 
 
 
+node test/test-server.js --seneca.log=level:error &
+NODE_PID=$!
+sleep 1
+node test/test-client.js
+kill -9 $NODE_PID

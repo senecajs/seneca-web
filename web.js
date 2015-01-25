@@ -494,7 +494,7 @@ function make_routespecs( actmap, spec, options ) {
     routespec = _.isBoolean(routespec) ? {} : routespec
   
     if( routespec.alias ) {
-      url = spec.prefix + routespec.alias
+      url = spec.prefix + fixalias(routespec.alias)
     }
 
     routespec.prefix  = spec.prefix
@@ -597,7 +597,6 @@ function resolve_methods( options, spec, routespecs ) {
 
 function make_argparser( methodspec ) {
   return function( req ) {
-
     var args = _.extend(
       {},
       ( methodspec.useparams && _.isObject(req.params) ) ? req.params: {},
@@ -607,6 +606,7 @@ function make_argparser( methodspec ) {
     // data flag means put JSON body into separate data field
     // otherwise mix it all in
     var data = _.isObject(req.body)?req.body:{}
+
     if( methodspec.dataprop ) {
       args.data = data
     }
@@ -710,6 +710,16 @@ function fixprefix( prefix, defaultprefix ) {
   }
 
   return prefix
+}
+
+
+// Ensure alias has no leading slash.
+function fixalias( alias ) {
+  alias = null != alias ? ''+alias : ''
+
+  alias = alias.replace(/^\/+/,'')
+
+  return alias
 }
 
 
