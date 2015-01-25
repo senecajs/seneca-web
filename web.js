@@ -2,7 +2,7 @@
 /* jshint node:true, asi:true, eqnull:true */
 "use strict";
 
-
+// TODO: deeper unit tests, redirects, http settings
 
 var util   = require('util')
 var buffer = require('buffer')
@@ -16,7 +16,7 @@ var connect             = require('connect')
 var serve_static        = require('serve-static')
 var json_stringify_safe = require('json-stringify-safe')
 var stats               = require('rolling-stats')
-
+var error               = require('eraro')({package:'seneca',msgmap:ERRMSGMAP()})
 
 var httprouter = require('./http-router')
 var methodlist = _.clone(httprouter.methods)
@@ -35,6 +35,9 @@ module.exports = function( options ) {
       size:     1024,
       duration: 60000,
     },
+    make_defaulthandler:    make_defaulthandler,
+    make_defaultresponder:  make_defaultresponder,
+    make_redirectresponder: make_redirectresponder,
   },options)
   
   var timestats = new stats.NamedStats( options.stats.size, options.stats.duration )
@@ -254,7 +257,7 @@ module.exports = function( options ) {
       var routespecs = make_routespecs( actmap, spec, options )
       
       resolve_actions( instance, routespecs )
-      resolve_methods( spec, routespecs )
+      resolve_methods( options, spec, routespecs )
       resolve_dispatch( routespecs, timestats )
 
       //console.log( util.inspect(routespecs,{depth:null}) )
@@ -383,56 +386,75 @@ function make_defaulthandler( spec, routespec, methodspec ) {
 }
 
 
-// TODO: more options for response control
-
+// Default response handler; applies custom http$ settings, if any
 function make_defaultresponder( spec, routespec, methodspec ) {
   return function defaultresponder(req,res,err,obj) {
-    var outobj
+    obj = (null == obj) ? {} : obj
+    var outobj = {}
 
-    if( _.isUndefined(obj) || _.isNull(obj) ) {
-      outobj = ''
+    if( !_.isObject( obj ) ) {
+      err = error('result_not_object',{url:req.url,result:obj.toString()})
     }
     else {
-      outobj = obj;
+      outobj = _.clone( obj )
     }
 
-    if( null != outobj.redirect$ ) {
+    var http = outobj.http$
+    if( http ) {
+      delete outobj.http$
+    }
+    else {
+      http = {}
+    }
+    
+    // specific http settings
+    http = _.extend({},spec.http,routespec.http,methodspec.http,http)
+
+    // Legacy settings
+    if( outobj.redirect$ ) {
+      http.redirect = outobj.redirect$
       delete outobj.redirect$
     }
 
-    if( null != outobj.httpstatus$ ) {
+    if( outobj.httpstatus$ ) {
+      http.status = outobj.httpstatus$
       delete outobj.httpstatus$
     }
 
-
-    var objstr = err ? JSON.stringify({error:''+err}) : stringify(outobj)
-    var code   = err ? 
-          (err.seneca && err.seneca.httpstatus ? err.seneca.httpstatus : 500) : 
-        (obj && obj.httpstatus$) ? obj.httpstatus$ : 200;
-
-    var redirect = (obj ? obj.redirect$ : false) || 
-          (err && err.senecca && err.seneca.httpredirect)
+    if( err ) {
+      var errobj = err.seneca ? err.seneca : err
+      http.redirect = errobj.redirect$   || http.redirect
+      http.status   = errobj.httpstatus$ || http.status
+    }
 
     
-    if( redirect ) {
-      res.writeHead(code,{
+    // Send redirect response.
+    if( http.redirect ) {
+      res.writeHead( http.status || 302, _.extend({
         'Location': redirect
-      })
+      },http.headers))
       res.end()
     }
+
+    // Send JSON response.
     else {
-      res.writeHead(code,{
-        'Content-Type': 'application/json',
+      var outjson = err ? JSON.stringify({error:''+err}) : stringify(outobj)
+
+      http.status = http.status || ( err ? 500 : 200 )
+
+      res.writeHead(http.status,_.extend({
+        'Content-Type':  'application/json',
         'Cache-Control': 'private, max-age=0, no-cache, no-store',
-        "Content-Length": buffer.Buffer.byteLength(objstr) 
-      })
-      res.end( objstr )
+        "Content-Length": buffer.Buffer.byteLength(outjson) 
+      },http.headers))
+
+      res.end( outjson )
     }
   }
 }
 
 
-function make_redirectresponder( routespec, methodspec ) {
+function make_redirectresponder( spec, routespec, methodspec ) {
   return function(req,res,err,obj) {
     var url = methodspec.redirect || routespec.redirect
   
@@ -487,7 +509,7 @@ function make_routespecs( actmap, spec, options ) {
     })
 
     if( _.isString(routespec.redirect) && !routespec.responder) {
-      routespec.responder = make_redirectresponder( routespec, {} )
+      routespec.responder = make_redirectresponder( spec, routespec, {} )
     }
   
     routespecs.push( _.clone(routespec) )
@@ -512,7 +534,7 @@ function resolve_actions( instance, routespecs ) {
 }
 
 
-function resolve_methods( spec, routespecs ) {
+function resolve_methods( options, spec, routespecs ) {
   _.each( routespecs, function( routespec ) {
 
     var methods = {}
@@ -546,17 +568,18 @@ function resolve_methods( spec, routespecs ) {
       methodspec.handler = 
         _.isFunction( methodspec.handler ) ? methodspec.handler : 
         _.isFunction( routespec.handler ) ? routespec.handler : 
-        make_defaulthandler( spec, routespec, methodspec )
+        options.make_defaulthandler( spec, routespec, methodspec )
 
 
       if( _.isString(methodspec.redirect) && !methodspec.responder) {
-        methodspec.responder = make_redirectresponder( routespec, methodspec )
+        methodspec.responder = 
+          options.make_redirectresponder( routespec, methodspec )
       }
 
       methodspec.responder = 
         _.isFunction( methodspec.responder ) ? methodspec.responder : 
         _.isFunction( routespec.responder ) ? routespec.responder : 
-        make_defaultresponder( spec, routespec, methodspec )
+        options.make_defaultresponder( spec, routespec, methodspec )
 
       methodspec.modify = 
         _.isFunction( methodspec.modify ) ? methodspec.modify : 
@@ -715,3 +738,8 @@ function defaultmodify( obj ) {
   })
 }
 
+function ERRMSGMAP() {
+  return {
+    result_not_object: 'API result is not an object: <%=url%> returned <%=result%>.',
+  }
+}
