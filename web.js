@@ -254,7 +254,7 @@ module.exports = function( options ) {
       var routespecs = make_routespecs( actmap, spec, options )
       
       resolve_actions( instance, routespecs )
-      resolve_methods( routespecs )
+      resolve_methods( spec, routespecs )
       resolve_dispatch( routespecs, timestats )
 
       //console.log( util.inspect(routespecs,{depth:null}) )
@@ -376,52 +376,58 @@ module.exports = function( options ) {
 // ### Route functions
 
 // Default action handler; just calls the action.
-function defaulthandler(req,res,args,act,respond) {
-  act(args,respond)
+function make_defaulthandler( spec, routespec, methodspec ) {
+  return function defaulthandler(req,res,args,act,respond) {
+    act(args,respond)
+  }
 }
 
 
-function defaultresponder(req,res,err,obj) {
-  var outobj
+// TODO: more options for response control
 
-  if( _.isUndefined(obj) || _.isNull(obj) ) {
-    outobj = ''
-  }
-  else {
-    outobj = obj;
-  }
+function make_defaultresponder( spec, routespec, methodspec ) {
+  return function defaultresponder(req,res,err,obj) {
+    var outobj
 
-  if( null != outobj.redirect$ ) {
-    delete outobj.redirect$
-  }
+    if( _.isUndefined(obj) || _.isNull(obj) ) {
+      outobj = ''
+    }
+    else {
+      outobj = obj;
+    }
 
-  if( null != outobj.httpstatus$ ) {
-    delete outobj.httpstatus$
-  }
+    if( null != outobj.redirect$ ) {
+      delete outobj.redirect$
+    }
+
+    if( null != outobj.httpstatus$ ) {
+      delete outobj.httpstatus$
+    }
 
 
-  var objstr = err ? JSON.stringify({error:''+err}) : stringify(outobj)
-  var code   = err ? 
-        (err.seneca && err.seneca.httpstatus ? err.seneca.httpstatus : 500) : 
-      (obj && obj.httpstatus$) ? obj.httpstatus$ : 200;
+    var objstr = err ? JSON.stringify({error:''+err}) : stringify(outobj)
+    var code   = err ? 
+          (err.seneca && err.seneca.httpstatus ? err.seneca.httpstatus : 500) : 
+        (obj && obj.httpstatus$) ? obj.httpstatus$ : 200;
 
-  var redirect = (obj ? obj.redirect$ : false) || 
-        (err && err.senecca && err.seneca.httpredirect)
+    var redirect = (obj ? obj.redirect$ : false) || 
+          (err && err.senecca && err.seneca.httpredirect)
 
-  
-  if( redirect ) {
-    res.writeHead(code,{
-      'Location': redirect
-    })
-    res.end()
-  }
-  else {
-    res.writeHead(code,{
-      'Content-Type': 'application/json',
-      'Cache-Control': 'private, max-age=0, no-cache, no-store',
-      "Content-Length": buffer.Buffer.byteLength(objstr) 
-    })
-    res.end( objstr )
+    
+    if( redirect ) {
+      res.writeHead(code,{
+        'Location': redirect
+      })
+      res.end()
+    }
+    else {
+      res.writeHead(code,{
+        'Content-Type': 'application/json',
+        'Cache-Control': 'private, max-age=0, no-cache, no-store',
+        "Content-Length": buffer.Buffer.byteLength(objstr) 
+      })
+      res.end( objstr )
+    }
   }
 }
 
@@ -506,7 +512,7 @@ function resolve_actions( instance, routespecs ) {
 }
 
 
-function resolve_methods( routespecs ) {
+function resolve_methods( spec, routespecs ) {
   _.each( routespecs, function( routespec ) {
 
     var methods = {}
@@ -540,7 +546,7 @@ function resolve_methods( routespecs ) {
       methodspec.handler = 
         _.isFunction( methodspec.handler ) ? methodspec.handler : 
         _.isFunction( routespec.handler ) ? routespec.handler : 
-        defaulthandler
+        make_defaulthandler( spec, routespec, methodspec )
 
 
       if( _.isString(methodspec.redirect) && !methodspec.responder) {
@@ -550,7 +556,7 @@ function resolve_methods( routespecs ) {
       methodspec.responder = 
         _.isFunction( methodspec.responder ) ? methodspec.responder : 
         _.isFunction( routespec.responder ) ? routespec.responder : 
-        defaultresponder
+        make_defaultresponder( spec, routespec, methodspec )
 
       methodspec.modify = 
         _.isFunction( methodspec.modify ) ? methodspec.modify : 
