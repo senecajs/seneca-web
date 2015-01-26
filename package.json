@@ -1,7 +1,7 @@
 {
   "name": "seneca-web",
   "description": "A plugin that provides HTTP functionality for the Seneca framework.",
-  "version": "0.6.0",
+  "version": "0.3.0",
   "keywords": [
     "seneca",
     "web",

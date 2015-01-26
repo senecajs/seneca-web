@@ -2,7 +2,6 @@
 /* jshint node:true, asi:true, eqnull:true */
 "use strict";
 
-// TODO: deeper unit tests, redirects, http settings
 
 var util   = require('util')
 var buffer = require('buffer')
@@ -300,10 +299,8 @@ module.exports = function( options ) {
   }
 
 
+  // TODO is connect the best option here?
 
-
-  // TODO connect is a very heavyweight way to do this!!!
-  
   var app = connect()
   app.use(serve_static(__dirname+'/web'))
 
@@ -319,7 +316,6 @@ module.exports = function( options ) {
     }
     else return next();
   }
-
 
   
   function next_service(req,res,next,i) {

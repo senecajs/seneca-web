@@ -17,9 +17,9 @@ For a gentle introduction to Seneca itself, see the
 If you're using this module, feel free to contact me on Twitter if you
 have any questions! :) [@rjrodger](http://twitter.com/rjrodger)
 
-Current Version: 0.2.2
+Current Version: 0.3.0
 
-Tested on: Seneca 0.5.19, Node 0.10.35
+Tested on: Seneca 0.6.0, Node 0.10.35
 
 [![Build Status](https://travis-ci.org/rjrodger/seneca-web.png?branch=master)](https://travis-ci.org/rjrodger/seneca-web)
 

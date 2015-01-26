@@ -82,8 +82,11 @@
     make_defaulthandler:    make_defaulthandler,
     make_defaultresponder:  make_defaultresponder,
     make_redirectresponder: make_redirectresponder,
+    warn: {
+      req_body: <span class="hljs-literal">true</span>
+    }
   },options)
-  
+
   <span class="hljs-keyword">var</span> timestats = <span class="hljs-keyword">new</span> stats.NamedStats( options.stats.size, options.stats.duration )</pre></div></div>
             
         </li>
@@ -556,7 +559,7 @@
       <span class="hljs-keyword">var</span> routespecs = make_routespecs( actmap, spec, options )
       
       resolve_actions( instance, routespecs )
-      resolve_methods( options, spec, routespecs )
+      resolve_methods( instance, options, spec, routespecs )
       resolve_dispatch( routespecs, timestats )</pre></div></div>
             
         </li>
@@ -981,7 +984,7 @@
 }
 
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">resolve_methods</span><span class="hljs-params">( options, spec, routespecs )</span> </span>{
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">resolve_methods</span><span class="hljs-params">( instance, options, spec, routespecs )</span> </span>{
   _.each( routespecs, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( routespec )</span> </span>{
 
     <span class="hljs-keyword">var</span> methods = {}
@@ -1033,7 +1036,7 @@
         defaultmodify
 
 
-      methodspec.argparser = make_argparser( methodspec )
+      methodspec.argparser = make_argparser( instance, options, methodspec )
     })
 
     routespec.methods = methods
@@ -1041,8 +1044,14 @@
 }
 
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_argparser</span><span class="hljs-params">( methodspec )</span> </span>{
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_argparser</span><span class="hljs-params">( instance, options, methodspec )</span> </span>{
   <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( req )</span> </span>{
+    <span class="hljs-keyword">if</span>( !_.isObject(req.body) &amp;&amp; options.warn.req_body ) {
+      instance.log.warn(
+        <span class="hljs-string">'seneca-web: req.body not present! '</span>+
+          <span class="hljs-string">'Do you need: express_app.use( require("body-parser").json() ?'</span>)
+    }
+
     <span class="hljs-keyword">var</span> data = _.extend(
       {},
       _.isObject(req.body) ? req.body: {},
