@@ -3,10 +3,12 @@ var assert = require('assert')
 var needle = require('needle')
 
 
+
 var url = 'http://localhost:3001/t0/a0/b0?a1=b1&a2=b2'
 console.log('GET '+url)
 needle.get(url,function(err,res){
   assert.ok( !err )
+  assert.equal( res.headers.h0, 'i0' ) 
   assert.deepEqual(res.body,{ r0: 'r0b0', r1: 'r1b1', r2: 'r2b2', x0: 'ry0' })
 })
 
@@ -19,6 +21,40 @@ needle.post(
   {json:true},
   function(err,res){
     assert.ok( !err )
-    assert.deepEqual(res.body,{ r0: 'Xr0pb0', r1: 'pr1b1', r2: 'r2b2', x0: 'ry0' })
+    assert.deepEqual(res.body,{ r0: 'r0pb0', r1: 'pr1b1', r2: 'r2b2', x0: 'ry0' })
   })
 
+
+url = 'http://localhost:3001/t0/a0/b0?a1=b1',
+console.log('PUT '+url)
+needle.put(
+  url,
+  {a2:'b2'},
+  {json:true},
+  function(err,res){
+    assert.ok( !err )
+    assert.equal( ''+res.body,
+                  '{"r0":"r0undefined","r1":"r1pundefined","r2":'+
+                  '"r2b2","x0":"ry0","http$":{"headers":{"h0":"i0"}},'+
+                  '"o0":"p0","q0":"u0"}' )
+
+  })
+
+
+var url = 'http://localhost:3001/t0/c1?d0=e0'
+console.log('GET '+url)
+needle.get(url,function(err,res){
+  assert.ok( !err )
+  assert.deepEqual( res.body, { d0: 'e0f0' } )
+})
+
+url = 'http://localhost:3001/t0/c2',
+console.log('POST '+url)
+needle.post(
+  url,
+  {d1:'e1'},
+  {json:true},
+  function(err,res){
+    assert.ok( !err )
+    assert.deepEqual( res.body, { d1: 'e1f1' } )
+  })

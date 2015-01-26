@@ -557,7 +557,6 @@ function resolve_methods( options, spec, routespecs ) {
       methods.get = { method:'get' }
     }
 
-
     _.each( methods, function( methodspec) {
 
       _.each(defaultflags, function(val,flag) {
@@ -597,24 +596,15 @@ function resolve_methods( options, spec, routespecs ) {
 
 function make_argparser( methodspec ) {
   return function( req ) {
-    var args = _.extend(
+    var data = _.extend(
       {},
+      _.isObject(req.body) ? req.body: {},
       ( methodspec.useparams && _.isObject(req.params) ) ? req.params: {},
       ( methodspec.usequery &&  _.isObject(req.query)  ) ? req.query : {}
     )
 
-    // data flag means put JSON body into separate data field
-    // otherwise mix it all in
-    var data = _.isObject(req.body)?req.body:{}
-
-    if( methodspec.dataprop ) {
-      args.data = data
-    }
-    else {
-      args = _.extend(data,args)
-    }
-
-    return args
+    // dataprop flag means put args into separate data property
+    return methodspec.dataprop ? {data:data} : data;
   }
 }
 
@@ -637,9 +627,10 @@ function resolve_dispatch( routespecs, timestats ) {
                 ';'+routespec.actmeta.pattern
           timestats.point( Date.now()-begin, name+';'+req.method+';'+url );
 
-          methodspec.modify(obj)
+          var result = {err:err,out:obj}
+          methodspec.modify(result)
 
-          methodspec.responder.call(si,req,res,err,obj)
+          methodspec.responder.call(si,req,res,result.err,result.out)
         }
 
         var act_si = function(args,done){
@@ -740,12 +731,14 @@ function make_actmap( pin ) {
 
 
 
-function defaultmodify( obj ) {
-  _.keys(obj,function(k){
-    if(~k.indexOf('$')){
-      delete obj[k]
-    }
-  })
+function defaultmodify( result ) {
+  if( _.isObject( result.out ) ) {
+    _.keys(result.out,function(k){
+      if(~k.indexOf('$')){
+        delete result.out[k]
+      }
+    })
+  }
 }
 
 function ERRMSGMAP() {

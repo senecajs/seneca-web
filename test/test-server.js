@@ -16,6 +16,14 @@ seneca.use( function p0() {
     })
   })
 
+  this.add('role:api,cmd:c1',function(args,done){
+    done(null,{d0:args.data.d0+'f0'})
+  })
+
+  this.add('role:api,cmd:c2',function(args,done){
+    done(null,{d1:args.d1+'f1'})
+  })
+
   this.act('role:web',{use:{
     prefix:'/t0',
     pin:'role:api,cmd:*',
@@ -35,7 +43,33 @@ seneca.use( function p0() {
             out.r1 = 'p'+out.r1
             respond(null,out)
           })
+        },
+        PUT: {
+          useparams: false,
+          usequery: false,
+          handler: function( req, res, args, act, respond ) {
+            args.a1 = 'p'+args.a1
+            act( args, respond )
+          },
+          modify: function( result ) {
+            result.out.o0 = 'p0'
+          },
+          responder: function( req, res, err, obj ) {
+            obj.q0 = 'u0'
+            res.end( JSON.stringify(obj) )
+          }
         }
+      },
+
+      // GET will be used as default method
+      c1: {
+        dataprop: true
+      },
+
+      // GET not defined!!
+      c2: {
+        dataprop: true,
+        POST: { dataprop: false }
       }
     }
   }})
