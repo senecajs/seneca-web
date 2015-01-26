@@ -23,6 +23,8 @@ Tested on: Seneca 0.5.19, Node 0.10.35
 
 [![Build Status](https://travis-ci.org/rjrodger/seneca-web.png?branch=master)](https://travis-ci.org/rjrodger/seneca-web)
 
+There is [annotated source code](http://rjrodger.github.io/seneca-web/doc/web.html) for this module.
+
 
 ### Install
 
@@ -32,15 +34,33 @@ This plugin module is included in the main Seneca module:
 npm install seneca
 ```
 
-To install separately, use:
+To install separately (if you're using a fork or branch, say), use:
 
 ```sh
 npm install seneca-web
 ```
 
+And in your code:
+
+```js
+var seneca = require('seneca')({
+  default_plugins:{
+    web:false
+  }
+})
+seneca.use( require('seneca-web') )
+
+```
 
 
 ## Quick example
+
+This example defines some API end point URLs that correspond to Seneca actions:
+
+   * `GET /my-api/zig`: `role:foo,cmd:zig`
+   * `GET /my-api/bar`: `role:foo,cmd:bar`
+   * `GET /my-api/qaz`: `role:foo,cmd:qaz`
+   * `POST /my-api/qaz`: `role:foo,cmd:qaz`
 
 ```JavaScript
 var seneca = require('seneca')()
@@ -63,7 +83,7 @@ seneca.add('role:foo,cmd:qaz',function(args,done){
 seneca.act('role:web',{use:{
 
   // define some routes that start with /foo
-  prefix: '/foo',
+  prefix: '/my-api',
 
   // use action patterns where role has the value 'foo' and cmd is defined
   pin:    {role:'foo',cmd:'*'},
@@ -73,7 +93,7 @@ seneca.act('role:web',{use:{
   map:{
     zig: true,
     bar: {GET:true},
-    qaz: {GET:true,HEAD:true}
+    qaz: {GET:true,POST:true}
   }
 }})
 
@@ -83,8 +103,12 @@ app.use( seneca.export('web') )
 app.listen(3000)
 
 // run: node test/example.js --seneca.log=type:act
-// try http://localhost:3000/foo/bar?zoo=a
+
+// try: curl -m 1 -s http://localhost:3000/my-api/bar?zoo=a
 // returns {"bar":"ab"}
+
+// try curl -m 1 -s -H 'Content-Type: application/json' -d '{"zoo":"b"}' http://localhost:3000/my-api/qaz
+// returns {"qaz":"bz"}
 ```
 
 

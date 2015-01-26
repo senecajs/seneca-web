@@ -38,8 +38,11 @@ module.exports = function( options ) {
     make_defaulthandler:    make_defaulthandler,
     make_defaultresponder:  make_defaultresponder,
     make_redirectresponder: make_redirectresponder,
+    warn: {
+      req_body: true
+    }
   },options)
-  
+
   var timestats = new stats.NamedStats( options.stats.size, options.stats.duration )
 
   // Ordered list of middleware services.
@@ -257,7 +260,7 @@ module.exports = function( options ) {
       var routespecs = make_routespecs( actmap, spec, options )
       
       resolve_actions( instance, routespecs )
-      resolve_methods( options, spec, routespecs )
+      resolve_methods( instance, options, spec, routespecs )
       resolve_dispatch( routespecs, timestats )
 
       //console.log( util.inspect(routespecs,{depth:null}) )
@@ -536,7 +539,7 @@ function resolve_actions( instance, routespecs ) {
 }
 
 
-function resolve_methods( options, spec, routespecs ) {
+function resolve_methods( instance, options, spec, routespecs ) {
   _.each( routespecs, function( routespec ) {
 
     var methods = {}
@@ -588,7 +591,7 @@ function resolve_methods( options, spec, routespecs ) {
         defaultmodify
 
 
-      methodspec.argparser = make_argparser( methodspec )
+      methodspec.argparser = make_argparser( instance, options, methodspec )
     })
 
     routespec.methods = methods
@@ -596,8 +599,14 @@ function resolve_methods( options, spec, routespecs ) {
 }
 
 
-function make_argparser( methodspec ) {
+function make_argparser( instance, options, methodspec ) {
   return function( req ) {
+    if( !_.isObject(req.body) && options.warn.req_body ) {
+      instance.log.warn(
+        'seneca-web: req.body not present! '+
+          'Do you need: express_app.use( require("body-parser").json() ?')
+    }
+
     var data = _.extend(
       {},
       _.isObject(req.body) ? req.body: {},

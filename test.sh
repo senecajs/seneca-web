@@ -17,21 +17,29 @@ fi
 
 ./node_modules/.bin/mocha test/*.test.js
 
-node test/example.js --seneca.log=level:error &
+node test/example.js --seneca.log=level:warn &
 NODE_PID=$!
 sleep 1
-FOO_BAR=`curl -m 1 -s http://localhost:3000/foo/bar?zoo=a`
+GET_FOO_BAR=`curl -m 1 -s http://localhost:3000/my-api/bar?zoo=a`
+POST_FOO_QAZ=`curl -m 1 -s -H 'Content-Type: application/json' -d '{"zoo":"b"}' http://localhost:3000/my-api/qaz`
 ZED=`curl -m 1 -s http://localhost:3000/zed`
 COLOR_RED=`curl -m 1 -s http://localhost:3000/color/red`
 COLOR_GREEN=`curl -m 1 -s http://localhost:3000/color/green`
 COLOR_BLUE=`curl -m 1 -s http://localhost:3000/color/blue`
 kill -9 $NODE_PID
 
-if [ $FOO_BAR != '{"bar":"ab"}' ]; then
-  echo "FAIL: $FOO_BAR"
+if [ $GET_FOO_BAR != '{"bar":"ab"}' ]; then
+  echo "FAIL: $GET_FOO_BAR"
   exit 1
 else
-  echo "PASS: $FOO_BAR"
+  echo "PASS: $GET_FOO_BAR"
+fi
+
+if [ $POST_FOO_QAZ != '{"qaz":"bz"}' ]; then
+  echo "FAIL: $POST_FOO_QAZ"
+  exit 1
+else
+  echo "PASS: $POST_FOO_QAZ"
 fi
 
 if [ $ZED != '{"dez":2}' ]; then

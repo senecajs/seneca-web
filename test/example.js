@@ -1,4 +1,6 @@
-var seneca = require('seneca')()
+var seneca = require('seneca')({
+  default_plugins:{web:false}
+})
 seneca.use('../web.js')
 
 seneca.add('role:foo,cmd:zig',function(args,done){
@@ -16,12 +18,12 @@ seneca.add('role:foo,cmd:qaz',function(args,done){
 
 
 seneca.act('role:web',{use:{
-  prefix:'/foo',
+  prefix:'/my-api',
   pin:{role:'foo',cmd:'*'},
   map:{
     zig: true,
     bar: {GET:true},
-    qaz: {GET:true,HEAD:true}
+    qaz: {GET:true,POST:true}
   }
 }})
 
@@ -70,9 +72,14 @@ seneca.act('role:web', {use:{
 
 var express = require('express')
 var app = express()
+app.use( require('body-parser').json() )
 app.use( seneca.export('web') )
 app.listen(3000)
 
 // run: node test/example.js --seneca.log=type:act
-// try http://localhost:3000/foo/bar?zoo=a
+
+// try curl -m 1 -s http://localhost:3000/my-api/bar?zoo=a
 // returns {"bar":"ab"}
+
+// try curl -m 1 -s -H 'Content-Type: application/json' -d '{"zoo":"b"}' http://localhost:3000/my-api/qaz
+// returns {"qaz":"bz"}
