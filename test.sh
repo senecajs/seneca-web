@@ -65,7 +65,7 @@ fi
 
 
 
-node test/test-server.js --seneca.log=level:error &
+node test/test-server.js --seneca.log=level:fatal &
 NODE_PID=$!
 sleep 1
 node test/test-client.js

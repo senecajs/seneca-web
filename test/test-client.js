@@ -58,3 +58,28 @@ needle.post(
     assert.ok( !err )
     assert.deepEqual( res.body, { d1: 'e1f1' } )
   })
+
+
+var url = 'http://localhost:3001/t0/e0'
+console.log('GET '+url)
+needle.get(url,function(err,res){
+  assert.ok( !err )
+  assert.equal(500,res.statusCode)
+  assert.deepEqual( res.body, { error: 'Error: seneca: Action role:api,cmd:e0 failed: e0.' } )
+})
+
+var url = 'http://localhost:3001/t0/e1'
+console.log('GET '+url)
+needle.get(url,function(err,res){
+  assert.ok( !err )
+  assert.equal(500,res.statusCode)
+  assert.equal( ''+res.body, 'e1' )
+})
+
+var url = 'http://localhost:3001/t0/r0'
+console.log('GET '+url)
+needle.get(url,function(err,res){
+  assert.ok( !err )
+  assert.equal(400,res.statusCode)
+  assert.deepEqual( res.body, { ok: false, why: 'No input will satisfy me.' } )
+})

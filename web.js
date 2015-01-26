@@ -338,7 +338,7 @@ module.exports = function( options ) {
 
 
   var web = function( req, res, next ) {
-    res.seneca = req.seneca = seneca.delegate({req$:req,res$:res})
+    res.seneca = req.seneca = seneca.root.delegate({req$:req,res$:res})
 
     next_service(req,res,next,0)
   }
@@ -381,7 +381,9 @@ module.exports = function( options ) {
 // Default action handler; just calls the action.
 function make_defaulthandler( spec, routespec, methodspec ) {
   return function defaulthandler(req,res,args,act,respond) {
-    act(args,respond)
+    act(args,function(err,out){
+      respond(err,out)
+    })
   }
 }
 
@@ -431,7 +433,7 @@ function make_defaultresponder( spec, routespec, methodspec ) {
     // Send redirect response.
     if( http.redirect ) {
       res.writeHead( http.status || 302, _.extend({
-        'Location': redirect
+        'Location': http.redirect
       },http.headers))
       res.end()
     }
@@ -553,7 +555,7 @@ function resolve_methods( options, spec, routespecs ) {
       methods[method] = methodspec
     })
 
-    if( 0 == _.keys(methods).length ) {
+    if( 0 === _.keys(methods).length ) {
       methods.get = { method:'get' }
     }
 
@@ -641,6 +643,7 @@ function resolve_dispatch( routespecs, timestats ) {
 
         premap.call(si,req,res,function(err){
           if(err ) return next(err);
+
           methodspec.handler.call( si, req, res, args, act_si, respond)
         })
       }

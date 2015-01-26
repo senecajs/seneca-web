@@ -24,6 +24,24 @@ seneca.use( function p0() {
     done(null,{d1:args.d1+'f1'})
   })
 
+  this.add('role:api,cmd:e0',function(args,done){
+    done(new Error('e0'))
+  })
+
+  this.add('role:api,cmd:e1',function(args,done){
+    done(new Error('e1'))
+  })
+
+  this.add('role:api,cmd:r0',function(args,done){
+    done(null,{
+      ok:false,
+      why:'No input will satisfy me.',
+      http$:{
+        status:400
+      }
+    })
+  })
+
   this.act('role:web',{use:{
     prefix:'/t0',
     pin:'role:api,cmd:*',
@@ -70,11 +88,26 @@ seneca.use( function p0() {
       c2: {
         dataprop: true,
         POST: { dataprop: false }
-      }
+      },
+
+      e0: true,
+      e1: {
+        responder: function( req, res, err, obj ) {
+          if( err ) { 
+            // plain text for errors, no JSON
+            res.writeHead(500)
+
+            // seneca formatted Error object
+            res.end( err.details.message )
+          }
+          else res.send(obj)
+        }
+      },
+
+      r0: true
     }
   }})
 })
-
 
 
 var express = require('express')
