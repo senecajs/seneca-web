@@ -21,7 +21,6 @@ var httprouter = require('./http-router')
 var methodlist = _.clone(httprouter.methods)
 
 
-
 module.exports = function( options ) {
   /* jshint validthis:true */
 

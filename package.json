@@ -1,7 +1,7 @@
 {
   "name": "seneca-web",
   "description": "A plugin that provides HTTP functionality for the Seneca framework.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "keywords": [
     "seneca",
     "web",
@@ -28,7 +28,7 @@
     "lodash": "~2.4.1",
     "mstring": "~0.1.2",
     "nid": "~0.3.2",
-    "parambulator": "~1.4.0",
+    "parambulator": "~1.5.0",
     "rolling-stats": "~0.1.1",
     "serve-static": "~1.8.0",
     "success": "~0.1.0"
@@ -36,7 +36,7 @@
   "devDependencies": {
     "docco": "~0.6.3",
     "jshint": "~2.6.0",
-    "mocha": "~1.20.1"
+    "mocha": "~2.1.0"
   },
   "repository": {
     "type": "git",

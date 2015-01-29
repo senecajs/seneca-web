@@ -1,9 +1,7 @@
-seneca-web - a [Seneca](http://senecajs.org) plugin
-=========================================================
+# seneca-web - a [Seneca](http://senecajs.org) plugin
+
 
 ## Seneca Web Plugin
-
-[![Gitter chat](https://badges.gitter.im/rjrodger/seneca-web.png)](https://gitter.im/rjrodger/seneca-web)
 
 This plugin provides a web service API routing layer for Seneca action
 patterns. It translates HTTP requests with specific URL routes into
@@ -14,16 +12,21 @@ your web service API.
 For a gentle introduction to Seneca itself, see the
 [senecajs.org](http://senecajs.org) site.
 
-If you're using this module, feel free to contact me on Twitter if you
-have any questions! :) [@rjrodger](http://twitter.com/rjrodger)
 
-Current Version: 0.3.0
+## Support
 
-Tested on: Seneca 0.6.0, Node 0.10.35
+Current Version: 0.3.1
+
+Tested on: Node 0.10.36, [Seneca](/rjrodger/seneca) 0.6.0
 
 [![Build Status](https://travis-ci.org/rjrodger/seneca-web.png?branch=master)](https://travis-ci.org/rjrodger/seneca-web)
 
-There is [annotated source code](http://rjrodger.github.io/seneca-web/doc/web.html) for this module.
+[Annotated Source Code](http://rjrodger.github.io/seneca-web/doc/web.html).
+
+If you're using this module, feel free to contact me on Twitter if you
+have any questions! :) [@rjrodger](http://twitter.com/rjrodger)
+
+[![Gitter chat](https://badges.gitter.im/rjrodger/seneca-web.png)](https://gitter.im/rjrodger/seneca-web)
 
 
 ### Install
