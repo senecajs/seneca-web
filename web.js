@@ -37,7 +37,12 @@ module.exports = function( options ) {
     make_defaultresponder:  make_defaultresponder,
     make_redirectresponder: make_redirectresponder,
     warn: {
-      req_body: true
+      req_body: true,
+      req_params: true,
+      req_query: true,
+    },
+    debug: {
+      service: false
     }
   },options)
 
@@ -258,10 +263,10 @@ module.exports = function( options ) {
       var routespecs = make_routespecs( actmap, spec, options )
       
       resolve_actions( instance, routespecs )
-      resolve_methods( instance, options, spec, routespecs )
-      resolve_dispatch( routespecs, timestats )
+      resolve_methods( instance, spec, routespecs )
+      resolve_dispatch( instance, spec, routespecs, timestats )
 
-      //console.log( util.inspect(routespecs,{depth:null}) )
+      // console.log( util.inspect(routespecs,{depth:null}) )
 
       var maprouter = make_router( instance, spec, routespecs, routemap )
 
@@ -298,6 +303,130 @@ module.exports = function( options ) {
   }
 
 
+  function resolve_actions( instance, routespecs ) {
+    _.each( routespecs, function( routespec ) {
+      var actmeta = instance.findact( routespec.pattern )
+      if( !actmeta ) return;
+
+      var act = function(args,cb) {
+        this.act.call(this,_.extend({},routespec.pattern,args),cb)
+      }
+
+      routespec.act     = act
+      routespec.actmeta = actmeta
+    })
+  }
+
+
+  function resolve_methods( instance, spec, routespecs ) {
+    _.each( routespecs, function( routespec ) {
+
+      var methods = {}
+
+      _.each( methodlist, function(method) {
+        var methodspec = routespec[method] || routespec[method.toUpperCase()]
+        if( !methodspec ) return;
+
+        var handler = methodspec
+        if( _.isFunction( methodspec ) || !_.isObject( methodspec ) ) {
+          methodspec = { handler:handler }
+        }
+        
+        methodspec.method = method
+
+        methods[method] = methodspec
+      })
+
+      if( 0 === _.keys(methods).length ) {
+        methods.get = { method:'get' }
+      }
+
+      _.each( methods, function( methodspec) {
+
+        _.each(defaultflags, function(val,flag) {
+          methodspec[flag] = 
+            (null == methodspec[flag]) ? routespec[flag] : methodspec[flag]
+        })
+
+        methodspec.handler = 
+          _.isFunction( methodspec.handler ) ? methodspec.handler : 
+          _.isFunction( routespec.handler ) ? routespec.handler : 
+          options.make_defaulthandler( spec, routespec, methodspec )
+
+
+        if( _.isString(methodspec.redirect) && !methodspec.responder) {
+          methodspec.responder = 
+            options.make_redirectresponder( routespec, methodspec )
+        }
+
+        methodspec.responder = 
+          _.isFunction( methodspec.responder ) ? methodspec.responder : 
+          _.isFunction( routespec.responder ) ? routespec.responder : 
+          options.make_defaultresponder( spec, routespec, methodspec )
+
+        methodspec.modify = 
+          _.isFunction( methodspec.modify ) ? methodspec.modify : 
+          _.isFunction( routespec.modify ) ? routespec.modify : 
+          defaultmodify
+
+
+        methodspec.argparser = make_argparser( instance, options, methodspec )
+      })
+
+      routespec.methods = methods
+    })
+  }
+
+
+  function resolve_dispatch( instance, spec, routespecs, timestats ) {
+    _.each( routespecs, function( routespec ) {
+      _.each( routespec.methods, function( methodspec, method ) {
+
+        methodspec.dispatch = function( req, res, next ) {
+          if( options.debug.service ) {
+            instance.log(
+              'service-dispatch',req.seneca.fixedargs.tx$,
+              req.method,req.url,spec.serviceid$,
+              util.inspect(methodspec) )
+          }
+
+          var begin = Date.now()
+          var args  = methodspec.argparser(req)
+
+          var si = req.seneca
+
+          var respond = function(err,obj){
+            var qi = req.url.indexOf('?')
+            var url = -1 == qi ? req.url : req.url.substring(0,qi)
+
+            var name = (routespec.actmeta.plugin_fullname || '')+
+                  ';'+routespec.actmeta.pattern
+            timestats.point( Date.now()-begin, name+';'+req.method+';'+url );
+
+            var result = {err:err,out:obj}
+            methodspec.modify(result)
+
+            methodspec.responder.call(si,req,res,result.err,result.out)
+          }
+
+          var act_si = function(args,done){
+            routespec.act.call(si,args,done)
+          }
+
+          var premap = routespec.premap || function(){arguments[2]()}
+
+          premap.call(si,req,res,function(err){
+            if(err ) return next(err);
+
+            methodspec.handler.call( si, req, res, args, act_si, respond)
+          })
+        }
+      })
+    })      
+  }
+
+
+
   // TODO is connect the best option here?
 
   var app = connect()
@@ -321,7 +450,12 @@ module.exports = function( options ) {
     if( i < services.length ) {
       var service = services[i]
 
-      // TODO need some sort of logging here to trace failures to call next()
+      if( options.debug.service ) {
+        seneca.log.debug( 
+          'service-chain',req.seneca.fixedargs.tx$,
+          req.method,req.url,service.serviceid$,
+          util.inspect(service.plugin$) )
+      }
 
       service.call(req.seneca,req,res,function(err){
         if( err ) return next(err);
@@ -336,7 +470,11 @@ module.exports = function( options ) {
 
 
   var web = function( req, res, next ) {
-    res.seneca = req.seneca = seneca.root.delegate({req$:req,res$:res})
+    res.seneca = req.seneca = seneca.root.delegate({
+      req$: req,
+      res$: res,
+      tx$:  seneca.root.idgen()
+    })
 
     next_service(req,res,next,0)
   }
@@ -519,81 +657,6 @@ function make_routespecs( actmap, spec, options ) {
 }
 
 
-function resolve_actions( instance, routespecs ) {
-  _.each( routespecs, function( routespec ) {
-    var actmeta = instance.findact( routespec.pattern )
-    if( !actmeta ) return;
-
-    var act = function(args,cb) {
-      this.act.call(this,_.extend({},routespec.pattern,args),cb)
-    }
-
-    routespec.act     = act
-    routespec.actmeta = actmeta
-  })
-}
-
-
-function resolve_methods( instance, options, spec, routespecs ) {
-  _.each( routespecs, function( routespec ) {
-
-    var methods = {}
-
-    _.each( methodlist, function(method) {
-      var methodspec = routespec[method] || routespec[method.toUpperCase()]
-      if( !methodspec ) return;
-
-      var handler = methodspec
-      if( _.isFunction( methodspec ) || !_.isObject( methodspec ) ) {
-        methodspec = { handler:handler }
-      }
-      
-      methodspec.method = method
-
-      methods[method] = methodspec
-    })
-
-    if( 0 === _.keys(methods).length ) {
-      methods.get = { method:'get' }
-    }
-
-    _.each( methods, function( methodspec) {
-
-      _.each(defaultflags, function(val,flag) {
-        methodspec[flag] = 
-          (null == methodspec[flag]) ? routespec[flag] : methodspec[flag]
-      })
-
-      methodspec.handler = 
-        _.isFunction( methodspec.handler ) ? methodspec.handler : 
-        _.isFunction( routespec.handler ) ? routespec.handler : 
-        options.make_defaulthandler( spec, routespec, methodspec )
-
-
-      if( _.isString(methodspec.redirect) && !methodspec.responder) {
-        methodspec.responder = 
-          options.make_redirectresponder( routespec, methodspec )
-      }
-
-      methodspec.responder = 
-        _.isFunction( methodspec.responder ) ? methodspec.responder : 
-        _.isFunction( routespec.responder ) ? routespec.responder : 
-        options.make_defaultresponder( spec, routespec, methodspec )
-
-      methodspec.modify = 
-        _.isFunction( methodspec.modify ) ? methodspec.modify : 
-        _.isFunction( routespec.modify ) ? routespec.modify : 
-        defaultmodify
-
-
-      methodspec.argparser = make_argparser( instance, options, methodspec )
-    })
-
-    routespec.methods = methods
-  })
-}
-
-
 function make_argparser( instance, options, methodspec ) {
   return function( req ) {
     if( !_.isObject(req.body) && options.warn.req_body ) {
@@ -601,12 +664,18 @@ function make_argparser( instance, options, methodspec ) {
         'seneca-web: req.body not present! '+
           'Do you need: express_app.use( require("body-parser").json() ?')
     }
-    if( methodspec.useparams && !_.isObject(req.params) ) {
+
+    if( methodspec.useparams && options.warn.req_params &&
+        !_.isObject(req.params) ) 
+    {
       instance.log.warn(
         'seneca-web: req.params not present! '+
           "To access URL params, you'll express or an appropriate parser module.")
     }
-    if( methodspec.usequery && !_.isObject(req.query) ) {
+
+    if( methodspec.usequery && options.warn.req_query && 
+        !_.isObject(req.query) ) 
+    {
       instance.log.warn(
         'seneca-web: req.query not present! '+
           "To access the URL query string, you'll need express "+
@@ -627,47 +696,6 @@ function make_argparser( instance, options, methodspec ) {
     }
     else return data;
   }
-}
-
-
-function resolve_dispatch( routespecs, timestats ) {
-  _.each( routespecs, function( routespec ) {
-    _.each( routespec.methods, function( methodspec, method ) {
-
-      methodspec.dispatch = function( req, res, next ) {
-        var begin = Date.now()
-        var args  = methodspec.argparser(req)
-
-        var si = req.seneca
-
-        var respond = function(err,obj){
-          var qi = req.url.indexOf('?')
-          var url = -1 == qi ? req.url : req.url.substring(0,qi)
-
-          var name = (routespec.actmeta.plugin_fullname || '')+
-                ';'+routespec.actmeta.pattern
-          timestats.point( Date.now()-begin, name+';'+req.method+';'+url );
-
-          var result = {err:err,out:obj}
-          methodspec.modify(result)
-
-          methodspec.responder.call(si,req,res,result.err,result.out)
-        }
-
-        var act_si = function(args,done){
-          routespec.act.call(si,args,done)
-        }
-
-        var premap = routespec.premap || function(){arguments[2]()}
-
-        premap.call(si,req,res,function(err){
-          if(err ) return next(err);
-
-          methodspec.handler.call( si, req, res, args, act_si, respond)
-        })
-      }
-    })
-  })      
 }
 
 

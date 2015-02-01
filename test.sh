@@ -1,5 +1,5 @@
 if [ ! -d "./node_modules/seneca" ]; then
-  npm install git://github.com/rjrodger/seneca#0.6.0
+  npm install seneca@plugin
 fi
 
 if [ ! -d "./node_modules/express" ]; then
