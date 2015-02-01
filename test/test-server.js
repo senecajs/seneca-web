@@ -17,11 +17,12 @@ seneca.use( function p0() {
   })
 
   this.add('role:api,cmd:c1',function(args,done){
-    done(null,{d0:args.data.d0+'f0'})
+    done(null,{d0:args.d0+'f0'})
   })
 
   this.add('role:api,cmd:c2',function(args,done){
-    done(null,{d1:args.d1+'f1'})
+    var src = 'PUT' == args.req$.method ? args.data : args
+    done(null,{d1:src.d1+'f1',d2:src.d2})
   })
 
   this.add('role:api,cmd:e0',function(args,done){
@@ -81,13 +82,14 @@ seneca.use( function p0() {
 
       // GET will be used as default method
       c1: {
-        dataprop: true
+        data: true
       },
 
       // GET not defined!!
       c2: {
-        dataprop: true,
-        POST: { dataprop: false }
+        data: true,
+        PUT: true,
+        POST: { data: false }
       },
 
       e0: true,

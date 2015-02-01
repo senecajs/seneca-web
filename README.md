@@ -15,9 +15,9 @@ For a gentle introduction to Seneca itself, see the
 
 ## Support
 
-Current Version: 0.3.1
+Current Version: 0.3.2
 
-Tested on: Node 0.10.36, [Seneca](/rjrodger/seneca) 0.6.0
+Tested on: Node 0.10.36, [Seneca](/rjrodger/seneca) 0.6.1
 
 [![Build Status](https://travis-ci.org/rjrodger/seneca-web.png?branch=master)](https://travis-ci.org/rjrodger/seneca-web)
 

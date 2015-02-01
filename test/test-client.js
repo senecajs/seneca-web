@@ -48,17 +48,28 @@ needle.get(url,function(err,res){
   assert.deepEqual( res.body, { d0: 'e0f0' } )
 })
 
+
 url = 'http://localhost:3001/t0/c2',
 console.log('POST '+url)
 needle.post(
   url,
-  {d1:'e1'},
+  {d1:'e1',d2:'e2'},
   {json:true},
   function(err,res){
     assert.ok( !err )
-    assert.deepEqual( res.body, { d1: 'e1f1' } )
+    assert.deepEqual( res.body, { d1: 'e1f1', d2: 'e2' } )
   })
 
+url = 'http://localhost:3001/t0/c2',
+console.log('PUT '+url)
+needle.put(
+  url,
+  {d1:'e1',d2:'e2'},
+  {json:true},
+  function(err,res){
+    assert.ok( !err )
+    assert.deepEqual( res.body, { d1: 'e1f1', d2: 'e2' } )
+  })
 
 var url = 'http://localhost:3001/t0/e0'
 console.log('GET '+url)

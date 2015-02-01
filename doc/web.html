@@ -888,7 +888,7 @@
             </div>
             
             <div class="content"><div class='highlight'><pre>
-<span class="hljs-keyword">var</span> defaultflags = {useparams:<span class="hljs-literal">true</span>,usequery:<span class="hljs-literal">true</span>,dataprop:<span class="hljs-literal">false</span>}
+<span class="hljs-keyword">var</span> defaultflags = {useparams:<span class="hljs-literal">true</span>,usequery:<span class="hljs-literal">true</span>,data:<span class="hljs-literal">false</span>}
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_routespecs</span><span class="hljs-params">( actmap, spec, options )</span> </span>{
   <span class="hljs-keyword">var</span> routespecs = []
@@ -1036,10 +1036,21 @@
         <span class="hljs-string">'seneca-web: req.body not present! '</span>+
           <span class="hljs-string">'Do you need: express_app.use( require("body-parser").json() ?'</span>)
     }
+    <span class="hljs-keyword">if</span>( methodspec.useparams &amp;&amp; !_.isObject(req.params) ) {
+      instance.log.warn(
+        <span class="hljs-string">'seneca-web: req.params not present! '</span>+
+          <span class="hljs-string">"To access URL params, you'll express or an appropriate parser module."</span>)
+    }
+    <span class="hljs-keyword">if</span>( methodspec.usequery &amp;&amp; !_.isObject(req.query) ) {
+      instance.log.warn(
+        <span class="hljs-string">'seneca-web: req.query not present! '</span>+
+          <span class="hljs-string">"To access the URL query string, you'll need express "</span>+
+          <span class="hljs-string">"or an appropriate parser module."</span>)
+    }
 
     <span class="hljs-keyword">var</span> data = _.extend(
       {},
-      _.isObject(req.body) ? req.body: {},
+      (_.isObject(req.body) &amp;&amp; !methodspec.data) ? req.body: {},
       ( methodspec.useparams &amp;&amp; _.isObject(req.params) ) ? req.params: {},
       ( methodspec.usequery &amp;&amp;  _.isObject(req.query)  ) ? req.query : {}
     )</pre></div></div>
@@ -1053,11 +1064,15 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-37">&#182;</a>
               </div>
-              <p>dataprop flag means put args into separate data property</p>
+              <p>data flag means put body into separate data property</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">return</span> methodspec.dataprop ? {data:data} : data;
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span>( methodspec.data ) {
+      data.data = _.isObject(req.body) ? req.body : {}
+      <span class="hljs-keyword">return</span> data;
+    }
+    <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> data;
   }
 }
 

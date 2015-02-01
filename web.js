@@ -477,7 +477,7 @@ function make_redirectresponder( spec, routespec, methodspec ) {
 
 // ### Spec parsing functions
 
-var defaultflags = {useparams:true,usequery:true,dataprop:false}
+var defaultflags = {useparams:true,usequery:true,data:false}
 
 function make_routespecs( actmap, spec, options ) {
   var routespecs = []
@@ -601,16 +601,31 @@ function make_argparser( instance, options, methodspec ) {
         'seneca-web: req.body not present! '+
           'Do you need: express_app.use( require("body-parser").json() ?')
     }
+    if( methodspec.useparams && !_.isObject(req.params) ) {
+      instance.log.warn(
+        'seneca-web: req.params not present! '+
+          "To access URL params, you'll express or an appropriate parser module.")
+    }
+    if( methodspec.usequery && !_.isObject(req.query) ) {
+      instance.log.warn(
+        'seneca-web: req.query not present! '+
+          "To access the URL query string, you'll need express "+
+          "or an appropriate parser module.")
+    }
 
     var data = _.extend(
       {},
-      _.isObject(req.body) ? req.body: {},
+      (_.isObject(req.body) && !methodspec.data) ? req.body: {},
       ( methodspec.useparams && _.isObject(req.params) ) ? req.params: {},
       ( methodspec.usequery &&  _.isObject(req.query)  ) ? req.query : {}
     )
 
-    // dataprop flag means put args into separate data property
-    return methodspec.dataprop ? {data:data} : data;
+    // data flag means put body into separate data property
+    if( methodspec.data ) {
+      data.data = _.isObject(req.body) ? req.body : {}
+      return data;
+    }
+    else return data;
   }
 }
 
