@@ -32,22 +32,9 @@
             
             <div class="content"><div class='highlight'><pre><span class="hljs-comment">/* Copyright (c) 2013-2015 Richard Rodger, MIT License */</span>
 <span class="hljs-comment">/* jshint node:true, asi:true, eqnull:true */</span>
-<span class="hljs-pi">"use strict"</span>;</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-2">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-2">&#182;</a>
-              </div>
-              <p>TODO: deeper unit tests, redirects, http settings</p>
+<span class="hljs-pi">"use strict"</span>;
 
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>
+
 <span class="hljs-keyword">var</span> util   = <span class="hljs-built_in">require</span>(<span class="hljs-string">'util'</span>)
 <span class="hljs-keyword">var</span> buffer = <span class="hljs-built_in">require</span>(<span class="hljs-string">'buffer'</span>)
 
@@ -66,7 +53,6 @@
 <span class="hljs-keyword">var</span> methodlist = _.clone(httprouter.methods)
 
 
-
 <span class="hljs-built_in">module</span>.exports = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( options )</span> </span>{
   <span class="hljs-comment">/* jshint validthis:true */</span>
 
@@ -82,18 +68,21 @@
     make_defaulthandler:    make_defaulthandler,
     make_defaultresponder:  make_defaultresponder,
     make_redirectresponder: make_redirectresponder,
+    warn: {
+      req_body: <span class="hljs-literal">true</span>
+    }
   },options)
-  
+
   <span class="hljs-keyword">var</span> timestats = <span class="hljs-keyword">new</span> stats.NamedStats( options.stats.size, options.stats.duration )</pre></div></div>
             
         </li>
         
         
-        <li id="section-3">
+        <li id="section-2">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-3">&#182;</a>
+                <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
               <p>Ordered list of middleware services.</p>
 
@@ -130,11 +119,11 @@
         </li>
         
         
-        <li id="section-4">
+        <li id="section-3">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-4">&#182;</a>
+                <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
               <p>Define a web service API.</p>
 
@@ -145,11 +134,11 @@
         </li>
         
         
-        <li id="section-5">
+        <li id="section-4">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-5">&#182;</a>
+                <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
               <p>List known web services.</p>
 
@@ -160,11 +149,11 @@
         </li>
         
         
-        <li id="section-6">
+        <li id="section-5">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-6">&#182;</a>
+                <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
               <p>List known routes.</p>
 
@@ -175,11 +164,11 @@
         </li>
         
         
-        <li id="section-7">
+        <li id="section-6">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-7">&#182;</a>
+                <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
               <p>Provide route performance statistics.</p>
 
@@ -190,11 +179,11 @@
         </li>
         
         
-        <li id="section-8">
+        <li id="section-7">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-8">&#182;</a>
+                <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
               <p>Get client-side configuration.</p>
 
@@ -205,11 +194,11 @@
         </li>
         
         
-        <li id="section-9">
+        <li id="section-8">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-9">&#182;</a>
+                <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
               <p>Set client-side source code.</p>
 
@@ -220,11 +209,11 @@
         </li>
         
         
-        <li id="section-10">
+        <li id="section-9">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-10">&#182;</a>
+                <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
               <p>Get client-side source code list.</p>
 
@@ -236,11 +225,11 @@
         </li>
         
         
-        <li id="section-11">
+        <li id="section-10">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-11">&#182;</a>
+                <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
               <p>Action: <em>role:web</em></p>
 
@@ -252,11 +241,11 @@
         </li>
         
         
-        <li id="section-12">
+        <li id="section-11">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-12">&#182;</a>
+                <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
               <p>The plugin is defining some client-side configuration.</p>
 
@@ -275,11 +264,11 @@
         </li>
         
         
-        <li id="section-13">
+        <li id="section-12">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-13">&#182;</a>
+                <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
               <p>Add service to middleware layers, order is significant</p>
 
@@ -309,11 +298,11 @@
         </li>
         
         
-        <li id="section-14">
+        <li id="section-13">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-14">&#182;</a>
+                <a class="pilcrow" href="#section-13">&#182;</a>
               </div>
               <p>Use a mapping, or custom middleware function</p>
 
@@ -324,11 +313,11 @@
         </li>
         
         
-        <li id="section-15">
+        <li id="section-14">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-15">&#182;</a>
+                <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
               <p>Client-side configuration for named plugin.</p>
 
@@ -339,11 +328,11 @@
         </li>
         
         
-        <li id="section-16">
+        <li id="section-15">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-16">&#182;</a>
+                <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
               <p>Client-side name for the plugin.</p>
 
@@ -355,11 +344,11 @@
         </li>
         
         
-        <li id="section-17">
+        <li id="section-16">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-17">&#182;</a>
+                <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
               <p>Action: <em>role:web, cmd:source</em></p>
 
@@ -378,11 +367,11 @@
         </li>
         
         
-        <li id="section-18">
+        <li id="section-17">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-18">&#182;</a>
+                <a class="pilcrow" href="#section-17">&#182;</a>
               </div>
               <p>Action <em>role:web, get:sourcelist</em></p>
 
@@ -395,11 +384,11 @@
         </li>
         
         
-        <li id="section-19">
+        <li id="section-18">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-19">&#182;</a>
+                <a class="pilcrow" href="#section-18">&#182;</a>
               </div>
               <p>Action <em>role:web, get:config</em></p>
 
@@ -416,11 +405,11 @@
         </li>
         
         
-        <li id="section-20">
+        <li id="section-19">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-20">&#182;</a>
+                <a class="pilcrow" href="#section-19">&#182;</a>
               </div>
               <p>Action <em>role:web, list:service</em>.</p>
 
@@ -433,11 +422,11 @@
         </li>
         
         
-        <li id="section-21">
+        <li id="section-20">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-21">&#182;</a>
+                <a class="pilcrow" href="#section-20">&#182;</a>
               </div>
               <p>Action <em>role:web, list:route</em>.</p>
 
@@ -470,11 +459,11 @@
         </li>
         
         
-        <li id="section-22">
+        <li id="section-21">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-22">&#182;</a>
+                <a class="pilcrow" href="#section-21">&#182;</a>
               </div>
               <p>Action <em>role:web, stats:true</em>.</p>
 
@@ -507,11 +496,11 @@
         </li>
         
         
-        <li id="section-23">
+        <li id="section-22">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-23">&#182;</a>
+                <a class="pilcrow" href="#section-22">&#182;</a>
               </div>
               <p>Service specification schema.</p>
 
@@ -534,11 +523,11 @@
         </li>
         
         
-        <li id="section-24">
+        <li id="section-23">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-24">&#182;</a>
+                <a class="pilcrow" href="#section-23">&#182;</a>
               </div>
               <p>Define service middleware</p>
 
@@ -556,17 +545,17 @@
       <span class="hljs-keyword">var</span> routespecs = make_routespecs( actmap, spec, options )
       
       resolve_actions( instance, routespecs )
-      resolve_methods( options, spec, routespecs )
+      resolve_methods( instance, options, spec, routespecs )
       resolve_dispatch( routespecs, timestats )</pre></div></div>
             
         </li>
         
         
-        <li id="section-25">
+        <li id="section-24">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-25">&#182;</a>
+                <a class="pilcrow" href="#section-24">&#182;</a>
               </div>
               <p>console.log( util.inspect(routespecs,{depth:null}) )</p>
 
@@ -610,17 +599,17 @@
         </li>
         
         
-        <li id="section-26">
+        <li id="section-25">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-26">&#182;</a>
+                <a class="pilcrow" href="#section-25">&#182;</a>
               </div>
-              <p>TODO connect is a very heavyweight way to do this!!!</p>
+              <p>TODO is connect the best option here?</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  
+            <div class="content"><div class='highlight'><pre>
   <span class="hljs-keyword">var</span> app = connect()
   app.use(serve_static(__dirname+<span class="hljs-string">'/web'</span>))
 
@@ -637,7 +626,6 @@
     <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> next();
   }
 
-
   
   <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">next_service</span><span class="hljs-params">(req,res,next,i)</span> </span>{
     <span class="hljs-keyword">if</span>( i &lt; services.length ) {
@@ -646,11 +634,11 @@
         </li>
         
         
-        <li id="section-27">
+        <li id="section-26">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-27">&#182;</a>
+                <a class="pilcrow" href="#section-26">&#182;</a>
               </div>
               <p>TODO need some sort of logging here to trace failures to call next()</p>
 
@@ -710,11 +698,11 @@
         </li>
         
         
-        <li id="section-28">
+        <li id="section-27">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-28">&#182;</a>
+                <a class="pilcrow" href="#section-27">&#182;</a>
               </div>
               <h3 id="route-functions">Route functions</h3>
 
@@ -723,11 +711,11 @@
         </li>
         
         
-        <li id="section-29">
+        <li id="section-28">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-29">&#182;</a>
+                <a class="pilcrow" href="#section-28">&#182;</a>
               </div>
               <p>Default action handler; just calls the action.</p>
 
@@ -744,11 +732,11 @@
         </li>
         
         
-        <li id="section-30">
+        <li id="section-29">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-30">&#182;</a>
+                <a class="pilcrow" href="#section-29">&#182;</a>
               </div>
               <p>Default response handler; applies custom http$ settings, if any</p>
 
@@ -777,11 +765,11 @@
         </li>
         
         
-        <li id="section-31">
+        <li id="section-30">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-31">&#182;</a>
+                <a class="pilcrow" href="#section-30">&#182;</a>
               </div>
               <p>specific http settings</p>
 
@@ -792,11 +780,11 @@
         </li>
         
         
-        <li id="section-32">
+        <li id="section-31">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-32">&#182;</a>
+                <a class="pilcrow" href="#section-31">&#182;</a>
               </div>
               <p>Legacy settings</p>
 
@@ -821,11 +809,11 @@
         </li>
         
         
-        <li id="section-33">
+        <li id="section-32">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-33">&#182;</a>
+                <a class="pilcrow" href="#section-32">&#182;</a>
               </div>
               <p>Send redirect response.</p>
 
@@ -841,11 +829,11 @@
         </li>
         
         
-        <li id="section-34">
+        <li id="section-33">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-34">&#182;</a>
+                <a class="pilcrow" href="#section-33">&#182;</a>
               </div>
               <p>Send JSON response.</p>
 
@@ -889,18 +877,18 @@
         </li>
         
         
-        <li id="section-35">
+        <li id="section-34">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-35">&#182;</a>
+                <a class="pilcrow" href="#section-34">&#182;</a>
               </div>
               <h3 id="spec-parsing-functions">Spec parsing functions</h3>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>
-<span class="hljs-keyword">var</span> defaultflags = {useparams:<span class="hljs-literal">true</span>,usequery:<span class="hljs-literal">true</span>,dataprop:<span class="hljs-literal">false</span>}
+<span class="hljs-keyword">var</span> defaultflags = {useparams:<span class="hljs-literal">true</span>,usequery:<span class="hljs-literal">true</span>,data:<span class="hljs-literal">false</span>}
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_routespecs</span><span class="hljs-params">( actmap, spec, options )</span> </span>{
   <span class="hljs-keyword">var</span> routespecs = []
@@ -911,11 +899,11 @@
         </li>
         
         
-        <li id="section-36">
+        <li id="section-35">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-36">&#182;</a>
+                <a class="pilcrow" href="#section-35">&#182;</a>
               </div>
               <p>Only build a route if explicitly defined in map</p>
 
@@ -928,11 +916,11 @@
         </li>
         
         
-        <li id="section-37">
+        <li id="section-36">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-37">&#182;</a>
+                <a class="pilcrow" href="#section-36">&#182;</a>
               </div>
               <p>METHOD:true abbrev</p>
 
@@ -981,7 +969,7 @@
 }
 
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">resolve_methods</span><span class="hljs-params">( options, spec, routespecs )</span> </span>{
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">resolve_methods</span><span class="hljs-params">( instance, options, spec, routespecs )</span> </span>{
   _.each( routespecs, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( routespec )</span> </span>{
 
     <span class="hljs-keyword">var</span> methods = {}
@@ -1033,7 +1021,7 @@
         defaultmodify
 
 
-      methodspec.argparser = make_argparser( methodspec )
+      methodspec.argparser = make_argparser( instance, options, methodspec )
     })
 
     routespec.methods = methods
@@ -1041,11 +1029,28 @@
 }
 
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_argparser</span><span class="hljs-params">( methodspec )</span> </span>{
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_argparser</span><span class="hljs-params">( instance, options, methodspec )</span> </span>{
   <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">( req )</span> </span>{
+    <span class="hljs-keyword">if</span>( !_.isObject(req.body) &amp;&amp; options.warn.req_body ) {
+      instance.log.warn(
+        <span class="hljs-string">'seneca-web: req.body not present! '</span>+
+          <span class="hljs-string">'Do you need: express_app.use( require("body-parser").json() ?'</span>)
+    }
+    <span class="hljs-keyword">if</span>( methodspec.useparams &amp;&amp; !_.isObject(req.params) ) {
+      instance.log.warn(
+        <span class="hljs-string">'seneca-web: req.params not present! '</span>+
+          <span class="hljs-string">"To access URL params, you'll express or an appropriate parser module."</span>)
+    }
+    <span class="hljs-keyword">if</span>( methodspec.usequery &amp;&amp; !_.isObject(req.query) ) {
+      instance.log.warn(
+        <span class="hljs-string">'seneca-web: req.query not present! '</span>+
+          <span class="hljs-string">"To access the URL query string, you'll need express "</span>+
+          <span class="hljs-string">"or an appropriate parser module."</span>)
+    }
+
     <span class="hljs-keyword">var</span> data = _.extend(
       {},
-      _.isObject(req.body) ? req.body: {},
+      (_.isObject(req.body) &amp;&amp; !methodspec.data) ? req.body: {},
       ( methodspec.useparams &amp;&amp; _.isObject(req.params) ) ? req.params: {},
       ( methodspec.usequery &amp;&amp;  _.isObject(req.query)  ) ? req.query : {}
     )</pre></div></div>
@@ -1053,17 +1058,21 @@
         </li>
         
         
-        <li id="section-38">
+        <li id="section-37">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-38">&#182;</a>
+                <a class="pilcrow" href="#section-37">&#182;</a>
               </div>
-              <p>dataprop flag means put args into separate data property</p>
+              <p>data flag means put body into separate data property</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">return</span> methodspec.dataprop ? {data:data} : data;
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span>( methodspec.data ) {
+      data.data = _.isObject(req.body) ? req.body : {}
+      <span class="hljs-keyword">return</span> data;
+    }
+    <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> data;
   }
 }
 
@@ -1139,11 +1148,11 @@
         </li>
         
         
-        <li id="section-39">
+        <li id="section-38">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-39">&#182;</a>
+                <a class="pilcrow" href="#section-38">&#182;</a>
               </div>
               <h3 id="utility-functions">Utility functions</h3>
 
@@ -1152,11 +1161,11 @@
         </li>
         
         
-        <li id="section-40">
+        <li id="section-39">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-40">&#182;</a>
+                <a class="pilcrow" href="#section-39">&#182;</a>
               </div>
               <p>Convert an object to a JSON string, handling circular refs.</p>
 
@@ -1172,11 +1181,11 @@
         </li>
         
         
-        <li id="section-41">
+        <li id="section-40">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-41">&#182;</a>
+                <a class="pilcrow" href="#section-40">&#182;</a>
               </div>
               <p>Ensure the URL prefix is well-formed.</p>
 
@@ -1199,11 +1208,11 @@
         </li>
         
         
-        <li id="section-42">
+        <li id="section-41">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-42">&#182;</a>
+                <a class="pilcrow" href="#section-41">&#182;</a>
               </div>
               <p>Ensure alias has no leading slash.</p>
 
@@ -1220,11 +1229,11 @@
         </li>
         
         
-        <li id="section-43">
+        <li id="section-42">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-43">&#182;</a>
+                <a class="pilcrow" href="#section-42">&#182;</a>
               </div>
               <p>Map action pin function names to action patterns.
 The function names form part of the URL.</p>
