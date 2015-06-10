@@ -9,16 +9,6 @@ var seneca  = require('seneca')
 var assert  = require('chai').assert
 
 
-
-
-
-
-
-
-
-
-
-
 describe('user', function() {
 
   var si = seneca()
