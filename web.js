@@ -278,7 +278,9 @@ module.exports = function( options ) {
         }
         else do_maprouter();
 
-        function do_maprouter() {
+        function do_maprouter(err) {
+          if (err) { return next(err); }
+
           maprouter(req,res,function(err){
             if(err ) return next(err);
 
