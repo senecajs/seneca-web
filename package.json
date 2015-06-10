@@ -7,11 +7,15 @@
     "web",
     "plugin"
   ],
-  "author": "Richard Rodger (http://richardrodger.com)",
+  "author": {
+    "name": "Richard Rodger",
+    "url": "http://richardrodger.com"
+  },
   "license": "MIT",
   "main": "web.js",
   "scripts": {
-    "test": "node_modules/.bin/mocha test/*.test.js"
+    "test": "mocha test/*.test.js",
+    "build": "docco web.js -o doc"
   },
   "files": [
     "LICENSE.txt",
@@ -24,14 +28,30 @@
     "underscore": "~1.6.0",
     "mstring": "~0.1.2",
     "parambulator": "~0.1.6",
-    "connect": "~2.14.4"
+    "connect": "~2.14.4",
+    "json-stringify-safe": "~5.0.0",
+    "nid": "~0.3.2",
+    "success": "~0.1.0",
+    "rolling-stats": "~0.1.0"
   },
   "devDependencies": {
     "chai": "~1.9.1",
-    "mocha": "~1.18.2"
+    "mocha": "~1.18.2",
+    "docco": "~0.6.3"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/rjrodger/seneca-web.git"
-  }
+    "url": "git+https://github.com/rjrodger/seneca-web.git"
+  },
+  "gitHead": "90e48af170acf22f830fa5ccd501b5a1b4f63dff",
+  "readme": "# seneca-web\n\n## A HTTP utility plugin for the [Seneca](http://senecajs.org) toolkit\n\n\nDOCUMENTATION IN PROGRESS\n\nThere are many examples of usage however - see [seneca-examples](http://github.com/rjrodger/seneca-examples) and\n[well app](http://github.com/nearform/well).\n\n\n\n\n## Support\n\nIf you're using this module, feel free to contact me on Twitter if you\nhave any questions! :) [@rjrodger](http://twitter.com/rjrodger)\n\nCurrent Version: 0.1.3\n\nTested on: Node 0.10.24, Seneca 0.5.17\n\n\n\n## Quick example\n\n```JavaScript\nvar seneca = require('seneca')()\n\nseneca.add('role:foo,cmd:bar',function(args,done){\n  done(null,{bar:args.zoo+'b'})\n})\n\nseneca.act('role:web',{use:{\n  prefix:'/foo',\n  pin:{role:'foo',cmd:'*'},\n  map:{\n    bar: {GET:true}\n  }\n}})\n\n\nvar connect = require('connect')\nvar app = connect()\napp.use( connect.query() )\napp.use( seneca.export('web') )\napp.listen(3000)\n\n// run: node test/example.js --seneca.log=type:act\n// try http://localhost:3000/foo/bar?zoo=a\n// returns {\"bar\":\"ab\"}\n```\n\n\n## Test\n\n```sh\nnpm test\n```\n\n\n",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/rjrodger/seneca-web/issues"
+  },
+  "homepage": "https://github.com/rjrodger/seneca-web#readme",
+  "_id": "seneca-web@0.1.3",
+  "_shasum": "d4e8e1b80307c30a34d67c8271cf1f0d3cacd35f",
+  "_from": "git://github.com/nherment/seneca-web.git#nherment/errors_JSON",
+  "_resolved": "git://github.com/nherment/seneca-web.git#90e48af170acf22f830fa5ccd501b5a1b4f63dff"
 }
