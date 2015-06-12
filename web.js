@@ -15,8 +15,14 @@ var connect             = require('connect')
 var serve_static        = require('serve-static')
 var json_stringify_safe = require('json-stringify-safe')
 var stats               = require('rolling-stats')
-var error               = require('eraro')({package:'seneca',msgmap:ERRMSGMAP()})
 var norma               = require('norma')
+
+var error = require('eraro')({
+  package:  'seneca',
+  msgmap:   ERRMSGMAP(),
+  override: true
+})
+
 
 var httprouter = require('./http-router')
 var methodlist = _.clone(httprouter.methods)
@@ -29,24 +35,39 @@ module.exports = function( options ) {
   var seneca = this
 
   options = seneca.util.deepextend({
+
+    // URL prefix for all generated paths
     prefix: '/api/',
+
+    // URL prefix for content provided by this plugin
     contentprefix: '/seneca',
+
+    // Endpoint call statistics, see https://github.com/rjrodger/rolling-stats
     stats: {
       size:     1024,
       duration: 60000,
     },
+
+    // Default function builders
     make_defaulthandler:    make_defaulthandler,
     make_defaultresponder:  make_defaultresponder,
     make_redirectresponder: make_redirectresponder,
+
+    // Log warnings for invalid requests
     warn: {
       req_body: true,
       req_params: true,
       req_query: true,
     },
+
+    
+    // Extended debugging
     debug: {
       service: false
     }
+
   },options)
+
 
   var timestats = new stats.NamedStats( options.stats.size, options.stats.duration )
 
@@ -78,6 +99,7 @@ module.exports = function( options ) {
 
   function add_action_patterns() {
     seneca
+
     // Define a web service API.
       .add( 'role:web', web_use)
 
@@ -267,178 +289,18 @@ module.exports = function( options ) {
       var routespecs = make_routespecs( actmap, spec, options )
       
       resolve_actions( instance, routespecs )
-      resolve_methods( instance, spec, routespecs )
-      resolve_dispatch( instance, spec, routespecs, timestats )
-
-      // console.log( util.inspect(routespecs,{depth:null}) )
+      resolve_methods( instance, spec, routespecs, options )
+      resolve_dispatch( instance, spec, routespecs, timestats, options )
 
       var maprouter = make_router( instance, spec, routespecs, routemap )
-
-      var service = function(req,res,next) {
-        var si = req.seneca || instance
-
-        if( spec.startware ) {
-          spec.startware.call(si,req,res,do_maprouter)
-        }
-        else do_maprouter();
-
-        function do_maprouter(err) {
-          if (err) { return next(err); }
-
-          maprouter(req,res,function(err){
-            if(err ) return next(err);
-
-            if( spec.endware ) {
-              spec.endware.call(si,req,res,function(err){
-                if(err ) return next(err);
-                next();
-              })
-            }
-            else next()
-          })
-        }
-      }
-
-      service.pin$       = spec.pin
-      service.plugin$    = spec.plugin$
-      service.serviceid$ = spec.serviceid$
-      service.routes$    = maprouter.routes$
+      var service   = make_service( instance, spec, maprouter )
 
       return done(null,service)
     })
   }
 
 
-  function resolve_actions( instance, routespecs ) {
-    norma('oa',arguments)
-
-    _.each( routespecs, function( routespec ) {
-      var actmeta = instance.findact( routespec.pattern )
-      if( !actmeta ) return;
-
-      var act = function(args,cb) {
-        this.act.call(this,_.extend({},routespec.pattern,args),cb)
-      }
-
-      routespec.act     = act
-      routespec.actmeta = actmeta
-    })
-  }
-
-
-  function resolve_methods( instance, spec, routespecs ) {
-    norma('ooa',arguments)
-
-    _.each( routespecs, function( routespec ) {
-
-      var methods = {}
-
-      _.each( methodlist, function(method) {
-        var methodspec = routespec[method] || routespec[method.toUpperCase()]
-        if( !methodspec ) return;
-
-        var handler = methodspec
-        if( _.isFunction( methodspec ) || !_.isObject( methodspec ) ) {
-          methodspec = { handler:handler }
-        }
-        
-        methodspec.method = method
-
-        methods[method] = methodspec
-      })
-
-      if( 0 === _.keys(methods).length ) {
-        methods.get = { method:'get' }
-      }
-
-      _.each( methods, function( methodspec) {
-
-        _.each(defaultflags, function(val,flag) {
-          methodspec[flag] = 
-            (null == methodspec[flag]) ? routespec[flag] : methodspec[flag]
-        })
-
-        methodspec.handler = 
-          _.isFunction( methodspec.handler ) ? methodspec.handler : 
-          _.isFunction( routespec.handler ) ? routespec.handler : 
-          options.make_defaulthandler( spec, routespec, methodspec )
-
-
-        if( _.isString(methodspec.redirect) && !methodspec.responder) {
-          methodspec.responder = 
-            options.make_redirectresponder( spec, routespec, methodspec )
-        }
-
-        methodspec.responder = 
-          _.isFunction( methodspec.responder ) ? methodspec.responder : 
-          _.isFunction( routespec.responder ) ? routespec.responder : 
-          options.make_defaultresponder( spec, routespec, methodspec )
-
-        methodspec.modify = 
-          _.isFunction( methodspec.modify ) ? methodspec.modify : 
-          _.isFunction( routespec.modify ) ? routespec.modify : 
-          defaultmodify
-
-
-        methodspec.argparser = make_argparser( instance, options, methodspec )
-      })
-
-      routespec.methods = methods
-    })
-  }
-
-
-  function resolve_dispatch( instance, spec, routespecs, timestats ) {
-    norma('ooao',arguments)
-
-    _.each( routespecs, function( routespec ) {
-      _.each( routespec.methods, function( methodspec, method ) {
-
-        methodspec.dispatch = function( req, res, next ) {
-          if( options.debug.service ) {
-            instance.log(
-              'service-dispatch',req.seneca.fixedargs.tx$,
-              req.method,req.url,spec.serviceid$,
-              util.inspect(methodspec) )
-          }
-
-          var begin = Date.now()
-          var args  = methodspec.argparser(req)
-
-          var si = req.seneca
-
-          var respond = function(err,obj){
-            var qi = req.url.indexOf('?')
-            var url = -1 == qi ? req.url : req.url.substring(0,qi)
-
-            var name = (routespec.actmeta.plugin_fullname || '')+
-                  ';'+routespec.actmeta.pattern
-            timestats.point( Date.now()-begin, name+';'+req.method+';'+url );
-
-            var result = {err:err,out:obj}
-            methodspec.modify(result)
-
-            methodspec.responder.call(si,req,res,result.err,result.out)
-          }
-
-          var act_si = function(args,done){
-            routespec.act.call(si,args,done)
-          }
-
-          var premap = routespec.premap || function(){arguments[2]()}
-
-          premap.call(si,req,res,function(err){
-            if(err ) return next(err);
-
-            methodspec.handler.call( si, req, res, args, act_si, respond)
-          })
-        }
-      })
-    })      
-  }
-
-
-
+  // Define exported middleware function 
   // TODO is connect the best option here?
 
   var app = connect()
@@ -580,7 +442,6 @@ function make_defaultresponder( spec, routespec, methodspec ) {
       http.redirect = errobj.redirect$   || http.redirect
       http.status   = errobj.httpstatus$ || http.status
     }
-
     
     // Send redirect response.
     if( http.redirect ) {
@@ -677,6 +538,135 @@ function make_routespecs( actmap, spec, options ) {
 }
 
 
+function resolve_actions( instance, routespecs ) {
+  norma('oa',arguments)
+
+  _.each( routespecs, function( routespec ) {
+    var actmeta = instance.findact( routespec.pattern )
+    if( !actmeta ) return;
+
+    var act = function(args,cb) {
+      this.act.call(this,_.extend({},routespec.pattern,args),cb)
+    }
+
+    routespec.act     = act
+    routespec.actmeta = actmeta
+  })
+}
+
+
+function resolve_methods( instance, spec, routespecs, options ) {
+  norma('ooao',arguments)
+
+  _.each( routespecs, function( routespec ) {
+
+    var methods = {}
+
+    _.each( methodlist, function(method) {
+      var methodspec = routespec[method] || routespec[method.toUpperCase()]
+      if( !methodspec ) return;
+
+      var handler = methodspec
+      if( _.isFunction( methodspec ) || !_.isObject( methodspec ) ) {
+        methodspec = { handler:handler }
+      }
+      
+      methodspec.method = method
+
+      methods[method] = methodspec
+    })
+
+    if( 0 === _.keys(methods).length ) {
+      methods.get = { method:'get' }
+    }
+
+    _.each( methods, function( methodspec) {
+
+      _.each(defaultflags, function(val,flag) {
+        methodspec[flag] = 
+          (null == methodspec[flag]) ? routespec[flag] : methodspec[flag]
+      })
+
+      methodspec.handler = 
+        _.isFunction( methodspec.handler ) ? methodspec.handler : 
+        _.isFunction( routespec.handler ) ? routespec.handler : 
+        options.make_defaulthandler( spec, routespec, methodspec )
+
+
+      if( _.isString(methodspec.redirect) && !methodspec.responder) {
+        methodspec.responder = 
+          options.make_redirectresponder( spec, routespec, methodspec )
+      }
+
+      methodspec.responder = 
+        _.isFunction( methodspec.responder ) ? methodspec.responder : 
+        _.isFunction( routespec.responder ) ? routespec.responder : 
+        options.make_defaultresponder( spec, routespec, methodspec )
+
+      methodspec.modify = 
+        _.isFunction( methodspec.modify ) ? methodspec.modify : 
+        _.isFunction( routespec.modify ) ? routespec.modify : 
+        defaultmodify
+
+
+      methodspec.argparser = make_argparser( instance, options, methodspec )
+    })
+
+    routespec.methods = methods
+  })
+}
+
+
+function resolve_dispatch( instance, spec, routespecs, timestats, options ) {
+  norma('ooaoo',arguments)
+
+  _.each( routespecs, function( routespec ) {
+    _.each( routespec.methods, function( methodspec, method ) {
+
+      methodspec.dispatch = function( req, res, next ) {
+        if( options.debug.service ) {
+          instance.log(
+            'service-dispatch',req.seneca.fixedargs.tx$,
+            req.method,req.url,spec.serviceid$,
+            util.inspect(methodspec) )
+        }
+
+        var begin = Date.now()
+        var args  = methodspec.argparser(req)
+
+        var si = req.seneca
+
+        var respond = function(err,obj){
+          var qi = req.url.indexOf('?')
+          var url = -1 == qi ? req.url : req.url.substring(0,qi)
+
+          var name = (routespec.actmeta.plugin_fullname || '')+
+                ';'+routespec.actmeta.pattern
+          timestats.point( Date.now()-begin, name+';'+req.method+';'+url );
+
+          var result = {err:err,out:obj}
+          methodspec.modify(result)
+
+          methodspec.responder.call(si,req,res,result.err,result.out)
+        }
+
+        var act_si = function(args,done){
+          routespec.act.call(si,args,done)
+        }
+
+        var premap = routespec.premap || function(){arguments[2]()}
+
+        premap.call(si,req,res,function(err){
+          if(err ) return next(err);
+
+          methodspec.handler.call( si, req, res, args, act_si, respond)
+        })
+      }
+    })
+  })      
+}
+
+
 function make_argparser( instance, options, methodspec ) {
   norma('ooo',arguments)
 
@@ -751,6 +741,40 @@ function make_router(instance,spec,routespecs,routemap) {
 }
 
 
+function make_service( instance, spec, maprouter ) {
+  var service = function service(req,res,next) {
+    var si = req.seneca || instance
+
+    if( spec.startware ) {
+      spec.startware.call(si,req,res,do_maprouter)
+    }
+    else do_maprouter();
+
+    function do_maprouter(err) {
+      if(err) return next(err);
+
+      maprouter(req,res,function(err){
+        if(err) return next(err);
+
+        if( spec.endware ) {
+          spec.endware.call(si,req,res,function(err){
+            return next(err);
+          })
+        }
+        else return next();
+      })
+    }
+  }
+
+  service.pin$       = spec.pin
+  service.plugin$    = spec.plugin$
+  service.serviceid$ = spec.serviceid$
+  service.routes$    = maprouter.routes$
+
+  return service;
+}
+
+
 // ### Utility functions
 
 // Convert an object to a JSON string, handling circular refs.
@@ -806,9 +830,11 @@ function make_actmap( pin ) {
 
 
 function defaultmodify( result ) {
+
+  // strip out $ properties, apart from http$, which is dealt with later
   if( _.isObject( result.out ) ) {
-    _.keys(result.out,function(k){
-      if(~k.indexOf('$')){
+    _.each(result.out,function(v,k){
+      if(~k.indexOf('$') && 'http$' !== k) {
         delete result.out[k]
       }
     })

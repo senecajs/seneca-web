@@ -70,6 +70,20 @@ seneca.act('role:web', {use:{
 }})
 
 
+seneca.add('role:api,cmd:echo', function( args, done ){
+  done( null, args )
+})
+
+seneca.act('role:web', {use:{
+  prefix: '/api',
+  pin:    'role:api,cmd:*',
+  map: {
+    echo: {POST:true, suffix:'/:bar'}
+  }
+}})
+
+
+
 var express = require('express')
 var app = express()
 app.use( require('body-parser').json() )
@@ -83,3 +97,6 @@ app.listen(3000)
 
 // try curl -m 1 -s -H 'Content-Type: application/json' -d '{"zoo":"b"}' http://localhost:3000/my-api/qaz
 // returns {"qaz":"bz"}
+
+// try curl -m 1 -s -H 'Content-Type: application/json' -d '{"zed":"c"}' http://localhost:3000/api/echo/a?bar=b
+// returns {"foo":"a", "bar":"b", "zed":"c", }
