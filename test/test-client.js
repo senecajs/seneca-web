@@ -17,11 +17,12 @@ url = 'http://localhost:3001/t0/a0/b0?a1=b1',
 console.log('POST '+url)
 needle.post(
   url,
-  {a2:'b2'},
+  {a2:'b2',c:'c'},
   {json:true},
   function(err,res){
     assert.ok( !err )
-    assert.deepEqual(res.body,{ r0: 'r0pb0', r1: 'pr1b1', r2: 'r2b2', x0: 'ry0' })
+    assert.deepEqual(res.body,
+                     { r0: 'r0pb0', r1: 'pr1b1', r2: 'r2b2', x0: 'ry0', c: 'C' })
   })
 
 
@@ -93,4 +94,46 @@ needle.get(url,function(err,res){
   assert.ok( !err )
   assert.equal(400,res.statusCode)
   assert.deepEqual( res.body, { ok: false, why: 'No input will satisfy me.' } )
+})
+
+
+var url = 'http://localhost:3001/a'
+console.log('GET '+url) // non-interference with preceding middleware
+needle.get(url,function(err,res){
+  assert.ok( !err )
+  assert.equal(200,res.statusCode)
+  assert.equal( res.body, 'A' )
+})
+console.log('POST '+url) // startware not triggered
+needle.post(url,{a:'a'},{json:true},function(err,res){
+  assert.ok( !err )
+  assert.equal(200,res.statusCode)
+  assert.deepEqual( res.body, {a:'a'} )
+})
+console.log('POST '+url) // premap not triggered
+needle.post(url,{a:'a',c:'c'},{json:true},function(err,res){
+  assert.ok( !err )
+  assert.equal(200,res.statusCode)
+  assert.deepEqual( res.body, {a:'a',c:'c'} )
+})
+
+
+var url = 'http://localhost:3001/b'
+console.log('GET '+url) // non-interference with following middleware
+needle.get(url,function(err,res){
+  assert.ok( !err )
+  assert.equal(200,res.statusCode)
+  assert.equal( res.body, 'B' )
+})
+console.log('POST '+url) // startware triggered as following!
+needle.post(url,{b:'b'},{json:true},function(err,res){
+  assert.ok( !err )
+  assert.equal(200,res.statusCode)
+  assert.deepEqual( res.body, {b:'B'} )
+})
+console.log('POST '+url) // premap not triggered as no map
+needle.post(url,{b:'b',c:'c'},{json:true},function(err,res){
+  assert.ok( !err )
+  assert.equal(200,res.statusCode)
+  assert.deepEqual( res.body, {b:'B',c:'c'} )
 })

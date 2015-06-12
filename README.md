@@ -310,7 +310,8 @@ seneca.act('role:web', {use:{
 Which behaves as follows:
 
 ```bash
-$ curl -m 1 -s -H 'Content-Type: application/json' -d '{"zed":"c"}' http://localhost:3000/api/echo/a?bar=b
+$ curl -m 1 -s -H 'Content-Type: application/json' -d '{"zed":"c"}' \
+http://localhost:3000/api/echo/a?bar=b
   {"cmd":"echo","role":"api","zed":"c","foo":"a","bar":"b"}
 ```
 
@@ -404,9 +405,10 @@ exact data of the HTTP response.
 The output of a Seneca action is an object that is serialized to JSON
 and returned over HTTP. It is normally necessary to remove unwanted
 properties that should not appear to network clients. The default
-modifier removes all properties that contain a `$`, as this is used by
-Seneca for meta control. Provide your own modifer function to
-customize this behavior.
+modifier removes all properties that contain a `$`, as these are used
+by Seneca for internal meta control. The `http$` is preserved, as this
+is used (and removed) by the default responder. Provide your own
+modifer function to customize this behavior.
 
 
 #### General Middleware
@@ -414,17 +416,25 @@ customize this behavior.
 At the top level, you can also provide general middleware functions
 that get called before the mapping handlers are executed. These
 functions allow you to perform shared operations, such as extracting a
-cookie token, for example.
+cookie token, or attaching meta data to Request objects.
 
 ```
 seneca.act('role:web', {use:{
   prefix: '/color',
   pin:    'role:color,cmd:*',
+
   startware: function(req,res,next){
-    // attach something to each request
+    // attach something to every request
     req.foo = "bar"
     next()
   }
+
+  premap: function(req,res,next){
+    // attach something only to mapped requests
+    req.zed = "qux"
+    next()
+  }
+
   map: {
     red: { POST:true }
   }
@@ -433,8 +443,9 @@ seneca.act('role:web', {use:{
 
 These general middleware functions are:
 
-   * _startware_: always executed, before any mappings, even when there is no route match
-   * _endware_: executed only when a custom mapping middleware calls `next`.
+   * _startware_: always executed, before any mappings, *even when there is no route match*
+   * _premap_: only executed when a mapping matches, and before the mapping; can also be used at the mapping level for route-specific behaviour
+   * _postmap_: executed only when a custom mapping middleware calls `next`.
 
 The primary advantage of using the mapping specification over a custom
 middleware function is that seneca-web maintains a list of mapped

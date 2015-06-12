@@ -3,17 +3,24 @@ seneca.use('../web.js')
 
 seneca.use( function p0() {
   this.add('role:api,cmd:c0',function(args,done){
-    done(null,{
+    var out = {
       r0:'r0'+args.a0,
       r1:'r1'+args.a1,
       r2:'r2'+args.a2,
       x0:'r'+args.req$.x0,
+      bad$: 'should-not-appear-in-response',
       http$:{
         headers:{
           h0:'i0'
         }
       }
-    })
+    }
+
+    if(args.c) {
+      out.c = args.c
+    }
+
+    done(null,out)
   })
 
   this.add('role:api,cmd:c1',function(args,done){
@@ -48,6 +55,22 @@ seneca.use( function p0() {
     pin:'role:api,cmd:*',
     startware: function(req,res,next){
       req.x0 = 'y0'
+      
+      if( req.body && 'a' == req.body.a ) {
+        req.body.a = 'A'
+      }
+
+      if( req.body && 'b' == req.body.b ) {
+        req.body.b = 'B'
+      }
+
+      next()
+    },
+    premap: function(args,req,res,next){
+      if( args.c ) {
+        args.c = 'C'
+      }
+
       next()
     },
     map: {
@@ -60,6 +83,7 @@ seneca.use( function p0() {
             if( err ) return respond(err);
 
             out.r1 = 'p'+out.r1
+            out.c = args.c || undefined
             respond(null,out)
           })
         },
@@ -72,6 +96,7 @@ seneca.use( function p0() {
           },
           modify: function( result ) {
             result.out.o0 = 'p0'
+            delete result.out.bad$
           },
           responder: function( req, res, err, obj ) {
             obj.q0 = 'u0'
@@ -115,5 +140,21 @@ seneca.use( function p0() {
 var express = require('express')
 var app = express()
 app.use( require('body-parser').json() )
+
+app.get( '/a', function(req,res){
+  res.send('A')
+})
+app.post( '/a', function(req,res){
+  res.send( {a:req.body.a,c:req.body.c||undefined} )
+})
+
 app.use( seneca.export('web') )
+
+app.get( '/b', function(req,res){
+  res.send('B')
+})
+app.post( '/b', function(req,res){
+  res.send( {b:req.body.b,c:req.body.c||undefined} )
+})
+
 app.listen(3001)

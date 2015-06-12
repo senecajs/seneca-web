@@ -264,8 +264,9 @@ module.exports = function( options ) {
     map:       {required$:true,object$:true},
     prefix:    'string$',
     startware: 'function$',
-    endware:   'function$',
     premap:    'function$',
+
+    endware:   'function$',
     postmap:   'function$',
   }, {
     topname:'spec',
@@ -282,6 +283,9 @@ module.exports = function( options ) {
 
     spec_check.validate(spec,function(err){
       if( err ) return done(err)
+
+      // legacy properties
+      spec.postmap = spec.postmap || spec.endware
 
       spec.prefix    = fixprefix( spec.prefix, options.prefix )
       var pin        = instance.pin( spec.pin )
@@ -516,6 +520,8 @@ function make_routespecs( actmap, spec, options ) {
       url = spec.prefix + fixalias(routespec.alias)
     }
 
+    routespec.premap = routespec.premap || spec.premap
+
     routespec.prefix  = spec.prefix
     routespec.suffix  = routespec.suffix || ''
     routespec.fullurl = url + routespec.suffix
@@ -654,9 +660,17 @@ function resolve_dispatch( instance, spec, routespecs, timestats, options ) {
           routespec.act.call(si,args,done)
         }
 
-        var premap = routespec.premap || function(){arguments[2]()}
+        var premap = routespec.premap || function(){arguments[3]()}
+        
+        // legacy signature
+        if( 3 == premap.length ) {
+          var orig_premap
+          premap = function(args,req,res,next){
+            orig_premap.call(this,req,res,next)
+          }
+        }
 
-        premap.call(si,req,res,function(err){
+        premap.call(si,args,req,res,function(err){
           if(err ) return next(err);
 
           methodspec.handler.call( si, req, res, args, act_si, respond)
@@ -756,8 +770,8 @@ function make_service( instance, spec, maprouter ) {
       maprouter(req,res,function(err){
         if(err) return next(err);
 
-        if( spec.endware ) {
-          spec.endware.call(si,req,res,function(err){
+        if( spec.postmap ) {
+          spec.postmap.call(si,req,res,function(err){
             return next(err);
           })
         }
