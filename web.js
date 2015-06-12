@@ -16,6 +16,7 @@ var serve_static        = require('serve-static')
 var json_stringify_safe = require('json-stringify-safe')
 var stats               = require('rolling-stats')
 var error               = require('eraro')({package:'seneca',msgmap:ERRMSGMAP()})
+var norma               = require('norma')
 
 var httprouter = require('./http-router')
 var methodlist = _.clone(httprouter.methods)
@@ -23,6 +24,7 @@ var methodlist = _.clone(httprouter.methods)
 
 module.exports = function( options ) {
   /* jshint validthis:true */
+  norma('o',arguments)
 
   var seneca = this
 
@@ -252,6 +254,8 @@ module.exports = function( options ) {
 
   // Define service middleware
   function define_service( instance, spec, done ) {
+    norma('o o|f f',arguments)
+
     if( _.isFunction( spec ) ) return done( null, spec );
 
     spec_check.validate(spec,function(err){
@@ -304,6 +308,8 @@ module.exports = function( options ) {
 
 
   function resolve_actions( instance, routespecs ) {
+    norma('oa',arguments)
+
     _.each( routespecs, function( routespec ) {
       var actmeta = instance.findact( routespec.pattern )
       if( !actmeta ) return;
@@ -319,6 +325,8 @@ module.exports = function( options ) {
 
 
   function resolve_methods( instance, spec, routespecs ) {
+    norma('ooa',arguments)
+
     _.each( routespecs, function( routespec ) {
 
       var methods = {}
@@ -356,7 +364,7 @@ module.exports = function( options ) {
 
         if( _.isString(methodspec.redirect) && !methodspec.responder) {
           methodspec.responder = 
-            options.make_redirectresponder( routespec, methodspec )
+            options.make_redirectresponder( spec, routespec, methodspec )
         }
 
         methodspec.responder = 
@@ -379,6 +387,8 @@ module.exports = function( options ) {
 
 
   function resolve_dispatch( instance, spec, routespecs, timestats ) {
+    norma('ooao',arguments)
+
     _.each( routespecs, function( routespec ) {
       _.each( routespec.methods, function( methodspec, method ) {
 
@@ -516,6 +526,8 @@ module.exports = function( options ) {
 
 // Default action handler; just calls the action.
 function make_defaulthandler( spec, routespec, methodspec ) {
+  norma('ooo',arguments)
+
   return function defaulthandler(req,res,args,act,respond) {
     act(args,function(err,out){
       respond(err,out)
@@ -526,6 +538,8 @@ function make_defaulthandler( spec, routespec, methodspec ) {
 
 // Default response handler; applies custom http$ settings, if any
 function make_defaultresponder( spec, routespec, methodspec ) {
+  norma('ooo',arguments)
+
   return function defaultresponder(req,res,err,obj) {
     obj = (null == obj) ? {} : obj
     var outobj = {}
@@ -593,6 +607,8 @@ function make_defaultresponder( spec, routespec, methodspec ) {
 
 
 function make_redirectresponder( spec, routespec, methodspec ) {
+  norma('ooo',arguments)
+
   return function(req,res,err,obj) {
     var url = methodspec.redirect || routespec.redirect
   
@@ -618,6 +634,8 @@ function make_redirectresponder( spec, routespec, methodspec ) {
 var defaultflags = {useparams:true,usequery:true,data:false}
 
 function make_routespecs( actmap, spec, options ) {
+  norma('ooo',arguments)
+
   var routespecs = []
 
   _.each( actmap, function(pattern,fname) {
@@ -658,6 +676,8 @@ function make_routespecs( actmap, spec, options ) {
 
 
 function make_argparser( instance, options, methodspec ) {
+  norma('ooo',arguments)
+
   return function( req ) {
     if( !_.isObject(req.body) && options.warn.req_body ) {
       instance.log.warn(
@@ -700,6 +720,8 @@ function make_argparser( instance, options, methodspec ) {
 
 
 function make_router(instance,spec,routespecs,routemap) {
+  norma('ooao',arguments)
+
   var routes = []
   var mr = httprouter(function(http){
     _.each( routespecs, function( routespec ) {

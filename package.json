@@ -28,6 +28,7 @@
     "lodash": "~2.4.1",
     "mstring": "~0.1.2",
     "nid": "~0.3.2",
+    "norma": "^0.3.0",
     "parambulator": "~1.5.0",
     "rolling-stats": "~0.1.1",
     "serve-static": "~1.8.0",
