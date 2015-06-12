@@ -19,7 +19,7 @@ For a gentle introduction to Seneca itself, see the
 
 ## Support
 
-Current Version: 0.3.3
+Current Version: 0.4.0
 
 Tested on: Node 0.10.38, [Seneca](/rjrodger/seneca) 0.6.1
 
