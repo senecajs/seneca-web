@@ -286,13 +286,14 @@ seneca.act('role:web', {use:{
 ```
 
 The argument properties for your action are built from the URL
-parameters, query string, and body data, merged in that order to
+parameters, query string, and body data, *merged* in that order of
 precedence. You can modify this behaviour with the _useparams_ and
 _usequery_ settings, as described below.
 
 Example:
 
 ```
+// just echo the args back out again!
 seneca.add('role:api,cmd:echo', function( args, done ){
   done( null, args )
 })
@@ -301,15 +302,17 @@ seneca.act('role:web', {use:{
   prefix: '/api',
   pin:    'role:api,cmd:*',
   map: {
-    echo:true
+    echo: {POST:true, suffix:'/:foo'}
   }
 }})
 ```
 
 Which behaves as follows:
 
-
-
+```bash
+$ curl -m 1 -s -H 'Content-Type: application/json' -d '{"zed":"c"}' http://localhost:3000/api/echo/a?bar=b
+  {"cmd":"echo","role":"api","zed":"c","foo":"a","bar":"b"}
+```
 
 
 **Note: you do not have to list all the matching wildcards in a map. Only those

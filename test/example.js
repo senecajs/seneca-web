@@ -78,7 +78,7 @@ seneca.act('role:web', {use:{
   prefix: '/api',
   pin:    'role:api,cmd:*',
   map: {
-    echo: {POST:true, suffix:'/:bar'}
+    echo: {POST:true, suffix:'/:foo'}
   }
 }})
 
