@@ -365,7 +365,7 @@ module.exports = function( options ) {
 
     seneca.act({role:'web', plugin:'web', config:config, use:use})
 
-    seneca.act({role:'util',note:true,cmd:'push',key:'admin/units',value:{
+    seneca.act({role:'basic',note:true,cmd:'push',key:'admin/units',value:{
       unit:'web-service',
       spec:{
         title:'Web Services',

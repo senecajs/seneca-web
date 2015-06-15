@@ -19,11 +19,13 @@ For a gentle introduction to Seneca itself, see the
 
 ## Support
 
-Current Version: 0.4.0
+Current Version: 0.4.1
 
-Tested on: Node 0.10.38, [Seneca](/rjrodger/seneca) 0.6.1
+Tested on: [Seneca](/rjrodger/seneca) 0.6.2
 
 [![Build Status](https://travis-ci.org/rjrodger/seneca-web.png?branch=master)](https://travis-ci.org/rjrodger/seneca-web)
+
+Built and tested against versions: `0.10, 0.11, 0.12, iojs`
 
 [Annotated Source Code](http://rjrodger.github.io/seneca-web/doc/web.html).
 
