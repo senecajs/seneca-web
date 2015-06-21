@@ -77,7 +77,7 @@ console.log('GET '+url)
 needle.get(url,function(err,res){
   assert.ok( !err )
   assert.equal(500,res.statusCode)
-  assert.deepEqual( res.body, { error: 'Error: seneca: Action role:api,cmd:e0 failed: e0.' } )
+  assert.deepEqual( res.body, { error: 'Error: seneca: Action cmd:e0,role:api failed: e0.' } )
 })
 
 var url = 'http://localhost:3001/t0/e1'

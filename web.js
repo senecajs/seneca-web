@@ -664,7 +664,7 @@ function resolve_dispatch( instance, spec, routespecs, timestats, options ) {
         
         // legacy signature
         if( 3 == premap.length ) {
-          var orig_premap
+          var orig_premap = premap
           premap = function(args,req,res,next){
             orig_premap.call(this,req,res,next)
           }
