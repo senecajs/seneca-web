@@ -19,9 +19,9 @@ For a gentle introduction to Seneca itself, see the
 
 ### Support
 
-Current Version: 0.4.2
+Current Version: 0.4.3
 
-Tested on: [Seneca](//github.com/rjrodger/seneca) 0.6.2
+Tested on: [Seneca](//github.com/rjrodger/seneca) 0.6.3
 
 [![Build Status](https://travis-ci.org/rjrodger/seneca-web.png?branch=master)](https://travis-ci.org/rjrodger/seneca-web)
 
