@@ -465,8 +465,8 @@ function make_defaultresponder( spec, routespec, methodspec ) {
 
     if( err ) {
       var errobj = err.seneca ? err.seneca : err
-      http.redirect = errobj.redirect$   || http.redirect
-      http.status   = errobj.httpstatus$ || http.status
+      http.redirect = errobj.redirect$   || (errobj.http$ && errobj.http$.redirect) || http.redirect
+      http.status   = errobj.httpstatus$ || (errobj.http$ && errobj.http$.status)   || http.status
     }
 
     // Send redirect response.
