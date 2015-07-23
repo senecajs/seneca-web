@@ -11,8 +11,6 @@ function init(cb){
   var agent
   var request = require('supertest')
   var express = require('express')
-  var bodyparser   = require('body-parser')
-  var session      = require('express-session')
   var seneca = require('seneca')
 
   var si = seneca({/*{log: 'print'}*/default_plugins:{web:false}})
@@ -24,8 +22,6 @@ function init(cb){
     var web = si.export('web')
 
     var app = express()
-    app.use( bodyparser.json() )
-    app.use( session({secret:'si', resave: true, saveUninitialized: true }) )
 
     app.use( web )
     agent = request(app)

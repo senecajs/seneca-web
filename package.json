@@ -34,11 +34,12 @@
     "serve-static": "1.9.3"
   },
   "devDependencies": {
-    "seneca": "plugin",
     "docco": "0.7.0",
     "jshint": "2.8.0",
     "mocha": "2.1.0",
-    "success": "0.1.0"
+    "seneca": "plugin",
+    "success": "0.1.0",
+    "supertest": "^1.0.1"
   },
   "repository": {
     "type": "git",
