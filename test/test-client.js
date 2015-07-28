@@ -8,7 +8,7 @@ var url = 'http://localhost:3001/t0/a0/b0?a1=b1&a2=b2'
 console.log('GET '+url)
 needle.get(url,function(err,res){
   assert.ok( !err )
-  assert.equal( res.headers.h0, 'i0' ) 
+  assert.equal( res.headers.h0, 'i0' )
   assert.deepEqual(res.body,{ r0: 'r0b0', r1: 'r1b1', r2: 'r2b2', x0: 'ry0' })
 })
 
@@ -71,6 +71,13 @@ needle.put(
     assert.ok( !err )
     assert.deepEqual( res.body, { d1: 'e1f1', d2: 'e2' } )
   })
+
+url = 'http://localhost:3001/t0/c3',
+console.log('GET '+url)
+needle.get(url,function(err,res){
+  assert.ok( !err )
+  assert.deepEqual( res.body, [{a:1}, {b:2}] )
+})
 
 var url = 'http://localhost:3001/t0/e0'
 console.log('GET '+url)

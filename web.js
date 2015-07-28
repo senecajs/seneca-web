@@ -60,7 +60,7 @@ module.exports = function( options ) {
       req_query: true,
     },
 
-    
+
     // Extended debugging
     debug: {
       service: false
@@ -129,12 +129,12 @@ module.exports = function( options ) {
 
     // The plugin is defining some client-side configuration.
     if( args.config && args.plugin ) {
-      configmap[args.plugin] = 
+      configmap[args.plugin] =
         _.extend( {}, configmap[args.plugin]||{}, args.config )
 
       initsrc = init_template({_:_,configmap:configmap})
     }
-    
+
 
     if( args.use ) {
       // Add service to middleware layers, order is significant
@@ -163,10 +163,10 @@ module.exports = function( options ) {
 
     // Client-side configuration for named plugin.
     config: {object$:true},
-    
+
     // Client-side name for the plugin.
     plugin: {string$:true},
-  } 
+  }
 
 
 
@@ -223,7 +223,7 @@ module.exports = function( options ) {
         }
       })
       route_list_cache.sort(function(a,b){
-        return a.url == b.url ? 0 : a.url < b.url ? -1 : +1 
+        return a.url == b.url ? 0 : a.url < b.url ? -1 : +1
       })
     }
 
@@ -238,8 +238,8 @@ module.exports = function( options ) {
       if( err ) return done(err);
 
       _.each(list, function(route){
-        var pluginname = (route.service && 
-                          route.service.plugin && 
+        var pluginname = (route.service &&
+                          route.service.plugin &&
                           route.service.plugin.name) || '-'
         var name = pluginname+';'+route.method+';'+route.url
         stats[name] = {}
@@ -291,7 +291,7 @@ module.exports = function( options ) {
       var pin        = instance.pin( spec.pin )
       var actmap     = make_actmap( pin )
       var routespecs = make_routespecs( actmap, spec, options )
-      
+
       resolve_actions( instance, routespecs )
       resolve_methods( instance, spec, routespecs, options )
       resolve_dispatch( instance, spec, routespecs, timestats, options )
@@ -304,7 +304,7 @@ module.exports = function( options ) {
   }
 
 
-  // Define exported middleware function 
+  // Define exported middleware function
   // TODO is connect the best option here?
 
   var app = connect()
@@ -316,20 +316,20 @@ module.exports = function( options ) {
         res.writeHead(200,{'Content-Type':'text/javascript'})
         return res.end(initsrc+sourcelist.join('\n'));
       }
-   
+
       req.url = req.url.substring(options.contentprefix.length)
       return app( req, res );
     }
     else return next();
   }
 
-  
+
   function next_service(req,res,next,i) {
     if( i < services.length ) {
       var service = services[i]
 
       if( options.debug.service ) {
-        seneca.log.debug( 
+        seneca.log.debug(
           'service-chain',req.seneca.fixedargs.tx$,
           req.method,req.url,service.serviceid$,
           util.inspect(service.plugin$) )
@@ -426,7 +426,7 @@ function make_defaultresponder( spec, routespec, methodspec ) {
     else {
       http = {}
     }
-    
+
     // specific http settings
     http = _.extend({},spec.http,routespec.http,methodspec.http,http)
 
@@ -446,7 +446,7 @@ function make_defaultresponder( spec, routespec, methodspec ) {
       http.redirect = errobj.redirect$   || http.redirect
       http.status   = errobj.httpstatus$ || http.status
     }
-    
+
     // Send redirect response.
     if( http.redirect ) {
       res.writeHead( http.status || 302, _.extend({
@@ -464,7 +464,7 @@ function make_defaultresponder( spec, routespec, methodspec ) {
       res.writeHead(http.status,_.extend({
         'Content-Type':  'application/json',
         'Cache-Control': 'private, max-age=0, no-cache, no-store',
-        "Content-Length": buffer.Buffer.byteLength(outjson) 
+        "Content-Length": buffer.Buffer.byteLength(outjson)
       },http.headers))
 
       res.end( outjson )
@@ -478,7 +478,7 @@ function make_redirectresponder( spec, routespec, methodspec ) {
 
   return function(req,res,err,obj) {
     var url = methodspec.redirect || routespec.redirect
-  
+
     var status = 302 || methodspec.status || routespec.status
 
     if( err ) {
@@ -510,12 +510,12 @@ function make_routespecs( actmap, spec, options ) {
 
     // Only build a route if explicitly defined in map
     if( !routespec ) return;
-  
+
     var url = spec.prefix + fname
-  
+
     // METHOD:true abbrev
     routespec = _.isBoolean(routespec) ? {} : routespec
-  
+
     if( routespec.alias ) {
       url = spec.prefix + fixalias(routespec.alias)
     }
@@ -536,7 +536,7 @@ function make_routespecs( actmap, spec, options ) {
     if( _.isString(routespec.redirect) && !routespec.responder) {
       routespec.responder = make_redirectresponder( spec, routespec, {} )
     }
-  
+
     routespecs.push( _.clone(routespec) )
   })
 
@@ -576,7 +576,7 @@ function resolve_methods( instance, spec, routespecs, options ) {
       if( _.isFunction( methodspec ) || !_.isObject( methodspec ) ) {
         methodspec = { handler:handler }
       }
-      
+
       methodspec.method = method
 
       methods[method] = methodspec
@@ -589,29 +589,29 @@ function resolve_methods( instance, spec, routespecs, options ) {
     _.each( methods, function( methodspec) {
 
       _.each(defaultflags, function(val,flag) {
-        methodspec[flag] = 
+        methodspec[flag] =
           (null == methodspec[flag]) ? routespec[flag] : methodspec[flag]
       })
 
-      methodspec.handler = 
-        _.isFunction( methodspec.handler ) ? methodspec.handler : 
-        _.isFunction( routespec.handler ) ? routespec.handler : 
+      methodspec.handler =
+        _.isFunction( methodspec.handler ) ? methodspec.handler :
+        _.isFunction( routespec.handler ) ? routespec.handler :
         options.make_defaulthandler( spec, routespec, methodspec )
 
 
       if( _.isString(methodspec.redirect) && !methodspec.responder) {
-        methodspec.responder = 
+        methodspec.responder =
           options.make_redirectresponder( spec, routespec, methodspec )
       }
 
-      methodspec.responder = 
-        _.isFunction( methodspec.responder ) ? methodspec.responder : 
-        _.isFunction( routespec.responder ) ? routespec.responder : 
+      methodspec.responder =
+        _.isFunction( methodspec.responder ) ? methodspec.responder :
+        _.isFunction( routespec.responder ) ? routespec.responder :
         options.make_defaultresponder( spec, routespec, methodspec )
 
-      methodspec.modify = 
-        _.isFunction( methodspec.modify ) ? methodspec.modify : 
-        _.isFunction( routespec.modify ) ? routespec.modify : 
+      methodspec.modify =
+        _.isFunction( methodspec.modify ) ? methodspec.modify :
+        _.isFunction( routespec.modify ) ? routespec.modify :
         defaultmodify
 
 
@@ -661,7 +661,7 @@ function resolve_dispatch( instance, spec, routespecs, timestats, options ) {
         }
 
         var premap = routespec.premap || function(){arguments[3]()}
-        
+
         // legacy signature
         if( 3 == premap.length ) {
           var orig_premap = premap
@@ -677,7 +677,7 @@ function resolve_dispatch( instance, spec, routespecs, timestats, options ) {
         })
       }
     })
-  })      
+  })
 }
 
 
@@ -692,15 +692,15 @@ function make_argparser( instance, options, methodspec ) {
     }
 
     if( methodspec.useparams && options.warn.req_params &&
-        !_.isObject(req.params) ) 
+        !_.isObject(req.params) )
     {
       instance.log.warn(
         'seneca-web: req.params not present! '+
           "To access URL params, you'll express or an appropriate parser module.")
     }
 
-    if( methodspec.usequery && options.warn.req_query && 
-        !_.isObject(req.query) ) 
+    if( methodspec.usequery && options.warn.req_query &&
+        !_.isObject(req.query) )
     {
       instance.log.warn(
         'seneca-web: req.query not present! '+
@@ -746,7 +746,7 @@ function make_router(instance,spec,routespecs,routemap) {
 
         routes.push( method.toUpperCase()+' '+routespec.fullurl )
       })
-    })      
+    })
   })
 
   mr.routes$ = routes
@@ -844,14 +844,21 @@ function make_actmap( pin ) {
 
 
 function defaultmodify( result ) {
-
   // strip out $ properties, apart from http$, which is dealt with later
-  if( _.isObject( result.out ) ) {
-    _.each(result.out,function(v,k){
-      if(~k.indexOf('$') && 'http$' !== k) {
-        delete result.out[k]
-      }
-    })
+  var clean = function(item) {
+    if( _.isObject( item ) ) {
+      _.each(item,function(v,k){
+        if(~k.indexOf('$') && 'http$' !== k) {
+          delete item[k]
+        }
+      })
+    }
+  }
+
+  if( _.isArray( result.out )) {
+    _.each(result.out, clean)
+  } else {
+    clean(result.out)
   }
 }
 
