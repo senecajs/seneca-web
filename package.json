@@ -7,11 +7,22 @@
     "web",
     "plugin"
   ],
-  "author": "Richard Rodger (http://richardrodger.com)",
+  "author": {
+    "name": "Richard Rodger",
+    "email": "richard.rodger@nearform.com",
+    "url": "http://richardrodger.com/"
+  },
+  "contributors": [
+    {
+      "name": "Mircea Alexandru",
+      "email": "mircea.alexandru@gmail.com",
+      "url": "https://github.com/mirceaalexandru"
+    }
+  ],
   "license": "MIT",
   "main": "web.js",
   "scripts": {
-    "test": "./test.sh",
+    "test": "lab",
     "build": "./build.sh"
   },
   "files": [
@@ -34,11 +45,14 @@
     "serve-static": "1.9.3"
   },
   "devDependencies": {
+    "assert": "^1.3.0",
+    "body-parser": "^1.13.3",
+    "cookie-parser": "^1.3.5",
+    "express": "^4.13.3",
     "docco": "0.7.0",
-    "jshint": "2.8.0",
-    "mocha": "2.1.0",
-    "seneca": "plugin",
+    "lab": "^5.15.1",
     "success": "0.1.0",
+    "seneca": "plugin",
     "supertest": "^1.0.1"
   },
   "repository": {
