@@ -72,6 +72,15 @@ needle.put(
     assert.deepEqual( res.body, { d1: 'e1f1', d2: 'e2' } )
   })
 
+url = 'http://localhost:3001/t0/c3',
+console.log('GET '+url)
+needle.get(url,function(err,res){
+  assert.ok( !err )
+  assert.deepEqual( res.body, [{a:1}, {b:2}] )
+  assert.ok( res.headers );
+  assert.equal( res.headers.foo, 'bar' );
+})
+
 var url = 'http://localhost:3001/t0/e0'
 console.log('GET '+url)
 needle.get(url,function(err,res){

@@ -32,6 +32,12 @@ seneca.use( function p0() {
     done(null,{d1:src.d1+'f1',d2:src.d2})
   })
 
+  this.add('role:api,cmd:c3',function(args,done){
+    var a = [{a:1}, {b:2}];
+    a.http$ = { headers: { Foo: 'bar' } };
+    done(null, a);
+  })
+
   this.add('role:api,cmd:e0',function(args,done){
     done(new Error('e0'))
   })
