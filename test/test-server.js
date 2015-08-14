@@ -33,7 +33,9 @@ seneca.use( function p0() {
   })
 
   this.add('role:api,cmd:c3',function(args,done){
-    done(null, [{a:1}, {b:2}])
+    var a = [{a:1}, {b:2}];
+    a.http$ = { headers: { Foo: 'bar' } };
+    done(null, a);
   })
 
   this.add('role:api,cmd:e0',function(args,done){
