@@ -417,6 +417,8 @@ function make_defaultresponder( spec, routespec, methodspec ) {
     }
     else {
       outobj = _.clone( obj )
+      // Ensure metadata is cloned when obj is an array.
+      _.assign(outobj, _.pick(obj, ['http$', 'redirect$', 'httpstatus$']));
     }
 
     var http = outobj.http$
