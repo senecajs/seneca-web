@@ -13,9 +13,7 @@
   "scripts": {
     "pretest": "npm install",
     "test": "./test.sh",
-    "build": "./build.sh",
-    "lint": "node_modules/.bin/gulp lint",
-    "precommit": "node_modules/.bin/gulp pre-commit && npm test"
+    "build": "./build.sh"
   },
   "files": [
     "LICENSE.txt",
@@ -40,12 +38,9 @@
     "body-parser": "^1.14.1",
     "chai": "^3.3.0",
     "docco": "0.7.0",
+    "eslint-config-standard": "^4.4.0",
+    "eslint-plugin-standard": "^1.3.1",
     "express": "^4.13.3",
-    "git-guppy": "^1.0.0",
-    "gulp": "^3.9.0",
-    "gulp-eslint": "^1.0.0",
-    "gulp-filter": "^3.0.1",
-    "husky": "^0.10.1",
     "istanbul": "^0.3.22",
     "jshint": "2.8.0",
     "mocha": "2.1.0",
