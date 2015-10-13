@@ -43,7 +43,6 @@
     "gulp": "^3.9.0",
     "gulp-eslint": "^1.0.0",
     "gulp-filter": "^3.0.1",
-    "gulp-jscs": "^3.0.1",
     "husky": "^0.10.1",
     "istanbul": "^0.3.22",
     "jshint": "2.8.0",
