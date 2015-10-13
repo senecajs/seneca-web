@@ -32,6 +32,10 @@ seneca.use( function p0() {
     done(null,{d1:src.d1+'f1',d2:src.d2})
   })
 
+  this.add('role:api,cmd:c3',function(args,done){
+    done(null, [{a:1}, {b:2}])
+  })
+
   this.add('role:api,cmd:e0',function(args,done){
     done(new Error('e0'))
   })
@@ -55,7 +59,7 @@ seneca.use( function p0() {
     pin:'role:api,cmd:*',
     startware: function(req,res,next){
       req.x0 = 'y0'
-      
+
       if( req.body && 'a' == req.body.a ) {
         req.body.a = 'A'
       }
@@ -117,10 +121,15 @@ seneca.use( function p0() {
         POST: { data: false }
       },
 
+      // Using list as a response
+      c3: {
+        data: true,
+      },
+
       e0: true,
       e1: {
         responder: function( req, res, err, obj ) {
-          if( err ) { 
+          if( err ) {
             // plain text for errors, no JSON
             res.writeHead(500)
 
