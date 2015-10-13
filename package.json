@@ -11,6 +11,7 @@
   "license": "MIT",
   "main": "web.js",
   "scripts": {
+    "pretest": "npm install",
     "test": "./test.sh",
     "build": "./build.sh"
   },
