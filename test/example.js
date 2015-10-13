@@ -82,13 +82,15 @@ seneca.act('role:web', {use:{
   }
 }})
 
-
-
-var express = require('express')
-var app = express()
+var app = require('express')()
 app.use( require('body-parser').json() )
 app.use( seneca.export('web') )
-app.listen(3000)
+module.exports = function(TEST) {
+  if (!TEST) {
+    app.listen(3000)
+  }
+  return app;
+}
 
 // run: node test/example.js --seneca.log=type:act
 
