@@ -13,7 +13,8 @@
   "scripts": {
     "pretest": "npm install",
     "test": "./test.sh",
-    "build": "./build.sh"
+    "build": "./build.sh",
+    "precommit": "node_modules/.bin/gulp pre-commit && npm test"
   },
   "files": [
     "LICENSE.txt",
