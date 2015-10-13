@@ -14,6 +14,7 @@
     "pretest": "npm install",
     "test": "./test.sh",
     "build": "./build.sh",
+    "lint": "node_modules/.bin/gulp lint",
     "precommit": "node_modules/.bin/gulp pre-commit && npm test"
   },
   "files": [
