@@ -1,3 +1,5 @@
+var Promise = require('bluebird')
+
 var seneca = require('seneca')({
   default_plugins:{web:false}
 })
