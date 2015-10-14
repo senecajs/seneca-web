@@ -8,8 +8,10 @@ describe('express', function() {
 
   var app
   beforeEach(function(done) {
-    app = require('./example.js')(true)
-    setTimeout(done, 500)
+    require('./example.js')(true).then(function(_app_) {
+      app = _app_
+      done()
+    })
   })
 
   // GET_FOO_BAR=`curl -m 1 -s http://localhost:3000/my-api/bar?zoo=a`
