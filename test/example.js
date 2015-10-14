@@ -65,10 +65,9 @@ seneca.act('role:web', {use:{
   map: {
     red:   true,
     green: true,
-    blue:  true,
+    blue:  true
   }
 }})
-
 
 seneca.add('role:api,cmd:echo', function( args, done ){
   done( null, args )
