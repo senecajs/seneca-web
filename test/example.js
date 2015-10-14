@@ -16,6 +16,25 @@ seneca.add('role:foo,cmd:qaz',function(args,done){
   done(null,{qaz:args.zoo+'z'})
 })
 
+seneca.add('role:foo, cmd:aliasGet', function( args, done ){
+  done( null, {alias: 'get'} );
+});
+
+seneca.add('role:foo, cmd:aliasPost', function( args, done ){
+  done( null, {alias: 'post'} );
+});
+
+seneca.add('role:foo, cmd:aliasPut', function( args, done ){
+  done( null, {alias: 'put'} );
+});
+
+seneca.add('role:foo, cmd:aliasDel', function( args, done ){
+  done( null, {alias: 'del'} );
+});
+
+seneca.add('role:foo, cmd:aliasToken', function( args, done ){
+  done( null, {token: args.req$.params.token} );
+});
 
 seneca.act('role:web',{use:{
   prefix:'/my-api',
@@ -23,7 +42,27 @@ seneca.act('role:web',{use:{
   map:{
     zig: true,
     bar: {GET:true},
-    qaz: {GET:true,POST:true}
+    qaz: {GET:true,POST:true},
+    aliasGet: {
+      GET: true,
+      alias: 'this/is/an/alias'
+    },
+    aliasPost: {
+      POST: true,
+      alias: 'this/is/an/alias'
+    },
+    aliasPut: {
+      PUT: true,
+      alias: 'this/is/an/alias'
+    },
+    aliasDel: {
+      DELETE: true,
+      alias: 'this/is/an/alias'
+    },
+    aliasToken: {
+      GET: true,
+      alias: 'this/is/an/alias/:token'
+    }
   }
 }})
 
