@@ -35,6 +35,7 @@
     "serve-static": "1.9.3"
   },
   "devDependencies": {
+    "bluebird": "^2.10.2",
     "body-parser": "^1.14.1",
     "chai": "^3.3.0",
     "docco": "0.7.0",
