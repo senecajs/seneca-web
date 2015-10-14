@@ -86,10 +86,14 @@ var app = require('express')()
 app.use( require('body-parser').json() )
 app.use( seneca.export('web') )
 module.exports = function(TEST) {
-  if (!TEST) {
-    app.listen(3000)
-  }
-  return app;
+  return new Promise(function(resolve) {
+    if (!TEST) {
+      app.listen(3000)
+    }
+    seneca.ready(function() {
+      resolve(app);
+    });
+  });
 }
 
 // run: node test/example.js --seneca.log=type:act
