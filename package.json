@@ -12,7 +12,7 @@
   "main": "web.js",
   "scripts": {
     "pretest": "npm install",
-    "test": "./test.sh",
+    "test": "node_modules/.bin/standard && ./test.sh",
     "build": "./build.sh"
   },
   "files": [
@@ -46,8 +46,14 @@
     "jshint": "2.8.0",
     "mocha": "2.1.0",
     "seneca": "plugin",
+    "standard": "^5.3.1",
     "success": "0.1.0",
     "supertest": "^1.1.0"
+  },
+  "standard": {
+      "ignore": [
+          "/web/"
+      ]
   },
   "repository": {
     "type": "git",
