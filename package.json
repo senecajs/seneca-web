@@ -52,7 +52,12 @@
   },
   "standard": {
       "ignore": [
-          "/web/"
+          "/web/",
+          "/web.js",
+          "/test/web.test.js",
+          "/http-router.js",
+          "/test/test-server.js",
+          "/test/test-client.js"
       ]
   },
   "repository": {

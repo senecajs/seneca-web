@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
-process.setMaxListeners(0);
+process.setMaxListeners(0)
 
