@@ -61,7 +61,7 @@ seneca.use( function p0() {
     pin:'role:api,cmd:*',
     startware: function(req,res,next){
       req.x0 = 'y0'
-      
+
       if( req.body && 'a' == req.body.a ) {
         req.body.a = 'A'
       }
@@ -123,10 +123,15 @@ seneca.use( function p0() {
         POST: { data: false }
       },
 
+      // Using list as a response
+      c3: {
+        data: true,
+      },
+
       e0: true,
       e1: {
         responder: function( req, res, err, obj ) {
-          if( err ) { 
+          if( err ) {
             // plain text for errors, no JSON
             res.writeHead(500)
 
