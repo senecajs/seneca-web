@@ -77,6 +77,8 @@ console.log('GET '+url)
 needle.get(url,function(err,res){
   assert.ok( !err )
   assert.deepEqual( res.body, [{a:1}, {b:2}] )
+  assert.ok( res.headers );
+  assert.equal( res.headers.foo, 'bar' );
 })
 
 var url = 'http://localhost:3001/t0/e0'
