@@ -14,6 +14,7 @@
 
 var parse = require('url').parse;
 
+
 /**
  * Expose router.
  */
@@ -24,13 +25,7 @@ exports = module.exports = routerExport;
  * Supported HTTP / WebDAV methods.
  */
 
-var _methods = exports.methods = [
-  'get', 'post', 'put', 'delete', 
-  'connect', 'options', 'trace', 'copy', 
-  'lock', 'mkcol', 'move', 'propfind', 
-  'proppatch', 'unlock', 'report', 
-  'mkactivity', 'checkout', 'merge'
-];
+var _methods = exports.methods = require('methods');
 
 /**
  * Provides Sinatra and Express-like routing capabilities.
