@@ -1,5 +1,5 @@
 # seneca-web - a [Seneca](http://senecajs.org) plugin
-
+[![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
 ## Seneca web plugin
 

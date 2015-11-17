@@ -11,7 +11,8 @@
   "license": "MIT",
   "main": "web.js",
   "scripts": {
-    "test": "./test.sh",
+    "pretest": "npm install",
+    "test": "node_modules/.bin/standard && ./test.sh",
     "build": "./build.sh"
   },
   "files": [
@@ -34,11 +35,30 @@
     "serve-static": "1.9.3"
   },
   "devDependencies": {
-    "seneca": "plugin",
+    "bluebird": "^2.10.2",
+    "body-parser": "^1.14.1",
+    "chai": "^3.3.0",
     "docco": "0.7.0",
+    "eslint-config-standard": "^4.4.0",
+    "eslint-plugin-standard": "^1.3.1",
+    "express": "^4.13.3",
+    "istanbul": "^0.3.22",
     "jshint": "2.8.0",
     "mocha": "2.1.0",
-    "success": "0.1.0"
+    "seneca": "plugin",
+    "standard": "^5.3.1",
+    "success": "0.1.0",
+    "supertest": "^1.1.0"
+  },
+  "standard": {
+      "ignore": [
+          "/web/",
+          "/web.js",
+          "/test/web.test.js",
+          "/http-router.js",
+          "/test/test-server.js",
+          "/test/test-client.js"
+      ]
   },
   "repository": {
     "type": "git",
