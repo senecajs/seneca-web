@@ -23,7 +23,7 @@
     "web"
   ],
   "dependencies": {
-    "connect": "3.0.2",
+    "connect": "3.4.0",
     "eraro": "0.4.1",
     "json-stringify-safe": "5.0.1",
     "lodash": "2.4.2",
@@ -32,7 +32,7 @@
     "norma": "0.3.0",
     "parambulator": "1.5.1",
     "rolling-stats": "0.1.1",
-    "serve-static": "1.9.3"
+    "serve-static": "1.10.0"
   },
   "devDependencies": {
     "bluebird": "^2.10.2",
@@ -51,14 +51,14 @@
     "supertest": "^1.1.0"
   },
   "standard": {
-      "ignore": [
-          "/web/",
-          "/web.js",
-          "/test/web.test.js",
-          "/http-router.js",
-          "/test/test-server.js",
-          "/test/test-client.js"
-      ]
+    "ignore": [
+      "/web/",
+      "/web.js",
+      "/test/web.test.js",
+      "/http-router.js",
+      "/test/test-server.js",
+      "/test/test-client.js"
+    ]
   },
   "repository": {
     "type": "git",
