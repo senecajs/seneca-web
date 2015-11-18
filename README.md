@@ -1,5 +1,4 @@
 # seneca-web - a [Seneca](http://senecajs.org) plugin
-[![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
 ## Seneca web plugin
 
@@ -21,19 +20,19 @@ For a gentle introduction to Seneca itself, see the
 
 Current Version: 0.4.3
 
-Tested on: [Seneca](//github.com/rjrodger/seneca) 0.6.3
+Tested on: [Seneca](//github.com/senecajs/seneca) 0.6.3
 
-[![Build Status](https://travis-ci.org/rjrodger/seneca-web.png?branch=master)](https://travis-ci.org/rjrodger/seneca-web)
+[![Build Status](https://travis-ci.org/senecajs/seneca-web.png?branch=master)](https://travis-ci.org/senecajs/seneca-web)
 
 Built and tested against versions: `0.10, 0.11, 0.12, iojs`
 
-[Annotated Source](http://rjrodger.github.io/seneca-web/doc/web.html)
+[Annotated Source](http://senecajs.github.io/seneca-web/doc/web.html)
 
 If you're using this module, and need help, you can:
 
-   * Post a [github issue](//github.com/rjrodger/seneca-web/issues),
+   * Post a [github issue](//github.com/senecajs/seneca-web/issues),
    * Tweet to [@senecajs](http://twitter.com/senecajs),
-   * Ask on the [![Gitter chat](https://badges.gitter.im/rjrodger/seneca-web.png)](https://gitter.im/rjrodger/seneca-web).
+   * Ask on the [![Gitter chat](https://badges.gitter.im/senecajs/seneca.png)](https://gitter.im/senecajs/seneca).
 
 
 ### Install
@@ -170,7 +169,7 @@ Use this approach when you need to write special case custom code. The
 to the Seneca instance bound to the current HTTP request. In a HTTP
 middleware context it's important to use the request specific Seneca
 instance, as other plugins may have added context to that
-instance. See, for example: [seneca-user](//github.com/rjrodger/seneca-user).
+instance. See, for example: [seneca-user](//github.com/senecajs/seneca-user).
 
 ```JavaScript
 seneca.add('zed:1',function(args,done){
@@ -198,7 +197,7 @@ The action mapping object is a convenience format for declarative
 definition of a HTTP API based on Seneca actions. You can see examples
 of this use-case in these projects:
 
-   * [seneca-examples project](http://github.com/rjrodger/seneca-examples)
+   * [seneca-examples project](http://github.com/senecajs/seneca-examples)
    * [Well App](http://github.com/nearform/well)
    * [Nodezoo module search engine](http://github.com/rjrodger/nodezoo)
 
