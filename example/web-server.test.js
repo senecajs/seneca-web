@@ -5,13 +5,19 @@
 var request = require('supertest')
 var expect = require('chai').expect
 
+var Lab = require('lab')
+var lab = exports.lab = Lab.script();
+
+var describe = lab.describe;
+var it = lab.it;
+var before = lab.before;
+
+
 describe('express', function () {
   var app
-  beforeEach(function (done) {
-    require('./example.js')(true).then(function (_app_) {
-      app = _app_
-      done()
-    })
+  before({}, function (done) {
+    require('./example.js')
+    done()
   })
 
   it('GET foo bar', function (done) {

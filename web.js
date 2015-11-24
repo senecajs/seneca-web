@@ -354,9 +354,30 @@ module.exports = function( options ) {
       tx$:  seneca.root.idgen()
     })
 
-    next_service(req,res,next,0)
-  }
+    next_service( req, res, _error_handler, 0 )
 
+    function _error_handler(err, response){
+      if ( err ){
+        var redirect = err.http$ && err.http$.redirect
+        var status   = err.http$ && err.http$.status || 400
+
+        // Send redirect response.
+        if( redirect ) {
+          res.writeHead( status, {
+            'Location': redirect
+          })
+        }
+        else{
+          delete err.http$
+          res.status(status).send(err)
+        }
+        res.end()
+      }
+      else{
+        next(err, response)
+      }
+    }
+  }
 
   seneca.add({init:'web'},function(args,done) {
     var seneca = this
@@ -445,8 +466,7 @@ function make_defaultresponder( spec, routespec, methodspec ) {
 
     if( err ) {
       var errobj = err.seneca ? err.seneca : err
-      http.redirect = errobj.redirect$   || http.redirect
-      http.status   = errobj.httpstatus$ || http.status
+      http = _.extend({}, http, {redirect: errobj.redirect$, status: errobj.httpstatus$}, errobj.http$ || {})
     }
 
     // Send redirect response.
@@ -762,9 +782,15 @@ function make_service( instance, spec, maprouter ) {
     var si = req.seneca || instance
 
     if( spec.startware ) {
-      spec.startware.call(si,req,res,do_maprouter)
+      spec.startware.call(si, req, res, function( err ){
+        if( err ) return next( err )
+
+        do_maprouter()
+      })
     }
-    else do_maprouter();
+    else {
+      do_maprouter()
+    }
 
     function do_maprouter(err) {
       if(err) return next(err);

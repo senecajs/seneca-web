@@ -1,46 +1,46 @@
 /* Copyright (c) 2010-2015 Richard Rodger */
 "use strict";
 
-
-// mocha web.test.js
-
-var util    = require('util')
-
 var _       = require('lodash')
-var success = require('success')
 var assert  = require('assert')
-
-
-
 var seneca  = require('seneca')
+var success = require('success')
 
+var Lab = require('lab')
+var lab = exports.lab = Lab.script()
+var suite = lab.suite;
+var test = lab.test;
+var before = lab.before;
 
+var si
 
-describe('user', function() {
+suite('configuration suite', function() {
+  before({}, function(done){
 
-  var si = seneca({log:'silent'})
-  si.use('../web.js')
+    si = seneca({log:'silent'})
+    si.use('../web.js')
+    done()
+  })
 
-
-  it('empty', function() {
-    si.act({role:'web',use:{pin:{},map:{}}})
+  test('empty', function(done) {
+    si.act({role:'web',use:{pin:{},map:{}}}, done)
   })
 
 
-  it('bad', function(fin) {
+  test('bad', function(done) {
     var cc = 0
-    var si = seneca({log:'silent',debug:{undead:true},errhandler:function(err){
+    var lsi = seneca( {log:'silent',debug:{undead:true} , errhandler:function(err){
       assert.equal('seneca: Action role:web failed: web-use: The property \'pin\' is missing and is always required (parent: spec)..',err.message)
-      cc++ && fin()
+      cc++ && done()
     }})
-    si.use('../web.js')
-    si.use( function bad(){
+    lsi.use('../web.js')
+    lsi.use( function bad(){
       this.act({role:'web',use:{}})
     })
   })
 
 
-  it('config', function(fin) {
+  test('config', function(done) {
     si.act(
       {
         role:'web',
@@ -50,28 +50,27 @@ describe('user', function() {
         },
         config:{a:1},
         plugin:'aaa'
-      }, 
+      },
       function(err,out){
         assert.ok( null == err)
 
         si.act({role:'web',get:'config', plugin:'aaa'}, function(err,out){
           assert.ok( null == err)
           assert.equal( out.a, 1 )
-          fin()
+          done()
         })
       }
     )
   })
 
-
-  it('source', function(fin) {
+  test('source', function(done) {
     si.act(
       {
         role:'web',
         set:'source',
         title:'t1',
-        source:'s1',
-      }, 
+        source:'s1'
+      },
       function(err,out){
         assert.ok( null == err)
 
@@ -80,15 +79,15 @@ describe('user', function() {
           assert.ok( null == err)
           assert.equal( out.length, 1 )
           assert.equal( '\n;// t1\ns1', out[0] )
-          fin()
+          done()
         })
       }
     )
   })
 
 
-  it('plugin', function(fin) {
-    var si = seneca({log:'silent',errhandler:fin})
+  test('plugin', function(done) {
+    var si = seneca({log:'silent',errhandler:done})
     si.use('../web.js')
 
     si.use(function qaz(){
@@ -115,15 +114,15 @@ describe('user', function() {
       }})
     })
 
-    si.act('role:web,list:service',success(fin,function(out){
+    si.act('role:web,list:service', success(done, function(out){
       assert.equal(out.length,4)
 
-      si.act('role:web,list:route',success(fin,function(out){
+      si.act('role:web,list:route',success(done,function(out){
         assert.equal(out.length,4)
 
-        si.act({role:'web',stats:true},success(fin,function(out){
+        si.act({role:'web',stats:true},success(done,function(out){
           assert.equal(4,_.keys(out).length)
-          fin()
+          done()
         }))
       }))
     }))
