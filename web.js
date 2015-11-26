@@ -850,7 +850,7 @@ function defaultmodify( result ) {
   var clean = function(item) {
     if( _.isObject( item ) ) {
       _.each(item,function(v,k){
-        if(~k.indexOf('$') && 'http$' !== k) {
+        if(~k.indexOf('$') && 'http$' !== k && 'httpstatus$' !== k) {
           delete item[k]
         }
       })
