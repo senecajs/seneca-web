@@ -1,6 +1,9 @@
-# seneca-web - a [Seneca](http://senecajs.org) plugin
+![Seneca](http://senecajs.org/files/assets/seneca-logo.png)
+> A [Seneca.js][] data storage plugin
 
 ## Seneca web plugin
+[![Build Status][travis-badge]][travis-url]
+[![Gitter][gitter-badge]][gitter-url]
 
 This plugin provides a web service API routing layer for Seneca action
 patterns. It translates HTTP requests with specific URL routes into
@@ -12,21 +15,24 @@ This plugin supports [Express](http://expressjs.com/)-style middleware.
 To use Seneca with [hapi](http://hapijs.com/), 
 see [chairo](https://www.npmjs.com/package/chairo) hapi plugin.
 
-For a gentle introduction to Seneca itself, see the
-[senecajs.org](http://senecajs.org) site.
+- __Version:__ 0.4.5
+- __Tested on:__ Seneca 0.9.1
+- __Node:__ 0.10, 0.12, 4, 5
+- __License:__ [MIT][]
 
+seneca-web's source can be read in an annotated fashion by,
 
-### Support
-
-[![Build Status](https://travis-ci.org/senecajs/seneca-web.png?branch=master)](https://travis-ci.org/senecajs/seneca-web)
-
-[Annotated Source](http://senecajs.github.io/seneca-web/doc/web.html)
+- running `npm run annotate`
+- viewing [online](http://senecajs.github.io/seneca-web/doc/web.html).
 
 If you're using this module, and need help, you can:
 
-   * Post a [github issue](//github.com/senecajs/seneca-web/issues),
-   * Tweet to [@senecajs](http://twitter.com/senecajs),
-   * Ask on the [![Gitter chat](https://badges.gitter.im/senecajs/seneca.png)](https://gitter.im/senecajs/seneca).
+- Post a [github issue][],
+- Tweet to [@senecajs][],
+- Ask on the [Gitter][gitter-url].
+
+If you are new to Seneca in general, please take a look at [senecajs.org][]. We have everything from
+tutorials to sample apps to help get you up and running quickly.
 
 
 ### Install
@@ -513,3 +519,21 @@ seneca.use( require('seneca-web') )
 
 ```
 
+## Contributing
+The [Senecajs org][] encourage open participation. If you feel you can help in any way, be it with
+documentation, examples, extra testing, or new features please get in touch.
+
+## License
+Copyright Richard Rodger and other contributors 2015, Licensed under [MIT][].
+
+[travis-badge]: https://travis-ci.org/senecajs/seneca-web.svg
+[travis-url]: https://travis-ci.org/senecajs/seneca-web
+[gitter-badge]: https://badges.gitter.im/Join%20Chat.svg
+[gitter-url]: https://gitter.im/senecajs/seneca
+
+[MIT]: ./LICENSE
+[Senecajs org]: https://github.com/senecajs/
+[Seneca.js]: https://www.npmjs.com/package/seneca
+[senecajs.org]: http://senecajs.org/
+[github issue]: https://github.com/senecajs/seneca-web/issues
+[@senecajs]: http://twitter.com/senecajs
