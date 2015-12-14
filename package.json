@@ -1,7 +1,7 @@
 {
   "name": "seneca-web",
   "description": "A plugin that provides HTTP functionality for the Seneca framework.",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "keywords": [
     "seneca",
     "web",
@@ -24,7 +24,8 @@
   "scripts": {
     "pretest": "npm install",
     "test": "lab",
-    "build": "./build.sh"
+    "build": "./build.sh",
+    "annotate": "docco web.js -o doc"
   },
   "files": [
     "LICENSE.txt",
