@@ -1,36 +1,32 @@
 /* Copyright (c) 2013-2015 Richard Rodger, MIT License */
 /* jshint node:true, asi:true, eqnull:true */
-"use strict";
+'use strict'
 
-
-var util   = require('util')
+var util = require('util')
 var buffer = require('buffer')
 
-
-var _                   = require('lodash')
-var parambulator        = require('parambulator')
-var mstring             = require('mstring')
-var nid                 = require('nid')
-var connect             = require('connect')
-var serve_static        = require('serve-static')
+var _ = require('lodash')
+var parambulator = require('parambulator')
+var mstring = require('mstring')
+var nid = require('nid')
+var connect = require('connect')
+var serve_static = require('serve-static')
 var json_stringify_safe = require('json-stringify-safe')
-var stats               = require('rolling-stats')
-var norma               = require('norma')
+var stats = require('rolling-stats')
+var norma = require('norma')
 
 var error = require('eraro')({
-  package:  'seneca',
-  msgmap:   ERRMSGMAP(),
+  package: 'seneca',
+  msgmap: ERRMSGMAP(),
   override: true
 })
-
 
 var httprouter = require('./http-router')
 var methodlist = _.clone(httprouter.methods)
 
-
-module.exports = function( options ) {
+module.exports = function (options) {
   /* jshint validthis:true */
-  norma('o',arguments)
+  norma('o', arguments)
 
   var seneca = this
 
@@ -44,20 +40,20 @@ module.exports = function( options ) {
 
     // Endpoint call statistics, see https://github.com/rjrodger/rolling-stats
     stats: {
-      size:     1024,
-      duration: 60000,
+      size: 1024,
+      duration: 60000
     },
 
     // Default function builders
-    make_defaulthandler:    make_defaulthandler,
-    make_defaultresponder:  make_defaultresponder,
+    make_defaulthandler: make_defaulthandler,
+    make_defaultresponder: make_defaultresponder,
     make_redirectresponder: make_redirectresponder,
 
     // Log warnings for invalid requests
     warn: {
       req_body: true,
       req_params: true,
-      req_query: true,
+      req_query: true
     },
 
 
@@ -66,23 +62,23 @@ module.exports = function( options ) {
       service: false
     }
 
-  },options)
+  }, options)
 
 
-  var timestats = new stats.NamedStats( options.stats.size, options.stats.duration )
+  var timestats = new stats.NamedStats(options.stats.size, options.stats.duration)
 
   // Ordered list of middleware services.
   var services = []
 
-  var configmap  = {}
+  var configmap = {}
   var servicemap = {}
 
   var routemap = {}
   var route_list_cache = null
 
   var init_template = _.template(mstring(
-    function(){/***
-      ;(function(){
+    function () {/**
+     ;(function(){
         var w = this
         var seneca = w.seneca || (w.seneca={})
         seneca.config = {}
@@ -90,70 +86,71 @@ module.exports = function( options ) {
         seneca.config[<%=JSON.stringify(name)%>] = <%=JSON.stringify(data)%>
         <%})%>
       }).call(window);
-      ***/}))
+     **/
+    }))
 
-  var initsrc = init_template({_:_,configmap:configmap})
+  var initsrc = init_template({_: _, configmap: configmap})
 
   var sourcelist = []
 
 
-  function add_action_patterns() {
+  function add_action_patterns () {
     seneca
 
     // Define a web service API.
-      .add( 'role:web', web_use)
+      .add('role:web', web_use)
 
-    // List known web services.
-      .add( 'role:web, list:service', list_service)
+      // List known web services.
+      .add('role:web, list:service', list_service)
 
-    // List known routes.
-      .add( 'role:web, list:route', list_route)
+      // List known routes.
+      .add('role:web, list:route', list_route)
 
-    // Provide route performance statistics.
-      .add( 'role:web, stats:true', action_stats)
+      // Provide route performance statistics.
+      .add('role:web, stats:true', action_stats)
 
-    // Get client-side configuration.
-      .add( 'role:web, get:config', get_config)
+      // Get client-side configuration.
+      .add('role:web, get:config', get_config)
 
-    // Set client-side source code.
-      .add( 'role:web, set:source', set_source)
+      // Set client-side source code.
+      .add('role:web, set:source', set_source)
 
-    // Get client-side source code list.
-      .add( 'role:web, get:sourcelist', get_sourcelist)
+      // Get client-side source code list.
+      .add('role:web, get:sourcelist', get_sourcelist)
   }
 
 
   // Action: _role:web_
-  function web_use( args, done ) {
+  function web_use (args, done) {
     var seneca = this
 
     // The plugin is defining some client-side configuration.
-    if( args.config && args.plugin ) {
+    if (args.config && args.plugin) {
       configmap[args.plugin] =
-        _.extend( {}, configmap[args.plugin]||{}, args.config )
+        _.extend({}, configmap[args.plugin] || {}, args.config)
 
-      initsrc = init_template({_:_,configmap:configmap})
+      initsrc = init_template({_: _, configmap: configmap})
     }
 
 
-    if( args.use ) {
+    if (args.use) {
       // Add service to middleware layers, order is significant
-      args.use.plugin$    = args.plugin$
+      args.use.plugin$ = args.plugin$
       args.use.serviceid$ = nid()
-      route_list_cache    = null
+      route_list_cache = null
 
-      define_service(seneca,args.use,function(err,service){
-        if( err ) return done(err);
+      define_service(seneca, args.use, function (err, service) {
+        if (err) return done(err)
 
-        if( service ) {
-          services.push( service )
+        if (service) {
+          services.push(service)
           servicemap[service.serviceid$] = service
         }
 
-        done();
+        done()
       })
     }
-    else done();
+    else done()
   }
 
 
@@ -162,94 +159,92 @@ module.exports = function( options ) {
     use: {},
 
     // Client-side configuration for named plugin.
-    config: {object$:true},
+    config: {object$: true},
 
     // Client-side name for the plugin.
-    plugin: {string$:true},
+    plugin: {string$: true}
   }
 
 
-
   // Action: _role:web, cmd:source_
-  function set_source( args, done ) {
-    sourcelist.push('\n;// '+args.title+'\n'+args.source)
+  function set_source (args, done) {
+    sourcelist.push('\n;// ' + args.title + '\n' + args.source)
     done()
   }
 
   set_source.validate = {
-    title:  { string$:true },
-    source: { required$:true, string$:true },
+    title: {string$: true},
+    source: {required$: true, string$: true}
   }
 
 
   // Action _role:web, get:sourcelist_
-  function get_sourcelist( args, done ) {
-    done( null, _.clone(sourcelist) )
+  function get_sourcelist (args, done) {
+    done(null, _.clone(sourcelist))
   }
 
 
   // Action _role:web, get:config_
-  function get_config( args, done ) {
-    done( null, _.clone(configmap[args.plugin] || {}) )
+  function get_config (args, done) {
+    done(null, _.clone(configmap[args.plugin] || {}))
   }
 
   get_config.validate = {
-    plugin: { required:true, string$:true },
+    plugin: {required: true, string$: true}
   }
 
 
-
   // Action _role:web, list:service_.
-  function list_service( args, done ) {
-    done( null, _.clone(services) )
+  function list_service (args, done) {
+    done(null, _.clone(services))
   }
 
 
   // Action _role:web, list:route_.
-  function list_route( args, done ) {
-    if( null == route_list_cache ) {
+  function list_route (args, done) {
+    if (null == route_list_cache) {
       route_list_cache = []
       var methods = _.keys(routemap)
-      _.each(methods,function(method){
+      _.each(methods, function (method) {
         var urlmap = routemap[method]
-        if( urlmap ) {
-          _.each( urlmap, function(srv,url) {
+        if (urlmap) {
+          _.each(urlmap, function (srv, url) {
             route_list_cache.push({
-              url:     url,
-              method:  method.toUpperCase(),
+              url: url,
+              method: method.toUpperCase(),
               service: srv
             })
           })
         }
       })
-      route_list_cache.sort(function(a,b){
-        return a.url == b.url ? 0 : a.url < b.url ? -1 : +1
+      route_list_cache.sort(function (a, b) {
+        return a.url === b.url ? 0 : a.url < b.url ? -1 : +1
       })
     }
 
-    done( null, _.clone(route_list_cache) )
+    done(null, _.clone(route_list_cache))
   }
 
 
   // Action _role:web, stats:true_.
-  function action_stats(args,done) {
+  function action_stats (args, done) {
     var stats = {}
-    this.act('role:web,list:route',function(err,list){
-      if( err ) return done(err);
+    this.act('role:web,list:route', function (err, list) {
+      if (err) return done(err)
 
-      _.each(list, function(route){
+      _.each(list, function (route) {
         var pluginname = (route.service &&
-                          route.service.plugin &&
-                          route.service.plugin.name) || '-'
-        var name = pluginname+';'+route.method+';'+route.url
+          route.service.plugin &&
+          route.service.plugin.name) || '-'
+        var name = pluginname + ';' + route.method + ';' + route.url
         stats[name] = {}
       })
 
-      _.each( timestats.names(), function(name) {
+      _.each(timestats.names(), function (name) {
         stats[name] = timestats.calculate(name)
       })
 
-      done(null,stats)
+      done(null, stats)
     })
   }
 
@@ -259,47 +254,46 @@ module.exports = function( options ) {
 
   // Service specification schema.
   var spec_check = parambulator({
-    type$:     'object',
-    pin:       {required$:true},
-    map:       {required$:true,object$:true},
-    prefix:    'string$',
+    type$: 'object',
+    pin: {required$: true},
+    map: {required$: true, object$: true},
+    prefix: 'string$',
     startware: 'function$',
-    premap:    'function$',
+    premap: 'function$',
 
-    endware:   'function$',
-    postmap:   'function$',
+    endware: 'function$',
+    postmap: 'function$'
   }, {
-    topname:'spec',
-    msgprefix:'web-use: ',
+    topname: 'spec',
+    msgprefix: 'web-use: '
   })
 
 
-
   // Define service middleware
-  function define_service( instance, spec, done ) {
-    norma('o o|f f',arguments)
+  function define_service (instance, spec, done) {
+    norma('o o|f f', arguments)
 
-    if( _.isFunction( spec ) ) return done( null, spec );
+    if (_.isFunction(spec)) return done(null, spec)
 
-    spec_check.validate(spec,function(err){
-      if( err ) return done(err)
+    spec_check.validate(spec, function (err) {
+      if (err) return done(err)
 
       // legacy properties
       spec.postmap = spec.postmap || spec.endware
 
-      spec.prefix    = fixprefix( spec.prefix, options.prefix )
-      var pin        = instance.pin( spec.pin )
-      var actmap     = make_actmap( pin )
-      var routespecs = make_routespecs( actmap, spec, options )
+      spec.prefix = fixprefix(spec.prefix, options.prefix)
+      var pin = instance.pin(spec.pin)
+      var actmap = make_actmap(pin)
+      var routespecs = make_routespecs(actmap, spec, options)
 
-      resolve_actions( instance, routespecs )
-      resolve_methods( instance, spec, routespecs, options )
-      resolve_dispatch( instance, spec, routespecs, timestats, options )
+      resolve_actions(instance, routespecs)
+      resolve_methods(instance, spec, routespecs, options)
+      resolve_dispatch(instance, spec, routespecs, timestats, options)
 
-      var maprouter = make_router( instance, spec, routespecs, routemap )
-      var service   = make_service( instance, spec, maprouter )
+      var maprouter = make_router(instance, spec, routespecs, routemap)
+      var service = make_service(instance, spec, maprouter)
 
-      return done(null,service)
+      return done(null, service)
     })
   }
 
@@ -308,94 +302,96 @@ module.exports = function( options ) {
   // TODO is connect the best option here?
 
   var app = connect()
-  app.use(serve_static(__dirname+'/web'))
+  app.use(serve_static(__dirname + '/web'))
 
-  var use = function(req,res,next){
-    if( 0 === req.url.indexOf(options.contentprefix) ) {
-      if( 0 === req.url.indexOf(options.contentprefix+'/init.js') ) {
-        res.writeHead(200,{'Content-Type':'text/javascript'})
-        return res.end(initsrc+sourcelist.join('\n'));
+  var use = function (req, res, next) {
+    if (0 === req.url.indexOf(options.contentprefix)) {
+      if (0 === req.url.indexOf(options.contentprefix + '/init.js')) {
+        res.writeHead(200, {'Content-Type': 'text/javascript'})
+        return res.end(initsrc + sourcelist.join('\n'))
       }
 
       req.url = req.url.substring(options.contentprefix.length)
-      return app( req, res );
+      return app(req, res)
     }
-    else return next();
+    else return next()
   }
 
 
-  function next_service(req,res,next,i) {
-    if( i < services.length ) {
+  function next_service (req, res, next, i) {
+    if (i < services.length) {
       var service = services[i]
 
-      if( options.debug.service ) {
+      if (options.debug.service) {
         seneca.log.debug(
-          'service-chain',req.seneca.fixedargs.tx$,
-          req.method,req.url,service.serviceid$,
-          util.inspect(service.plugin$) )
+          'service-chain', req.seneca.fixedargs.tx$,
+          req.method, req.url, service.serviceid$,
+          util.inspect(service.plugin$))
       }
 
-      service.call(req.seneca,req,res,function(err){
-        if( err ) return next(err);
+      service.call(req.seneca, req, res, function (err) {
+        if (err) return next(err)
 
-        next_service(req,res,next,i+1)
+        next_service(req, res, next, i + 1)
       })
     }
     else {
-      if( next ) return next();
+      if (next) return next()
     }
   }
 
 
-  var web = function( req, res, next ) {
+  var web = function (req, res, next) {
     res.seneca = req.seneca = seneca.root.delegate({
       req$: req,
       res$: res,
-      tx$:  seneca.root.idgen()
+      tx$: seneca.root.idgen()
     })
 
-    next_service( req, res, _error_handler, 0 )
+    next_service(req, res, _error_handler, 0)
 
-    function _error_handler(err, response){
-      if ( err ){
+    function _error_handler (err, response) {
+      if (err) {
         var redirect = err.http$ && err.http$.redirect
-        var status   = err.http$ && err.http$.status || 400
+        var status = err.http$ && err.http$.status || 400
 
         // Send redirect response.
-        if( redirect ) {
-          res.writeHead( status, {
+        if (redirect) {
+          res.writeHead(status, {
             'Location': redirect
           })
         }
-        else{
+        else {
           delete err.http$
           res.status(status).send(err)
         }
         res.end()
       }
-      else{
+      else {
         next(err, response)
       }
     }
   }
 
-  seneca.add({init:'web'},function(args,done) {
+  seneca.add({init: 'web'}, function (args, done) {
     var seneca = this
 
-    var config = {prefix:options.contentprefix}
+    var config = {prefix: options.contentprefix}
 
-    seneca.act({role:'web', plugin:'web', config:config, use:use})
+    seneca.act({role: 'web', plugin: 'web', config: config, use: use})
 
-    seneca.act({role:'basic',note:true,cmd:'push',key:'admin/units',value:{
-      unit:'web-service',
-      spec:{
-        title:'Web Services',
-        ng:{module:'senecaWebServiceModule',directive:'seneca-web-service'}
-      },
-      content:[
-        {type:'js',file:__dirname+'/web/web-service.js'},
-      ]
-    }})
+    seneca.act({
+      role: 'basic', note: true, cmd: 'push', key: 'admin/units', value: {
+        unit: 'web-service',
+        spec: {
+          title: 'Web Services',
+          ng: {module: 'senecaWebServiceModule', directive: 'seneca-web-service'}
+        },
+        content: [{
+          type: 'js', file: __dirname + '/web/web-service.js'
+        }]
+      }
+    })
 
     done()
   })
@@ -405,7 +401,7 @@ module.exports = function( options ) {
     name: 'web',
     export: web,
     exportmap: {
-      httprouter:httprouter
+      httprouter: httprouter
     }
   }
 }
@@ -414,36 +410,36 @@ module.exports = function( options ) {
 // ### Route functions
 
 // Default action handler; just calls the action.
-function make_defaulthandler( spec, routespec, methodspec ) {
-  norma('ooo',arguments)
+function make_defaulthandler (spec, routespec, methodspec) {
+  norma('ooo', arguments)
 
-  return function defaulthandler(req,res,args,act,respond) {
-    act(args,function(err,out){
-      respond(err,out)
+  return function defaulthandler (req, res, args, act, respond) {
+    act(args, function (err, out) {
+      respond(err, out)
     })
   }
 }
 
 
 // Default response handler; applies custom http$ settings, if any
-function make_defaultresponder( spec, routespec, methodspec ) {
-  norma('ooo',arguments)
+function make_defaultresponder (spec, routespec, methodspec) {
+  norma('ooo', arguments)
 
-  return function defaultresponder(req,res,err,obj) {
+  return function defaultresponder (req, res, err, obj) {
     obj = (null == obj) ? {} : obj
     var outobj = {}
 
-    if( !_.isObject( obj ) ) {
-      err = error('result_not_object',{url:req.url,result:obj.toString()})
+    if (!_.isObject(obj)) {
+      err = error('result_not_object', {url: req.url, result: obj.toString()})
     }
     else {
-      outobj = _.clone( obj )
+      outobj = _.clone(obj)
       // Ensure metadata is cloned when obj is an array.
-      _.assign(outobj, _.pick(obj, ['http$', 'redirect$', 'httpstatus$']));
+      _.assign(outobj, _.pick(obj, ['http$', 'redirect$', 'httpstatus$']))
     }
 
     var http = outobj.http$
-    if( http ) {
+    if (http) {
       delete outobj.http$
     }
     else {
@@ -451,64 +447,64 @@ function make_defaultresponder( spec, routespec, methodspec ) {
     }
 
     // specific http settings
-    http = _.extend({},spec.http,routespec.http,methodspec.http,http)
+    http = _.extend({}, spec.http, routespec.http, methodspec.http, http)
 
     // Legacy settings
-    if( outobj.redirect$ ) {
+    if (outobj.redirect$) {
       http.redirect = outobj.redirect$
       delete outobj.redirect$
     }
 
-    if( outobj.httpstatus$ ) {
+    if (outobj.httpstatus$) {
       http.status = outobj.httpstatus$
       delete outobj.httpstatus$
     }
 
-    if( err ) {
+    if (err) {
       var errobj = err.seneca ? err.seneca : err
       http = _.extend({}, http, {redirect: errobj.redirect$, status: errobj.httpstatus$}, errobj.http$ || {})
     }
 
     // Send redirect response.
-    if( http.redirect ) {
-      res.writeHead( http.status || 302, _.extend({
+    if (http.redirect) {
+      res.writeHead(http.status || 302, _.extend({
         'Location': http.redirect
-      },http.headers))
+      }, http.headers))
       res.end()
     }
 
     // Send JSON response.
     else {
-      var outjson = err ? JSON.stringify({error:''+err}) : stringify(outobj)
+      var outjson = err ? JSON.stringify({error: '' + err}) : stringify(outobj)
 
       http.status = http.status || ( err ? 500 : 200 )
 
-      res.writeHead(http.status,_.extend({
-        'Content-Type':  'application/json',
+      res.writeHead(http.status, _.extend({
+        'Content-Type': 'application/json',
         'Cache-Control': 'private, max-age=0, no-cache, no-store',
-        "Content-Length": buffer.Buffer.byteLength(outjson)
-      },http.headers))
+        'Content-Length': buffer.Buffer.byteLength(outjson)
+      }, http.headers))
 
-      res.end( outjson )
+      res.end(outjson)
     }
   }
 }
 
 
-function make_redirectresponder( spec, routespec, methodspec ) {
-  norma('ooo',arguments)
+function make_redirectresponder (spec, routespec, methodspec) {
+  norma('ooo', arguments)
 
-  return function(req,res,err,obj) {
+  return function (req, res, err, obj) {
     var url = methodspec.redirect || routespec.redirect
 
     var status = 302 || methodspec.status || routespec.status
 
-    if( err ) {
-      url += '?ec='+encodeURIComponent(err.code?err.code:err.message)
+    if (err) {
+      url += '?ec=' + encodeURIComponent(err.code ? err.code : err.message)
       status = err.httpstatus$ || (err.http$ && err.http$.status) || status
     }
 
-    res.writeHead( status, {
+    res.writeHead(status, {
       'Location': url
     })
     res.end()
@@ -516,87 +512,83 @@ function make_redirectresponder( spec, routespec, methodspec ) {
 }
 
 
-
-
 // ### Spec parsing functions
 
-var defaultflags = {useparams:true,usequery:true,data:false}
+var defaultflags = {useparams: true, usequery: true, data: false}
 
-function make_routespecs( actmap, spec, options ) {
-  norma('ooo',arguments)
+function make_routespecs (actmap, spec, options) {
+  norma('ooo', arguments)
 
   var routespecs = []
 
-  _.each( actmap, function(pattern,fname) {
+  _.each(actmap, function (pattern, fname) {
     var routespec = spec.map.hasOwnProperty(fname) ? spec.map[fname] : null
 
     // Only build a route if explicitly defined in map
-    if( !routespec ) return;
+    if (!routespec) return
 
     var url = spec.prefix + fname
 
     // METHOD:true abbrev
     routespec = _.isBoolean(routespec) ? {} : routespec
 
-    if( routespec.alias ) {
+    if (routespec.alias) {
       url = spec.prefix + fixalias(routespec.alias)
     }
 
     routespec.premap = routespec.premap || spec.premap
 
-    routespec.prefix  = spec.prefix
-    routespec.suffix  = routespec.suffix || ''
+    routespec.prefix = spec.prefix
+    routespec.suffix = routespec.suffix || ''
     routespec.fullurl = url + routespec.suffix
 
     routespec.fname = fname
     routespec.pattern = pattern
 
-    _.each(defaultflags, function(val,flag) {
+    _.each(defaultflags, function (val, flag) {
       routespec[flag] = null == routespec[flag] ? val : routespec[flag]
     })
 
-    if( _.isString(routespec.redirect) && !routespec.responder) {
-      routespec.responder = make_redirectresponder( spec, routespec, {} )
+    if (_.isString(routespec.redirect) && !routespec.responder) {
+      routespec.responder = make_redirectresponder(spec, routespec, {})
     }
 
-    routespecs.push( _.clone(routespec) )
+    routespecs.push(_.clone(routespec))
   })
 
   return routespecs
 }
 
 
-function resolve_actions( instance, routespecs ) {
-  norma('oa',arguments)
+function resolve_actions (instance, routespecs) {
+  norma('oa', arguments)
 
-  _.each( routespecs, function( routespec ) {
-    var actmeta = instance.findact( routespec.pattern )
-    if( !actmeta ) return;
+  _.each(routespecs, function (routespec) {
+    var actmeta = instance.findact(routespec.pattern)
+    if (!actmeta) return
 
-    var act = function(args,cb) {
-      this.act.call(this,_.extend({},routespec.pattern,args),cb)
+    var act = function (args, cb) {
+      this.act(this, _.extend({}, routespec.pattern, args), cb)
     }
 
-    routespec.act     = act
+    routespec.act = act
     routespec.actmeta = actmeta
   })
 }
 
+function resolve_methods (instance, spec, routespecs, options) {
+  norma('ooao', arguments)
 
-function resolve_methods( instance, spec, routespecs, options ) {
-  norma('ooao',arguments)
-
-  _.each( routespecs, function( routespec ) {
-
+  _.each(routespecs, function (routespec) {
     var methods = {}
 
-    _.each( methodlist, function(method) {
+    _.each(methodlist, function (method) {
       var methodspec = routespec[method] || routespec[method.toUpperCase()]
-      if( !methodspec ) return;
+      if (!methodspec) return
 
       var handler = methodspec
-      if( _.isFunction( methodspec ) || !_.isObject( methodspec ) ) {
-        methodspec = { handler:handler }
+      if (_.isFunction(methodspec) || !_.isObject(methodspec)) {
+        methodspec = {handler: handler}
       }
 
       methodspec.method = method
@@ -604,98 +596,95 @@ function resolve_methods( instance, spec, routespecs, options ) {
       methods[method] = methodspec
     })
 
-    if( 0 === _.keys(methods).length ) {
-      methods.get = { method:'get' }
+    if (0 === _.keys(methods).length) {
+      methods.get = {method: 'get'}
     }
 
-    _.each( methods, function( methodspec) {
-
-      _.each(defaultflags, function(val,flag) {
+    _.each(methods, function (methodspec) {
+      _.each(defaultflags, function (val, flag) {
         methodspec[flag] =
           (null == methodspec[flag]) ? routespec[flag] : methodspec[flag]
       })
 
       methodspec.handler =
-        _.isFunction( methodspec.handler ) ? methodspec.handler :
-        _.isFunction( routespec.handler ) ? routespec.handler :
-        options.make_defaulthandler( spec, routespec, methodspec )
+        _.isFunction(methodspec.handler) ? methodspec.handler
+          : _.isFunction(routespec.handler) ? routespec.handler
+            : options.make_defaulthandler(spec, routespec, methodspec)
 
-
-      if( _.isString(methodspec.redirect) && !methodspec.responder) {
+      if (_.isString(methodspec.redirect) && !methodspec.responder) {
         methodspec.responder =
-          options.make_redirectresponder( spec, routespec, methodspec )
+          options.make_redirectresponder(spec, routespec, methodspec)
       }
 
       methodspec.responder =
-        _.isFunction( methodspec.responder ) ? methodspec.responder :
-        _.isFunction( routespec.responder ) ? routespec.responder :
-        options.make_defaultresponder( spec, routespec, methodspec )
+        _.isFunction(methodspec.responder) ? methodspec.responder
+          : _.isFunction(routespec.responder) ? routespec.responder
+            : options.make_defaultresponder(spec, routespec, methodspec)
 
       methodspec.modify =
-        _.isFunction( methodspec.modify ) ? methodspec.modify :
-        _.isFunction( routespec.modify ) ? routespec.modify :
-        defaultmodify
+        _.isFunction(methodspec.modify) ? methodspec.modify
+          : _.isFunction(routespec.modify) ? routespec.modify
+            : defaultmodify
 
-
-      methodspec.argparser = make_argparser( instance, options, methodspec )
+      methodspec.argparser = make_argparser(instance, options, methodspec)
     })
 
     routespec.methods = methods
   })
 }
 
+function resolve_dispatch (instance, spec, routespecs, timestats, options) {
+  norma('ooaoo', arguments)
 
-function resolve_dispatch( instance, spec, routespecs, timestats, options ) {
-  norma('ooaoo',arguments)
-
-  _.each( routespecs, function( routespec ) {
-    _.each( routespec.methods, function( methodspec, method ) {
-
-      methodspec.dispatch = function( req, res, next ) {
-        if( options.debug.service ) {
+  _.each(routespecs, function (routespec) {
+    _.each(routespec.methods, function (methodspec, method) {
+      methodspec.dispatch = function (req, res, next) {
+        if (options.debug.service) {
           instance.log(
-            'service-dispatch',req.seneca.fixedargs.tx$,
-            req.method,req.url,spec.serviceid$,
-            util.inspect(methodspec) )
+            'service-dispatch', req.seneca.fixedargs.tx$,
+            req.method, req.url, spec.serviceid$,
+            util.inspect(methodspec))
         }
 
         var begin = Date.now()
-        var args  = methodspec.argparser(req)
+        var args = methodspec.argparser(req)
 
         var si = req.seneca
 
-        var respond = function(err,obj){
+        var respond = function (err, obj) {
           var qi = req.url.indexOf('?')
-          var url = -1 == qi ? req.url : req.url.substring(0,qi)
+          var url = -1 === qi ? req.url : req.url.substring(0, qi)
 
-          var name = (routespec.actmeta.plugin_fullname || '')+
-                ';'+routespec.actmeta.pattern
-          timestats.point( Date.now()-begin, name+';'+req.method+';'+url );
+          var name = (routespec.actmeta.plugin_fullname || '') +
+            ';' + routespec.actmeta.pattern
+          timestats.point(Date.now() - begin, name + ';' + req.method + ';' + url)
 
-          var result = {err:err,out:obj}
+          var result = {err: err, out: obj}
           methodspec.modify(result)
 
-          methodspec.responder.call(si,req,res,result.err,result.out)
+          methodspec.responder.call(si, req, res, result.err, result.out)
         }
 
-        var act_si = function(args,done){
-          routespec.act.call(si,args,done)
+        var act_si = function (args, done) {
+          routespec.act.call(si, args, done)
         }
 
-        var premap = routespec.premap || function(){arguments[3]()}
+        var premap = routespec.premap || function () {
+          arguments[3]()
+        }
 
         // legacy signature
-        if( 3 == premap.length ) {
+        if (3 === premap.length) {
           var orig_premap = premap
-          premap = function(args,req,res,next){
-            orig_premap.call(this,req,res,next)
+          premap = function (args, req, res, next) {
+            orig_premap.call(this, req, res, next)
           }
         }
 
-        premap.call(si,args,req,res,function(err){
-          if(err ) return next(err);
+        premap.call(si, args, req, res, function (err) {
+          if (err) return next(err)
 
-          methodspec.handler.call( si, req, res, args, act_si, respond)
+          methodspec.handler.call(si, req, res, args, act_si, respond)
         })
       }
     })
@@ -703,87 +692,82 @@ function resolve_dispatch( instance, spec, routespecs, timestats, options ) {
 }
 
 
-function make_argparser( instance, options, methodspec ) {
-  norma('ooo',arguments)
+function make_argparser (instance, options, methodspec) {
+  norma('ooo', arguments)
 
-  return function( req ) {
-    if( !_.isObject(req.body) && options.warn.req_body ) {
+  return function (req) {
+    if (!_.isObject(req.body) && options.warn.req_body) {
       instance.log.warn(
-        'seneca-web: req.body not present! '+
-          'Do you need: express_app.use( require("body-parser").json() ?')
+        'seneca-web: req.body not present! ' +
+        'Do you need: express_app.use( require("body-parser").json() ?')
     }
 
-    if( methodspec.useparams && options.warn.req_params &&
-        !_.isObject(req.params) )
-    {
+    if (methodspec.useparams && options.warn.req_params && !_.isObject(req.params)) {
       instance.log.warn(
-        'seneca-web: req.params not present! '+
-          "To access URL params, you'll express or an appropriate parser module.")
+        'seneca-web: req.params not present! ' +
+        "To access URL params, you'll express or an appropriate parser module.")
     }
 
-    if( methodspec.usequery && options.warn.req_query &&
-        !_.isObject(req.query) )
-    {
+    if (methodspec.usequery && options.warn.req_query && !_.isObject(req.query)) {
       instance.log.warn(
-        'seneca-web: req.query not present! '+
-          "To access the URL query string, you'll need express "+
-          "or an appropriate parser module.")
+        'seneca-web: req.query not present! ' +
+        'To access the URL query string, you\'ll need express' +
+        'or an appropriate parser module.')
     }
 
     var data = _.extend(
       {},
-      (_.isObject(req.body) && !methodspec.data) ? req.body: {},
-      ( methodspec.useparams && _.isObject(req.params) ) ? req.params: {},
-      ( methodspec.usequery &&  _.isObject(req.query)  ) ? req.query : {}
+      (_.isObject(req.body) && !methodspec.data) ? req.body : {},
+      (methodspec.useparams && _.isObject(req.params)) ? req.params : {},
+      (methodspec.usequery && _.isObject(req.query)) ? req.query : {}
     )
 
     // data flag means put body into separate data property
-    if( methodspec.data ) {
+    if (methodspec.data) {
       data.data = _.isObject(req.body) ? req.body : {}
-      return data;
+      return data
     }
-    else return data;
+    else return data
   }
 }
 
 
-function make_router(instance,spec,routespecs,routemap) {
-  norma('ooao',arguments)
+function make_router (instance, spec, routespecs, routemap) {
+  norma('ooao', arguments)
 
   var routes = []
-  var mr = httprouter(function(http){
-    _.each( routespecs, function( routespec ) {
-      _.each( routespec.methods, function( methodspec, method ) {
-
-        instance.log.debug('http',method,routespec.fullurl)
+  var mr = httprouter(function (http) {
+    _.each(routespecs, function (routespec) {
+      _.each(routespec.methods, function (methodspec, method) {
+        instance.log.debug('http', method, routespec.fullurl)
         http[method](routespec.fullurl, methodspec.dispatch)
 
-        var rm = (routemap[method] = (routemap[method]||{}))
+        var rm = (routemap[method] = (routemap[method] || {}))
         rm[routespec.fullurl] = {
-          pattern:   routespec.pattern,
-          plugin:    spec.plugin$,
+          pattern: routespec.pattern,
+          plugin: spec.plugin$,
           serviceid: spec.serviceid$,
-          prefix:    spec.prefix
+          prefix: spec.prefix
         }
 
-        routes.push( method.toUpperCase()+' '+routespec.fullurl )
+        routes.push(method.toUpperCase() + ' ' + routespec.fullurl)
       })
     })
   })
 
   mr.routes$ = routes
 
-  return mr;
+  return mr
 }
 
 
-function make_service( instance, spec, maprouter ) {
-  var service = function service(req,res,next) {
+function make_service (instance, spec, maprouter) {
+  var service = function service (req, res, next) {
     var si = req.seneca || instance
 
-    if( spec.startware ) {
-      spec.startware.call(si, req, res, function( err ){
-        if( err ) return next( err )
+    if (spec.startware) {
+      spec.startware.call(si, req, res, function (err) {
+        if (err) return next(err)
 
         do_maprouter()
       })
@@ -792,52 +776,52 @@ function make_service( instance, spec, maprouter ) {
       do_maprouter()
     }
 
-    function do_maprouter(err) {
-      if(err) return next(err);
+    function do_maprouter (err) {
+      if (err) return next(err)
 
-      maprouter(req,res,function(err){
-        if(err) return next(err);
+      maprouter(req, res, function (err) {
+        if (err) return next(err)
 
-        if( spec.postmap ) {
-          spec.postmap.call(si,req,res,function(err){
-            return next(err);
+        if (spec.postmap) {
+          spec.postmap.call(si, req, res, function (err) {
+            return next(err)
           })
         }
-        else return next();
+        else return next()
       })
     }
   }
 
-  service.pin$       = spec.pin
-  service.plugin$    = spec.plugin$
+  service.pin$ = spec.pin
+  service.plugin$ = spec.plugin$
   service.serviceid$ = spec.serviceid$
-  service.routes$    = maprouter.routes$
+  service.routes$ = maprouter.routes$
 
-  return service;
+  return service
 }
 
 
 // ### Utility functions
 
 // Convert an object to a JSON string, handling circular refs.
-function stringify(obj,indent,depth,decycler) {
+function stringify (obj, indent, depth, decycler) {
   indent = indent || null
-  depth  = depth || 0
+  depth = depth || 0
   decycler = decycler || null
-  return json_stringify_safe(obj,indent,depth,decycler)
+  return json_stringify_safe(obj, indent, depth, decycler)
 }
 
 
 // Ensure the URL prefix is well-formed.
-function fixprefix( prefix, defaultprefix ) {
+function fixprefix (prefix, defaultprefix) {
   prefix = null != prefix ? prefix : defaultprefix
 
-  if( !prefix.match(/\/$/) ) {
+  if (!prefix.match(/\/$/)) {
     prefix += '/'
   }
 
-  if( !prefix.match(/^\//) ) {
-    prefix = '/'+prefix
+  if (!prefix.match(/^\//)) {
+    prefix = '/' + prefix
   }
 
   return prefix
@@ -845,10 +829,10 @@ function fixprefix( prefix, defaultprefix ) {
 
 
 // Ensure alias has no leading slash.
-function fixalias( alias ) {
-  alias = null != alias ? ''+alias : ''
+function fixalias (alias) {
+  alias = null != alias ? '' + alias : ''
 
-  alias = alias.replace(/^\/+/,'')
+  alias = alias.replace(/^\/+/, '')
 
   return alias
 }
@@ -856,12 +840,12 @@ function fixalias( alias ) {
 
 // Map action pin function names to action patterns.
 // The function names form part of the URL.
-function make_actmap( pin ) {
+function make_actmap (pin) {
   var actmap = {}
 
-  for( var fn in pin ) {
+  for (var fn in pin) {
     var f = pin[fn]
-    if( _.isFunction(f) && null != f.pattern$ ) {
+    if (_.isFunction(f) && null != f.pattern$) {
       actmap[f.name$] = f.pattern$
     }
   }
@@ -870,28 +854,28 @@ function make_actmap( pin ) {
 }
 
 
-
-function defaultmodify( result ) {
+function defaultmodify (result) {
   // strip out $ properties, apart from http$, which is dealt with later
-  var clean = function(item) {
-    if( _.isObject( item ) ) {
-      _.each(item,function(v,k){
-        if(~k.indexOf('$') && 'http$' !== k && 'httpstatus$' !== k) {
+  var clean = function (item) {
+    if (_.isObject(item)) {
+      _.each(item, function (v, k) {
+        if (~k.indexOf('$') && 'http$' !== k && 'httpstatus$' !== k) {
           delete item[k]
         }
       })
     }
   }
 
-  if( _.isArray( result.out )) {
+  if (_.isArray(result.out)) {
     _.each(result.out, clean)
-  } else {
+  }
+  else {
     clean(result.out)
   }
 }
 
-function ERRMSGMAP() {
+function ERRMSGMAP () {
   return {
-    result_not_object: 'API result is not an object: <%=url%> returned <%=result%>.',
+    result_not_object: 'API result is not an object: <%=url%> returned <%=result%>.'
   }
 }
