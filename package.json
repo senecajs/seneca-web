@@ -17,13 +17,17 @@
       "name": "Mircea Alexandru",
       "email": "mircea.alexandru@gmail.com",
       "url": "https://github.com/mirceaalexandru"
+    }, {
+      "name": "Cristian Kiss",
+      "email": "cristian.kiss@nearform.com  ",
+      "url": "https://github.com/ckiss"
     }
   ],
   "license": "MIT",
   "main": "web.js",
   "scripts": {
     "test": "lab -P test",
-    "lint": "lab -P test -dL",
+    "lint": "lab -dL",
     "build": "./build.sh",
     "annotate": "docco web.js -o doc"
   },
