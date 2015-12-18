@@ -77,7 +77,7 @@ module.exports = function (options) {
   var route_list_cache = null
 
   var init_template = _.template(mstring(
-    function () {/**
+    function () {/***
      ;(function(){
         var w = this
         var seneca = w.seneca || (w.seneca={})
@@ -86,7 +86,7 @@ module.exports = function (options) {
         seneca.config[<%=JSON.stringify(name)%>] = <%=JSON.stringify(data)%>
         <%})%>
       }).call(window);
-     **/
+     ***/
     }))
 
   var initsrc = init_template({_: _, configmap: configmap})
