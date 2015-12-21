@@ -26,7 +26,7 @@
   "license": "MIT",
   "main": "web.js",
   "scripts": {
-    "test": "lab -P test",
+    "test": "lab test/*.test.js -r console -v -L -m 3000 -t 82",
     "lint": "lab -dL",
     "build": "./build.sh",
     "annotate": "docco web.js -o doc"
