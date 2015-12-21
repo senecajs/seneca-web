@@ -27,7 +27,7 @@
   "license": "MIT",
   "main": "web.js",
   "scripts": {
-    "test": "lab -P test",
+    "test": "lab test/*.test.js -r console -v -L -m 3000 -t 82",
     "lint": "lab -dL",
     "coverage": "lab -s -P test -r lcov | coveralls",
     "build": "docco web.js -o doc; cp -r doc/* ../gh-pages/seneca-web/doc",
