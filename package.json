@@ -28,7 +28,7 @@
   "scripts": {
     "test": "lab -P test",
     "lint": "lab -dL",
-    "build": "./build.sh",
+    "build": "docco web.js -o doc; cp -r doc/* ../gh-pages/seneca-web/doc",
     "annotate": "docco web.js -o doc"
   },
   "files": [
