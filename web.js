@@ -24,7 +24,9 @@ var error = require('eraro')({
 var httprouter = require('./http-router')
 var methodlist = _.clone(httprouter.methods)
 
-var internals = {}
+var internals = {
+  server_type: 'express'
+}
 
 module.exports = function (options) {
   /* jshint validthis:true */
@@ -295,7 +297,9 @@ module.exports = function (options) {
       var maprouter = make_router(instance, spec, routespecs, routemap)
       var service = make_service(instance, spec, maprouter)
 
-      addHapiRoute(routemap)
+      if (internals.server_type === 'hapi'){
+        addHapiRoute(routemap)
+      }
 
       return done(null, service)
     })
@@ -370,16 +374,23 @@ module.exports = function (options) {
     }
   }
 
+  var web = function () {
+    if (arguments.length > 3){
+      if ('hapi' === arguments[3]){
+        return web_hapi.apply(this, arguments)
+      }
+    }
+    return web_express.apply(this, arguments)
+  }
 
-  function init_hapi(server, options, next){
+  function web_hapi(server, options, next){
     internals.server = server
+    internals.options = options
+    internals.server_type = 'hapi'
     next()
   }
 
-  var web = function (req, res, next, type) {
-    if ('hapi' === type){
-      return init_hapi.apply(this, arguments)
-    }
+  var web_express = function (req, res, next, type) {
     res.seneca = req.seneca = seneca.root.delegate({
       req$: req,
       res$: res,
