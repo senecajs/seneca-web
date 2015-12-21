@@ -24,6 +24,8 @@ var error = require('eraro')({
 var httprouter = require('./http-router')
 var methodlist = _.clone(httprouter.methods)
 
+var internals = {}
+
 module.exports = function (options) {
   /* jshint validthis:true */
   norma('o', arguments)
@@ -293,8 +295,36 @@ module.exports = function (options) {
       var maprouter = make_router(instance, spec, routespecs, routemap)
       var service = make_service(instance, spec, maprouter)
 
+      addHapiRoute(routemap)
+
       return done(null, service)
     })
+  }
+
+  function addHapiRoute(routemap) {
+    for ( var method in routemap ) {
+      for ( var path in routemap[method] ) {
+
+        var route = routemap[method][path]
+        var hapi_route = {
+          method: method,
+          path: path,
+          handler: function ( request, reply ) {
+            request.seneca.act( route.pattern, function ( err, result ) {
+              if ( err ) {
+                return reply ( err );
+              }
+
+              return reply ( result );
+            } );
+          }
+        }
+
+        console.log( hapi_route )
+
+        internals.server.route( hapi_route )
+      }
+    }
   }
 
 
@@ -341,7 +371,15 @@ module.exports = function (options) {
   }
 
 
-  var web = function (req, res, next) {
+  function init_hapi(server, options, next){
+    internals.server = server
+    next()
+  }
+
+  var web = function (req, res, next, type) {
+    if ('hapi' === type){
+      return init_hapi.apply(this, arguments)
+    }
     res.seneca = req.seneca = seneca.root.delegate({
       req$: req,
       res$: res,
@@ -609,7 +647,7 @@ function resolve_methods (instance, spec, routespecs, options) {
       methodspec.handler =
         _.isFunction(methodspec.handler) ? methodspec.handler
           : _.isFunction(routespec.handler) ? routespec.handler
-            : options.make_defaulthandler(spec, routespec, methodspec)
+          : options.make_defaulthandler(spec, routespec, methodspec)
 
       if (_.isString(methodspec.redirect) && !methodspec.responder) {
         methodspec.responder =
@@ -619,12 +657,12 @@ function resolve_methods (instance, spec, routespecs, options) {
       methodspec.responder =
         _.isFunction(methodspec.responder) ? methodspec.responder
           : _.isFunction(routespec.responder) ? routespec.responder
-            : options.make_defaultresponder(spec, routespec, methodspec)
+          : options.make_defaultresponder(spec, routespec, methodspec)
 
       methodspec.modify =
         _.isFunction(methodspec.modify) ? methodspec.modify
           : _.isFunction(routespec.modify) ? routespec.modify
-            : defaultmodify
+          : defaultmodify
 
       methodspec.argparser = make_argparser(instance, options, methodspec)
     })
@@ -670,8 +708,8 @@ function resolve_dispatch (instance, spec, routespecs, timestats, options) {
         }
 
         var premap = routespec.premap || function () {
-          arguments[3]()
-        }
+            arguments[3]()
+          }
 
         // legacy signature
         if (3 === premap.length) {
