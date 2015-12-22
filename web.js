@@ -298,14 +298,14 @@ module.exports = function (options) {
       var service = make_service(instance, spec, maprouter)
 
       if (internals.server_type === 'hapi'){
-        addHapiRoute(routemap)
+        addHapiRoute(spec, routemap)
       }
 
       return done(null, service)
     })
   }
 
-  function addHapiRoute(routemap) {
+  function addHapiRoute(spec, routemap) {
     for ( var method in routemap ) {
       for ( var path in routemap[method] ) {
 
@@ -314,17 +314,37 @@ module.exports = function (options) {
           method: method,
           path: path,
           handler: function ( request, reply ) {
-            request.seneca.act( route.pattern, function ( err, result ) {
-              if ( err ) {
-                return reply ( err );
-              }
 
-              return reply ( result );
-            } );
+            if (spec.startware) {
+              spec.startware.call(request.seneca, request, function (err) {
+                if (err) return reply(err)
+
+                do_maprouter()
+              })
+            }
+            else {
+              do_maprouter()
+            }
+
+            function do_maprouter () {
+              request.seneca.act( route.pattern, function ( err, result ) {
+                if ( err ) {
+                  return reply ( err );
+                }
+
+                if (spec.postmap) {
+                  spec.postmap.call(request.seneca, request, result, function (err) {
+                    if ( err ) {
+                      return reply ( err );
+                    }
+                    return reply(result)
+                  })
+                }
+                else reply(result)
+              })
+            }
           }
         }
-
-        console.log( hapi_route )
 
         internals.server.route( hapi_route )
       }
