@@ -1,9 +1,13 @@
 ![Seneca](http://senecajs.org/files/assets/seneca-logo.png)
-> A [Seneca.js][] data storage plugin
+> A [Seneca.js][] Web plugin
 
 ## Seneca web plugin
+
+[![npm version][npm-badge]][npm-url]
 [![Build Status][travis-badge]][travis-url]
-[![Gitter][gitter-badge]][gitter-url]
+[![Coverage Status][coveralls-badge]][coveralls-url]
+[![Dependency Status][david-badge]][david-url]
+[![Gitter chat][gitter-badge]][gitter-url]
 
 This plugin provides a web service API routing layer for Seneca action
 patterns. It translates HTTP requests with specific URL routes into
@@ -11,8 +15,8 @@ action pattern calls. It's a built-in dependency of the Seneca module,
 so you don't need to include it manually. Use this plugin to define
 your web service API.
 
-This plugin supports [Express](http://expressjs.com/)-style middleware. 
-To use Seneca with [hapi](http://hapijs.com/), 
+This plugin supports [Express](http://expressjs.com/)-style middleware.
+To use Seneca with [hapi](http://hapijs.com/),
 see [chairo](https://www.npmjs.com/package/chairo) hapi plugin.
 
 - __Version:__ 0.4.5
@@ -155,7 +159,7 @@ these features.
 Define a web service as a mapping from URL routes to action patterns.
 
 _Parameters_
- 
+
    * `use`: mapping object, or middleware function
 
 #### Middleware Function
@@ -169,7 +173,7 @@ Use this approach when you need to write special case custom code. The
 to the Seneca instance bound to the current HTTP request. In a HTTP
 middleware context it's important to use the request specific Seneca
 instance, as other plugins may have added context to that
-instance. See, for example: [seneca-user](//github.com/senecajs/seneca-user).
+instance. See, for example: [seneca-user](http://github.com/senecajs/seneca-user).
 
 ```JavaScript
 seneca.add('zed:1',function(args,done){
@@ -330,8 +334,8 @@ that let you refine the route specification:
       * a method specification, see below.
    * _alias_: custom URL path, concatenated to top level prefix; can contain Express-style route parameters: _/api/:bar_ sets _req.params.bar_.
    * _suffix_: appended to route URL.
-   * _useparams_: merge any URL parameter values into the arguments for the Seneca action; default: `true` 
-   * _usequery_: merge any URL query values into the arguments for the Seneca action; default: `true` 
+   * _useparams_: merge any URL parameter values into the arguments for the Seneca action; default: `true`
+   * _usequery_: merge any URL query values into the arguments for the Seneca action; default: `true`
    * _dataprop_: provide all request parameters inside a `data` property on the Seneca action, default: `false`
    * _redirect_: perform a 302 redirection with the value as the new location URL.
    * _handler_: function that translates inbound requests to Seneca actions, see below.
@@ -345,7 +349,7 @@ HTTP response. This object can have the optional properties:
    * _status_: set the HTTP status code
    * _headers_: sub-object defining custom header values
    * _redirect_: redirect URL
-   
+
 For each HTTP method, you can provide a method specification (as a
 sub-object) that overrides some of the route specification. Note that
 URL cannot be modified at the method level - that would be a different
@@ -378,7 +382,7 @@ seneca.act('role:web', {use:{
 ## Handler Function
 
 This function has the form: `function( req, res, args, act, respond )`, where:
-     
+
    * _req_: Express Request object
    * _res_: Express Response object
    * _args_: Seneca action arguments derived from the HTTP request parameters
@@ -526,9 +530,16 @@ documentation, examples, extra testing, or new features please get in touch.
 ## License
 Copyright Richard Rodger and other contributors 2015, Licensed under [MIT][].
 
-[travis-badge]: https://travis-ci.org/senecajs/seneca-web.svg
+
+[npm-badge]: https://badge.fury.io/js/seneca-web.svg
+[npm-url]: https://badge.fury.io/js/seneca-web
+[travis-badge]: https://api.travis-ci.org/senecajs/seneca-web.svg
 [travis-url]: https://travis-ci.org/senecajs/seneca-web
-[gitter-badge]: https://badges.gitter.im/Join%20Chat.svg
+[coveralls-badge]:https://coveralls.io/repos/senecajs/seneca-web/badge.svg?branch=master&service=github
+[coveralls-url]: https://coveralls.io/github/senecajs/seneca-web?branch=master
+[david-badge]: https://david-dm.org/senecajs/seneca-web.svg
+[david-url]: https://david-dm.org/senecajs/seneca-web
+[gitter-badge]: https://badges.gitter.im/senecajs/seneca.png
 [gitter-url]: https://gitter.im/senecajs/seneca
 
 [MIT]: ./LICENSE
