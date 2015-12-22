@@ -310,40 +310,43 @@ module.exports = function (options) {
       for ( var path in routemap[method] ) {
 
         var route = routemap[method][path]
+        console.log('Registering Hapi route ', method, path)
         var hapi_route = {
           method: method,
           path: path,
-          handler: function ( request, reply ) {
+          handler: function(spec, route) {
+            return function ( request, reply ) {
 
-            if (spec.startware) {
-              spec.startware.call(request.seneca, request, function (err) {
-                if (err) return reply(err)
+              if ( spec.startware ) {
+                spec.startware.call( request.seneca, request, function ( err ) {
+                  if ( err ) return reply ( err )
 
-                do_maprouter()
-              })
+                  do_maprouter ()
+                } )
+              }
+              else {
+                do_maprouter ()
+              }
+
+              function do_maprouter () {
+                request.seneca.act( route.pattern, function ( err, result ) {
+                  if ( err ) {
+                    return reply ( err );
+                  }
+
+                  if ( spec.postmap ) {
+                    spec.postmap.call( request.seneca, request, result, function ( err ) {
+                      if ( err ) {
+                        return reply ( err );
+                      }
+                      return reply ( result )
+                    } )
+                  }
+                  else reply ( result )
+                } )
+              }
             }
-            else {
-              do_maprouter()
-            }
-
-            function do_maprouter () {
-              request.seneca.act( route.pattern, function ( err, result ) {
-                if ( err ) {
-                  return reply ( err );
-                }
-
-                if (spec.postmap) {
-                  spec.postmap.call(request.seneca, request, result, function (err) {
-                    if ( err ) {
-                      return reply ( err );
-                    }
-                    return reply(result)
-                  })
-                }
-                else reply(result)
-              })
-            }
-          }
+          }(spec, route)
         }
 
         internals.server.route( hapi_route )
