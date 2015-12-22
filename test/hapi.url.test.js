@@ -27,4 +27,15 @@ suite('test server suite', function() {
       done()
     })
   })
+
+  test('simple test 2', function(done) {
+    var url = '/t0/a0/111'
+
+    server.inject(url, function(res){
+      assert.equal(200, res.statusCode)
+      assert.equal('111', JSON.parse(res.payload).m)
+
+      done()
+    })
+  })
 })

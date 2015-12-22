@@ -34,6 +34,13 @@ exports.init = function ( done ) {
           var out = {
             something:'else'
           }
+          done ( null, out )
+        } )
+
+        seneca.add( 'role:api,cmd:c1', function ( msg, done ) {
+          var out = {
+            m: msg.req$.params.m
+          }
 
           done ( null, out )
         } )
@@ -43,7 +50,8 @@ exports.init = function ( done ) {
             prefix: '/t0',
             pin: 'role:api,cmd:*',
             map: {
-              c0: { GET: true, alias: '/a0' }
+              c0: { GET: true, alias: '/a0' },
+              c1: { GET: true, alias: '/a0/{m}' }
             }
           }
         }, function(){
