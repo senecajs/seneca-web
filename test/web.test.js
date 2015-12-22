@@ -28,10 +28,9 @@ suite('configuration suite', function() {
 
 
   test('bad', function(done) {
-    var cc = 0
     var lsi = seneca( {log:'silent',debug:{undead:true} , errhandler:function(err){
       assert.equal('seneca: Action role:web failed: web-use: The property \'pin\' is missing and is always required (parent: spec)..',err.message)
-      cc++ && done()
+      done()
     }})
     lsi.use('../web.js')
     lsi.use( function bad(){
