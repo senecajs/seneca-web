@@ -27,19 +27,20 @@ exports.init = function ( done ) {
 
       server.start( function () {
         console.log( 'Server started' )
-
         console.log( 'Server running at:', server.info.uri );
 
-        seneca.add( 'role:api,cmd:c0', function ( args, done ) {
+        seneca.add( 'role:api,cmd:c0', function ( msg, done ) {
           var out = {
-            something:'else'
+            something:'else',
+            x0: msg.req$.params.x0
           }
           done ( null, out )
         } )
 
         seneca.add( 'role:api,cmd:c1', function ( msg, done ) {
           var out = {
-            m: msg.req$.params.m
+            m: msg.req$.params.m,
+            x0: msg.req$.params.x0
           }
 
           done ( null, out )
@@ -47,6 +48,11 @@ exports.init = function ( done ) {
 
         seneca.act( 'role:web', {
           use: {
+            startware: function(req,next){
+              req.params.x0 = 'y0'
+
+              next()
+            },
             prefix: '/t0',
             pin: 'role:api,cmd:*',
             map: {
@@ -57,9 +63,6 @@ exports.init = function ( done ) {
         }, function(){
           done(null, server)
         } )
-
-
-
       } )
     } )
 }

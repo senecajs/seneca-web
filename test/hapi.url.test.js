@@ -23,6 +23,7 @@ suite('test server suite', function() {
     server.inject(url, function(res){
       assert.equal(200, res.statusCode)
       assert.equal('else', JSON.parse(res.payload).something)
+      assert.equal('y0', JSON.parse(res.payload).x0)
 
       done()
     })
@@ -34,6 +35,7 @@ suite('test server suite', function() {
     server.inject(url, function(res){
       assert.equal(200, res.statusCode)
       assert.equal('111', JSON.parse(res.payload).m)
+      assert.equal('y0', JSON.parse(res.payload).x0)
 
       done()
     })
