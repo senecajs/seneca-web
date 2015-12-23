@@ -4,6 +4,7 @@ var assert = require ( 'assert' )
 
 var Chairo = require ( 'chairo' )
 const Hapi = require ( 'hapi' )
+var _ = require('lodash')
 
 var server = new Hapi.Server ()
 server.connection()
@@ -29,39 +30,64 @@ exports.init = function ( done ) {
         console.log( 'Server started' )
         console.log( 'Server running at:', server.info.uri );
 
-        seneca.add( 'role:api,cmd:c0', function ( msg, done ) {
-          var out = {
-            something:'else',
-            x0: msg.req$.params.x0
-          }
-          done ( null, out )
-        } )
-
-        seneca.add( 'role:api,cmd:c1', function ( msg, done ) {
-          var out = {
-            m: msg.req$.params.m,
-            x0: msg.req$.params.x0
-          }
+        function c0(msg, done){
+          var out = _.extend(
+            {
+              t: 'c0'
+            },
+            msg.req$.params,
+            msg.req$.query
+          )
 
           done ( null, out )
-        } )
+        }
+
+        function c1(msg, done){
+          var out = _.extend(
+            {
+              t: 'c1'
+            },
+            msg.req$.params,
+            msg.req$.query
+          )
+
+          done ( null, out )
+        }
+
+        function c2(msg, done){
+          var out = _.extend(
+            {
+              t: 'c2'
+            },
+            msg.req$.params,
+            msg.req$.query,
+            msg.req$.payload
+          )
+
+          done ( null, out )
+        }
+
+        seneca.add( 'role:api,cmd:c0', c0 )
+        seneca.add( 'role:api,cmd:c1', c1 )
+        seneca.add( 'role:api,cmd:c2', c2 )
 
         seneca.act( 'role:web', {
           use: {
-            startware: function(req,next){
+            startware: function ( req, next ) {
               req.params.x0 = 'y0'
 
-              next()
+              next ()
             },
             prefix: '/t0',
             pin: 'role:api,cmd:*',
             map: {
               c0: { GET: true, alias: '/a0' },
-              c1: { GET: true, alias: '/a0/{m}' }
+              c1: { GET: true, POST: true, alias: '/a0/{m}' },
+              c2: { POST: true, alias: '/c0/{m}' }
             }
           }
-        }, function(){
-          done(null, server)
+        }, function () {
+          done ( null, server )
         } )
       } )
     } )
