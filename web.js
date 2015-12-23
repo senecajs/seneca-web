@@ -25,6 +25,10 @@ var httprouter = require('./http-router')
 var methodlist = _.clone(httprouter.methods)
 
 module.exports = function (options) {
+  var internals = {
+    server_type: 'express'
+  }
+
   /* jshint validthis:true */
   norma('o', arguments)
 
@@ -293,8 +297,63 @@ module.exports = function (options) {
       var maprouter = make_router(instance, spec, routespecs, routemap)
       var service = make_service(instance, spec, maprouter)
 
+      // in case that there is used Hapi
+      // then register routes
+      if (internals.server_type === 'hapi') {
+        addHapiRoute(spec, routespecs)
+      }
+
       return done(null, service)
     })
+  }
+
+  // Add Hapi routes
+  function addHapiRoute (spec, routespecs) {
+    for ( var i in routespecs ) {
+      for ( var method in routespecs[i].methods ) {
+        var pattern = routespecs[i].pattern
+        var path = routespecs[i].fullurl
+
+        var hapi_route = {
+          method: method,
+          path: path,
+          handler: (function (spec, pattern) {
+            return function (request, reply) {
+              if (spec.startware) {
+                spec.startware.call(request.seneca, request, function (err) {
+                  if (err) return reply(err)
+
+                  do_maprouter()
+                } )
+              }
+              else {
+                do_maprouter()
+              }
+
+              function do_maprouter () {
+                request.seneca.act( pattern, function (err, result) {
+                  if (err) {
+                    return reply(err)
+                  }
+
+                  if ( spec.postmap ) {
+                    spec.postmap.call( request.seneca, request, result, function ( err ) {
+                      if ( err ) {
+                        return reply(err)
+                      }
+                      return reply(result)
+                    } )
+                  }
+                  else reply(result)
+                } )
+              }
+            }
+          }(spec, pattern))
+        }
+
+        internals.server.route( hapi_route )
+      }
+    }
   }
 
 
@@ -340,6 +399,13 @@ module.exports = function (options) {
     }
   }
 
+  // Switch mode for Hapi integration
+  function web_hapi (server, options, next) {
+    internals.server = server
+    internals.options = options
+    internals.server_type = 'hapi'
+    next()
+  }
 
   var web = function (req, res, next) {
     res.seneca = req.seneca = seneca.root.delegate({
@@ -401,7 +467,8 @@ module.exports = function (options) {
     name: 'web',
     export: web,
     exportmap: {
-      httprouter: httprouter
+      httprouter: httprouter,
+      hapi: web_hapi
     }
   }
 }
@@ -609,7 +676,7 @@ function resolve_methods (instance, spec, routespecs, options) {
       methodspec.handler =
         _.isFunction(methodspec.handler) ? methodspec.handler
           : _.isFunction(routespec.handler) ? routespec.handler
-            : options.make_defaulthandler(spec, routespec, methodspec)
+          : options.make_defaulthandler(spec, routespec, methodspec)
 
       if (_.isString(methodspec.redirect) && !methodspec.responder) {
         methodspec.responder =
@@ -619,12 +686,12 @@ function resolve_methods (instance, spec, routespecs, options) {
       methodspec.responder =
         _.isFunction(methodspec.responder) ? methodspec.responder
           : _.isFunction(routespec.responder) ? routespec.responder
-            : options.make_defaultresponder(spec, routespec, methodspec)
+          : options.make_defaultresponder(spec, routespec, methodspec)
 
       methodspec.modify =
         _.isFunction(methodspec.modify) ? methodspec.modify
           : _.isFunction(routespec.modify) ? routespec.modify
-            : defaultmodify
+          : defaultmodify
 
       methodspec.argparser = make_argparser(instance, options, methodspec)
     })
