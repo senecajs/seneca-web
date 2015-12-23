@@ -15,7 +15,7 @@ exports.init = function ( done ) {
     {
       register: Chairo,
       options: {
-        'default_plugins': {
+        'defaultPlugins': {
           'web': false
         },
         web_plugin: require ( '..' )
