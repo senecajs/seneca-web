@@ -23,6 +23,7 @@ suite('test server suite', function() {
     server.inject(url, function(res){
       assert.equal(200, res.statusCode)
       assert.equal('c0', JSON.parse(res.payload).t)
+      assert.equal('y0', JSON.parse(res.payload).x0)
 
       done()
     })
@@ -65,6 +66,7 @@ suite('test server suite', function() {
     }, function(res){
       assert.equal(200, res.statusCode)
       assert.equal('3333', JSON.parse(res.payload).m)
+      assert.equal('y0', JSON.parse(res.payload).x0)
       assert.equal('c1', JSON.parse(res.payload).t)
 
       done()
@@ -80,6 +82,7 @@ suite('test server suite', function() {
     }, function(res){
       assert.equal(200, res.statusCode)
       assert.equal('44', JSON.parse(res.payload).m)
+      assert.equal('y0', JSON.parse(res.payload).x0)
       assert.equal('c2', JSON.parse(res.payload).t)
 
       done()
@@ -96,6 +99,7 @@ suite('test server suite', function() {
     }, function(res){
       assert.equal(200, res.statusCode)
       assert.equal('44', JSON.parse(res.payload).m)
+      assert.equal('y0', JSON.parse(res.payload).x0)
       assert.equal('c2', JSON.parse(res.payload).t)
       assert.equal('l', JSON.parse(res.payload).p)
 
@@ -116,4 +120,29 @@ suite('test server suite', function() {
       done()
     })
   })
+
+  test('simple test get with act error', function(done) {
+    var url = '/t0/e1'
+
+    server.inject({
+      url: url,
+      method: 'GET'
+    }, function(res){
+      assert.equal(500, res.statusCode)
+
+      done()
+    })
+  })
+  //
+  //test('simple test 1 without startware', function(done) {
+  //  var url = '/r0/a0'
+  //
+  //  server.inject(url, function(res){
+  //    assert.equal(200, res.statusCode)
+  //    assert.equal('c0', JSON.parse(res.payload).t)
+  //    assert.notEqual('y0', JSON.parse(res.payload).x0)
+  //
+  //    done()
+  //  })
+  //})
 })

@@ -24,11 +24,11 @@ var error = require('eraro')({
 var httprouter = require('./http-router')
 var methodlist = _.clone(httprouter.methods)
 
-var internals = {
-  server_type: 'express'
-}
-
 module.exports = function (options) {
+  var internals = {
+    server_type: 'express'
+  }
+
   /* jshint validthis:true */
   norma('o', arguments)
 
