@@ -133,16 +133,16 @@ suite('test server suite', function() {
       done()
     })
   })
-  //
-  //test('simple test 1 without startware', function(done) {
-  //  var url = '/r0/a0'
-  //
-  //  server.inject(url, function(res){
-  //    assert.equal(200, res.statusCode)
-  //    assert.equal('c0', JSON.parse(res.payload).t)
-  //    assert.notEqual('y0', JSON.parse(res.payload).x0)
-  //
-  //    done()
-  //  })
-  //})
+
+  test('simple test 1 without startware', function(done) {
+    var url = '/r0/x0'
+
+    server.inject(url, function(res){
+      assert.equal(200, res.statusCode)
+      assert.equal('c0', JSON.parse(res.payload).t)
+      assert.notEqual('y0', JSON.parse(res.payload).x0)
+
+      done()
+    })
+  })
 })

@@ -298,23 +298,24 @@ module.exports = function (options) {
       var service = make_service(instance, spec, maprouter)
 
       if (internals.server_type === 'hapi'){
-        addHapiRoute(spec, routemap)
+        addHapiRoute(spec, routespecs)
       }
 
       return done(null, service)
     })
   }
 
-  function addHapiRoute(spec, routemap) {
-    for ( var method in routemap ) {
-      for ( var path in routemap[method] ) {
+  function addHapiRoute(spec, routespecs) {
+    for ( var i in routespecs ) {
+      for ( var method in routespecs[i].methods ) {
 
-        var route = routemap[method][path]
-        console.log('Registering Hapi route ', method, path)
+        var pattern = routespecs[i].pattern
+        var path = routespecs[i].fullurl
+
         var hapi_route = {
           method: method,
           path: path,
-          handler: function(spec, route) {
+          handler: function(spec, pattern) {
             return function ( request, reply ) {
 
               if ( spec.startware ) {
@@ -329,7 +330,7 @@ module.exports = function (options) {
               }
 
               function do_maprouter () {
-                request.seneca.act( route.pattern, function ( err, result ) {
+                request.seneca.act( pattern, function ( err, result ) {
                   if ( err ) {
                     return reply ( err );
                   }
@@ -346,7 +347,7 @@ module.exports = function (options) {
                 } )
               }
             }
-          }(spec, route)
+          }(spec, pattern)
         }
 
         internals.server.route( hapi_route )
