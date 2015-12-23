@@ -1,6 +1,7 @@
 {
   "rules": {
-    "space-in-parens": 0
+    "space-in-parens": 0,
+    "spaced-comment": 0
   },
   "extends": "seneca"
 }

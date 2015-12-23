@@ -6,12 +6,10 @@ var Chairo = require ( 'chairo' )
 const Hapi = require ( 'hapi' )
 var _ = require('lodash')
 
-var server = new Hapi.Server ()
-server.connection()
-
-var seneca
-
 exports.init = function ( done ) {
+  var server = new Hapi.Server ()
+  server.connection()
+  var seneca
 
   server.register(
     {
