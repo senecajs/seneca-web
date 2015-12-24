@@ -61,7 +61,7 @@ This example defines some API end point URLs that correspond to Seneca actions:
 ```JavaScript
 
 var Chairo = require ( 'chairo' )
-const Hapi = require ( 'hapi' )
+var Hapi = require ( 'hapi' )
 
 var server = new Hapi.Server ()
 server.connection()
