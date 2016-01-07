@@ -2,31 +2,31 @@
 /* jshint node:true, asi:true, eqnull:true */
 'use strict'
 
-var util = require('util')
-var buffer = require('buffer')
+var Util = require('util')
+var Buffer = require('buffer')
 
 var _ = require('lodash')
-var parambulator = require('parambulator')
-var mstring = require('mstring')
-var nid = require('nid')
-var connect = require('connect')
-var serve_static = require('serve-static')
-var json_stringify_safe = require('json-stringify-safe')
-var stats = require('rolling-stats')
-var norma = require('norma')
+var Parambulator = require('parambulator')
+var Mstring = require('mstring')
+var Nid = require('nid')
+var Connect = require('connect')
+var ServeStatic = require('serve-static')
+var JsonStringifySafe = require('json-stringify-safe')
+var Stats = require('rolling-stats')
+var Norma = require('norma')
 
-var error = require('eraro')({
+var Error = require('eraro')({
   package: 'seneca',
   msgmap: ERRMSGMAP(),
   override: true
 })
 
-var httprouter = require('./http-router')
-var methodlist = _.clone(httprouter.methods)
+var HttpRouter = require('./http-router')
+var methodlist = _.clone(HttpRouter.methods)
 
 module.exports = function (options) {
   /* jshint validthis:true */
-  norma('o', arguments)
+  Norma('o', arguments)
 
   var seneca = this
 
@@ -65,7 +65,7 @@ module.exports = function (options) {
   }, options)
 
 
-  var timestats = new stats.NamedStats(options.stats.size, options.stats.duration)
+  var timestats = new Stats.NamedStats(options.stats.size, options.stats.duration)
 
   // Ordered list of middleware services.
   var services = []
@@ -76,7 +76,7 @@ module.exports = function (options) {
   var routemap = {}
   var route_list_cache = null
 
-  var init_template = _.template(mstring(
+  var init_template = _.template(Mstring(
     function () {/***
      ;(function(){
         var w = this
@@ -136,7 +136,7 @@ module.exports = function (options) {
     if (args.use) {
       // Add service to middleware layers, order is significant
       args.use.plugin$ = args.plugin$
-      args.use.serviceid$ = nid()
+      args.use.serviceid$ = Nid()
       route_list_cache = null
 
       define_service(seneca, args.use, function (err, service) {
@@ -253,7 +253,7 @@ module.exports = function (options) {
 
 
   // Service specification schema.
-  var spec_check = parambulator({
+  var spec_check = Parambulator({
     type$: 'object',
     pin: {required$: true},
     map: {required$: true, object$: true},
@@ -271,7 +271,7 @@ module.exports = function (options) {
 
   // Define service middleware
   function define_service (instance, spec, done) {
-    norma('o o|f f', arguments)
+    Norma('o o|f f', arguments)
 
     if (_.isFunction(spec)) return done(null, spec)
 
@@ -301,8 +301,8 @@ module.exports = function (options) {
   // Define exported middleware function
   // TODO is connect the best option here?
 
-  var app = connect()
-  app.use(serve_static(__dirname + '/web'))
+  var app = Connect()
+  app.use(ServeStatic(__dirname + '/web'))
 
   var use = function (req, res, next) {
     if (0 === req.url.indexOf(options.contentprefix)) {
@@ -326,7 +326,7 @@ module.exports = function (options) {
         seneca.log.debug(
           'service-chain', req.seneca.fixedargs.tx$,
           req.method, req.url, service.serviceid$,
-          util.inspect(service.plugin$))
+          Util.inspect(service.plugin$))
       }
 
       service.call(req.seneca, req, res, function (err) {
@@ -401,7 +401,7 @@ module.exports = function (options) {
     name: 'web',
     export: web,
     exportmap: {
-      httprouter: httprouter
+      httprouter: HttpRouter
     }
   }
 }
@@ -411,7 +411,7 @@ module.exports = function (options) {
 
 // Default action handler; just calls the action.
 function make_defaulthandler (spec, routespec, methodspec) {
-  norma('ooo', arguments)
+  Norma('ooo', arguments)
 
   return function defaulthandler (req, res, args, act, respond) {
     act(args, function (err, out) {
@@ -423,14 +423,14 @@ function make_defaulthandler (spec, routespec, methodspec) {
 
 // Default response handler; applies custom http$ settings, if any
 function make_defaultresponder (spec, routespec, methodspec) {
-  norma('ooo', arguments)
+  Norma('ooo', arguments)
 
   return function defaultresponder (req, res, err, obj) {
     obj = (null == obj) ? {} : obj
     var outobj = {}
 
     if (!_.isObject(obj)) {
-      err = error('result_not_object', {url: req.url, result: obj.toString()})
+      err = Error('result_not_object', {url: req.url, result: obj.toString()})
     }
     else {
       outobj = _.clone(obj)
@@ -477,12 +477,12 @@ function make_defaultresponder (spec, routespec, methodspec) {
     else {
       var outjson = err ? JSON.stringify({error: '' + err}) : stringify(outobj)
 
-      http.status = http.status || ( err ? 500 : 200 )
+      http.status = http.status || (err ? 500 : 200)
 
       res.writeHead(http.status, _.extend({
         'Content-Type': 'application/json',
         'Cache-Control': 'private, max-age=0, no-cache, no-store',
-        'Content-Length': buffer.Buffer.byteLength(outjson)
+        'Content-Length': Buffer.Buffer.byteLength(outjson)
       }, http.headers))
 
       res.end(outjson)
@@ -492,7 +492,7 @@ function make_defaultresponder (spec, routespec, methodspec) {
 
 
 function make_redirectresponder (spec, routespec, methodspec) {
-  norma('ooo', arguments)
+  Norma('ooo', arguments)
 
   return function (req, res, err, obj) {
     var url = methodspec.redirect || routespec.redirect
@@ -517,7 +517,7 @@ function make_redirectresponder (spec, routespec, methodspec) {
 var defaultflags = {useparams: true, usequery: true, data: false}
 
 function make_routespecs (actmap, spec, options) {
-  norma('ooo', arguments)
+  Norma('ooo', arguments)
 
   var routespecs = []
 
@@ -561,7 +561,7 @@ function make_routespecs (actmap, spec, options) {
 
 
 function resolve_actions (instance, routespecs) {
-  norma('oa', arguments)
+  Norma('oa', arguments)
 
   _.each(routespecs, function (routespec) {
     var actmeta = instance.findact(routespec.pattern)
@@ -577,7 +577,7 @@ function resolve_actions (instance, routespecs) {
 }
 
 function resolve_methods (instance, spec, routespecs, options) {
-  norma('ooao', arguments)
+  Norma('ooao', arguments)
 
   _.each(routespecs, function (routespec) {
     var methods = {}
@@ -634,7 +634,7 @@ function resolve_methods (instance, spec, routespecs, options) {
 }
 
 function resolve_dispatch (instance, spec, routespecs, timestats, options) {
-  norma('ooaoo', arguments)
+  Norma('ooaoo', arguments)
 
   _.each(routespecs, function (routespec) {
     _.each(routespec.methods, function (methodspec, method) {
@@ -643,7 +643,7 @@ function resolve_dispatch (instance, spec, routespecs, timestats, options) {
           instance.log(
             'service-dispatch', req.seneca.fixedargs.tx$,
             req.method, req.url, spec.serviceid$,
-            util.inspect(methodspec))
+            Util.inspect(methodspec))
         }
 
         var begin = Date.now()
@@ -693,7 +693,7 @@ function resolve_dispatch (instance, spec, routespecs, timestats, options) {
 
 
 function make_argparser (instance, options, methodspec) {
-  norma('ooo', arguments)
+  Norma('ooo', arguments)
 
   return function (req) {
     if (!_.isObject(req.body) && options.warn.req_body) {
@@ -733,10 +733,10 @@ function make_argparser (instance, options, methodspec) {
 
 
 function make_router (instance, spec, routespecs, routemap) {
-  norma('ooao', arguments)
+  Norma('ooao', arguments)
 
   var routes = []
-  var mr = httprouter(function (http) {
+  var mr = HttpRouter(function (http) {
     _.each(routespecs, function (routespec) {
       _.each(routespec.methods, function (methodspec, method) {
         instance.log.debug('http', method, routespec.fullurl)
@@ -808,7 +808,7 @@ function stringify (obj, indent, depth, decycler) {
   indent = indent || null
   depth = depth || 0
   decycler = decycler || null
-  return json_stringify_safe(obj, indent, depth, decycler)
+  return JsonStringifySafe(obj, indent, depth, decycler)
 }
 
 
