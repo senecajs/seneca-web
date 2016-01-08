@@ -313,11 +313,16 @@ module.exports = function (options) {
       for ( var method in routespecs[i].methods ) {
         var pattern = routespecs[i].pattern
         var path = routespecs[i].fullurl
+        var data = routespecs[i].data || false
 
         var hapi_route = {
           method: method,
           path: path,
-          handler: (function (spec, pattern) {
+          handler: (function (config) {
+            var spec = config.spec
+            var pattern = config.pattern
+            var data = config.data
+
             return function (request, reply) {
               if (spec.startware) {
                 spec.startware.call(request.seneca, request, function (err) {
@@ -331,6 +336,10 @@ module.exports = function (options) {
               }
 
               function do_maprouter () {
+                if (data){
+                  pattern.data = request.payload
+                }
+
                 request.seneca.act( pattern, function (err, result) {
                   if (err) {
                     return reply(err)
@@ -341,14 +350,23 @@ module.exports = function (options) {
                       if ( err ) {
                         return reply(err)
                       }
-                      return reply(result)
+                      return sendreply(result)
                     } )
                   }
-                  else reply(result)
+                  else {
+                    sendreply(result)
+                  }
                 } )
               }
+
+              function sendreply(result){
+                var repl = reply(result)
+                for (var cookie in request.raw.res.cookies){
+                  repl.state(cookie, request.raw.res.cookies[cookie])
+                }
+              }
             }
-          }(spec, pattern))
+          }({ spec: spec, pattern: pattern, data: data}))
         }
 
         internals.server.route( hapi_route )
@@ -737,8 +755,8 @@ function resolve_dispatch (instance, spec, routespecs, timestats, options) {
         }
 
         var premap = routespec.premap || function () {
-          arguments[3]()
-        }
+            arguments[3]()
+          }
 
         // legacy signature
         if (3 === premap.length) {
