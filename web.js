@@ -121,8 +121,14 @@ module.exports = function (options) {
 
       // Get client-side source code list.
       .add('role:web, get:sourcelist', get_sourcelist)
+
+      .add('role: web, do: startware', default_startware)
   }
 
+
+  function default_startware(msg, done){
+    done()
+  }
 
   // Action: _role:web_
   function web_use (args, done) {
@@ -313,42 +319,58 @@ module.exports = function (options) {
       for ( var method in routespecs[i].methods ) {
         var pattern = routespecs[i].pattern
         var path = routespecs[i].fullurl
+        var data = routespecs[i].data || false
 
         var hapi_route = {
           method: method,
           path: path,
-          handler: (function (spec, pattern) {
+          handler: (function (config) {
+            var spec = config.spec
+            var pattern = config.pattern
+            var data = config.data
+
             return function (request, reply) {
-              if (spec.startware) {
-                spec.startware.call(request.seneca, request, function (err) {
-                  if (err) return reply(err)
+              request.seneca.act('role: web, do: startware', {req: request}, function (err, out){
+                if (err) return reply(err)
 
-                  do_maprouter()
-                } )
-              }
-              else {
-                do_maprouter()
-              }
+                do_maprouter(out)
+              })
 
-              function do_maprouter () {
+              function do_maprouter (out) {
+                if (data){
+                  pattern.data = request.payload
+                }
+                if (out){
+                  pattern = _.extend({}, pattern, out)
+                }
+
                 request.seneca.act( pattern, function (err, result) {
                   if (err) {
-                    return reply(err)
+                    return sendreply(err)
                   }
 
                   if ( spec.postmap ) {
                     spec.postmap.call( request.seneca, request, result, function ( err ) {
                       if ( err ) {
-                        return reply(err)
+                        return sendreply(err)
                       }
-                      return reply(result)
+                      return sendreply(result)
                     } )
                   }
-                  else reply(result)
+                  else {
+                    sendreply(result)
+                  }
                 } )
               }
+
+              function sendreply(result){
+                    var repl = reply(result)
+                    for (var cookie in request.raw.res.cookies){
+                      repl.state(cookie, request.raw.res.cookies[cookie])
+                    }
+                  }
             }
-          }(spec, pattern))
+          }({ spec: spec, pattern: pattern, data: data}))
         }
 
         internals.server.route( hapi_route )
@@ -737,8 +759,8 @@ function resolve_dispatch (instance, spec, routespecs, timestats, options) {
         }
 
         var premap = routespec.premap || function () {
-          arguments[3]()
-        }
+            arguments[3]()
+          }
 
         // legacy signature
         if (3 === premap.length) {
