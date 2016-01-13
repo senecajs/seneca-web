@@ -2,6 +2,7 @@
 /* jshint node:true, asi:true, eqnull:true */
 'use strict'
 
+var Async = require('async')
 var Util = require('util')
 var Buffer = require('buffer')
 
@@ -25,6 +26,10 @@ var HttpRouter = require('./http-router')
 var methodlist = _.clone(HttpRouter.methods)
 
 module.exports = function (options) {
+  var internals = {
+    server_type: 'express'
+  }
+
   /* jshint validthis:true */
   Norma('o', arguments)
 
@@ -117,8 +122,26 @@ module.exports = function (options) {
 
       // Get client-side source code list.
       .add('role:web, get:sourcelist', get_sourcelist)
+
+      .add('role: web, do: startware', default_startware)
+
+      .add('role: web, get: server', get_server)
+
+      .add('role: web, get: restriction', default_get_restriction)
   }
 
+
+  function default_get_restriction (msg, done) {
+    done()
+  }
+
+  function default_startware (msg, done) {
+    done()
+  }
+
+  function get_server (msg, done) {
+    done(null, {server: internals.server})
+  }
 
   // Action: _role:web_
   function web_use (args, done) {
@@ -293,8 +316,112 @@ module.exports = function (options) {
       var maprouter = make_router(instance, spec, routespecs, routemap)
       var service = make_service(instance, spec, maprouter)
 
-      return done(null, service)
+      // in case that there is used Hapi
+      // then register routes
+      if (internals.server_type === 'hapi') {
+        addHapiRoute(spec, routespecs, function (err) {
+          done(err, service)
+        })
+      }
+      else {
+        return done(null, service)
+      }
     })
+  }
+
+  // Add Hapi routes
+  function addHapiRoute (spec, routespecs, done) {
+    var endpoints_specs = []
+    for ( var i in routespecs ) {
+      for (var method in routespecs[i].methods) {
+        endpoints_specs.push({
+          routespecs: routespecs[i],
+          method: method,
+          spec: spec
+        })
+      }
+    }
+
+    Async.each(endpoints_specs, register_hapi_endpoints, done)
+  }
+
+  function register_hapi_endpoints (endpoint_spec, done) {
+    var routespecs = endpoint_spec.routespecs
+    var method = endpoint_spec.method
+    var spec = endpoint_spec.spec
+
+    var pattern = routespecs.pattern
+    var path = routespecs.fullurl
+    var data = routespecs.data || false
+
+    var hapi_route = {
+      method: method,
+      path: path,
+      config: {},
+      handler: spec.handler || (function () {
+        return function (request, reply) {
+          request.seneca.act('role: web, do: startware', {req: request}, function (err, out) {
+            if (err) return reply(err)
+
+            do_maprouter(out)
+          })
+
+          function do_maprouter (out) {
+            if (data) {
+              pattern.data = request.payload
+            }
+            if (out) {
+              pattern = _.extend({}, pattern, out)
+            }
+
+            request.seneca.act( pattern, function (err, result) {
+              if (err) {
+                return sendreply(err)
+              }
+
+              if ( spec.postmap ) {
+                spec.postmap.call( request.seneca, request, result, function ( err ) {
+                  if ( err ) {
+                    return sendreply(err)
+                  }
+                  return sendreply(result)
+                } )
+              }
+              else {
+                sendreply(result)
+              }
+            } )
+          }
+
+          function sendreply (result) {
+            var repl = reply(result)
+            for (var cookie in request.raw.res.cookies) {
+              repl.state(cookie, request.raw.res.cookies[cookie])
+            }
+          }
+        }
+      }())
+    }
+
+    if (routespecs.auth && routespecs.auth !== 'none') {
+      hapi_route.config.auth = routespecs.auth
+      internals.server.route( hapi_route )
+      done()
+    }
+    else {
+      // try to find auth - if is restricted in another plugins - like seneca-auth
+      seneca.act('role: web, get: restriction', {path: path}, function (err, restrict) {
+        if (err) {
+          return done(err)
+        }
+        if (restrict && restrict.auth) {
+          hapi_route.config.auth = restrict.auth
+        }
+
+        internals.server.route( hapi_route )
+        done()
+      })
+    }
   }
 
 
@@ -340,6 +467,13 @@ module.exports = function (options) {
     }
   }
 
+  // Switch mode for Hapi integration
+  function web_hapi (server, options, next) {
+    internals.server = server
+    internals.options = options
+    internals.server_type = 'hapi'
+    next()
+  }
 
   var web = function (req, res, next) {
     res.seneca = req.seneca = seneca.root.delegate({
@@ -401,7 +535,8 @@ module.exports = function (options) {
     name: 'web',
     export: web,
     exportmap: {
-      httprouter: HttpRouter
+      httprouter: HttpRouter,
+      hapi: web_hapi
     }
   }
 }
@@ -609,7 +744,7 @@ function resolve_methods (instance, spec, routespecs, options) {
       methodspec.handler =
         _.isFunction(methodspec.handler) ? methodspec.handler
           : _.isFunction(routespec.handler) ? routespec.handler
-            : options.make_defaulthandler(spec, routespec, methodspec)
+          : options.make_defaulthandler(spec, routespec, methodspec)
 
       if (_.isString(methodspec.redirect) && !methodspec.responder) {
         methodspec.responder =
@@ -619,12 +754,12 @@ function resolve_methods (instance, spec, routespecs, options) {
       methodspec.responder =
         _.isFunction(methodspec.responder) ? methodspec.responder
           : _.isFunction(routespec.responder) ? routespec.responder
-            : options.make_defaultresponder(spec, routespec, methodspec)
+          : options.make_defaultresponder(spec, routespec, methodspec)
 
       methodspec.modify =
         _.isFunction(methodspec.modify) ? methodspec.modify
           : _.isFunction(routespec.modify) ? routespec.modify
-            : defaultmodify
+          : defaultmodify
 
       methodspec.argparser = make_argparser(instance, options, methodspec)
     })

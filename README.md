@@ -15,12 +15,12 @@ action pattern calls. It's a built-in dependency of the Seneca module,
 so you don't need to include it manually. Use this plugin to define
 your web service API.
 
-This plugin supports [Express](http://expressjs.com/)-style middleware.
-To use Seneca with [hapi](http://hapijs.com/),
-see [chairo](https://www.npmjs.com/package/chairo) hapi plugin.
+This plugin supports [Express](http://expressjs.com/)-style middleware. 
+This plugin supports (starting from version 0.5.0) also [hapi](http://hapijs.com/), 
+see bellow usage example.
 
-- __Version:__ 0.4.5
-- __Tested on:__ Seneca 0.9.1
+- __Version:__ 0.5.0
+- __Tested on:__ Seneca 0.9.3
 - __Node:__ 0.10, 0.12, 4, 5
 - __License:__ [MIT][]
 
@@ -39,7 +39,7 @@ If you are new to Seneca in general, please take a look at [senecajs.org][]. We 
 tutorials to sample apps to help get you up and running quickly.
 
 
-### Install
+## Install
 
 This plugin module is included in the main Seneca module:
 
@@ -47,8 +47,72 @@ This plugin module is included in the main Seneca module:
 npm install seneca
 ```
 
+## Hapi usage
 
-## Quick example
+### Quick example
+
+This example defines some API end point URLs that correspond to Seneca actions:
+
+   * `GET /my-api/zig`: `role:api,cmd:zig`
+   * `GET /my-api/bar`: `role:api,cmd:bar`
+   * `GET /my-api/qaz`: `role:api,cmd:qaz`
+   * `POST /my-api/qaz`: `role:api,cmd:qaz`
+
+```JavaScript
+
+var Chairo = require ( 'chairo' )
+var Hapi = require ( 'hapi' )
+
+var server = new Hapi.Server ()
+server.connection()
+
+server.register(
+  {
+    register: Chairo,
+    options: {
+      // options for Seneca
+    }
+  }, function ( err ) {
+    var seneca = server.seneca
+
+    seneca.add('role:api,cmd:zig',function(args,done){
+      done(null,{bar:'g'})
+    })
+    
+    seneca.add('role:api,cmd:bar',function(args,done){
+      done(null,{bar:'b'})
+    })
+    
+    seneca.add('role:api,cmd:qaz',function(args,done){
+      done(null,{qaz:'z'})
+    })
+    
+    seneca.act('role:web',{use:{
+    
+      // define some routes that start with /my-api
+      prefix: '/api',
+    
+      // use action patterns where role has the value 'api' and cmd has some defined value
+      pin: {role:'api',cmd:'*'},
+    
+      // for each value of cmd, match some HTTP method, and use the
+      // query parameters as values for the action
+      map:{
+        zig: true,                // GET is the default
+        bar: {GET:true},          // explicitly accepting GETs
+        qaz: {GET:true,POST:true} // accepting both GETs and POSTs
+      }
+    }})
+  }
+} )
+
+
+```
+
+
+## Express usage
+
+### Quick example
 
 This example defines some API end point URLs that correspond to Seneca actions:
 

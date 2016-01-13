@@ -32,37 +32,37 @@
             
             <div class="content"><div class='highlight'><pre><span class="hljs-comment">/* Copyright (c) 2013-2015 Richard Rodger, MIT License */</span>
 <span class="hljs-comment">/* jshint node:true, asi:true, eqnull:true */</span>
-<span class="hljs-meta">"use strict"</span>;
+<span class="hljs-pi">'use strict'</span>
 
-
-<span class="hljs-keyword">var</span> util   = <span class="hljs-built_in">require</span>(<span class="hljs-string">'util'</span>)
+<span class="hljs-keyword">var</span> util = <span class="hljs-built_in">require</span>(<span class="hljs-string">'util'</span>)
 <span class="hljs-keyword">var</span> buffer = <span class="hljs-built_in">require</span>(<span class="hljs-string">'buffer'</span>)
 
-
-<span class="hljs-keyword">var</span> _                   = <span class="hljs-built_in">require</span>(<span class="hljs-string">'lodash'</span>)
-<span class="hljs-keyword">var</span> parambulator        = <span class="hljs-built_in">require</span>(<span class="hljs-string">'parambulator'</span>)
-<span class="hljs-keyword">var</span> mstring             = <span class="hljs-built_in">require</span>(<span class="hljs-string">'mstring'</span>)
-<span class="hljs-keyword">var</span> nid                 = <span class="hljs-built_in">require</span>(<span class="hljs-string">'nid'</span>)
-<span class="hljs-keyword">var</span> connect             = <span class="hljs-built_in">require</span>(<span class="hljs-string">'connect'</span>)
-<span class="hljs-keyword">var</span> serve_static        = <span class="hljs-built_in">require</span>(<span class="hljs-string">'serve-static'</span>)
+<span class="hljs-keyword">var</span> _ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'lodash'</span>)
+<span class="hljs-keyword">var</span> parambulator = <span class="hljs-built_in">require</span>(<span class="hljs-string">'parambulator'</span>)
+<span class="hljs-keyword">var</span> mstring = <span class="hljs-built_in">require</span>(<span class="hljs-string">'mstring'</span>)
+<span class="hljs-keyword">var</span> nid = <span class="hljs-built_in">require</span>(<span class="hljs-string">'nid'</span>)
+<span class="hljs-keyword">var</span> connect = <span class="hljs-built_in">require</span>(<span class="hljs-string">'connect'</span>)
+<span class="hljs-keyword">var</span> serve_static = <span class="hljs-built_in">require</span>(<span class="hljs-string">'serve-static'</span>)
 <span class="hljs-keyword">var</span> json_stringify_safe = <span class="hljs-built_in">require</span>(<span class="hljs-string">'json-stringify-safe'</span>)
-<span class="hljs-keyword">var</span> stats               = <span class="hljs-built_in">require</span>(<span class="hljs-string">'rolling-stats'</span>)
-<span class="hljs-keyword">var</span> norma               = <span class="hljs-built_in">require</span>(<span class="hljs-string">'norma'</span>)
+<span class="hljs-keyword">var</span> stats = <span class="hljs-built_in">require</span>(<span class="hljs-string">'rolling-stats'</span>)
+<span class="hljs-keyword">var</span> norma = <span class="hljs-built_in">require</span>(<span class="hljs-string">'norma'</span>)
 
 <span class="hljs-keyword">var</span> error = <span class="hljs-built_in">require</span>(<span class="hljs-string">'eraro'</span>)({
-  package:  <span class="hljs-string">'seneca'</span>,
-  msgmap:   ERRMSGMAP(),
+  package: <span class="hljs-string">'seneca'</span>,
+  msgmap: ERRMSGMAP(),
   override: <span class="hljs-literal">true</span>
 })
-
 
 <span class="hljs-keyword">var</span> httprouter = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./http-router'</span>)
 <span class="hljs-keyword">var</span> methodlist = _.clone(httprouter.methods)
 
+<span class="hljs-built_in">module</span>.exports = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">options</span>) </span>{
+  <span class="hljs-keyword">var</span> internals = {
+    server_type: <span class="hljs-string">'express'</span>
+  }
 
-<span class="hljs-built_in">module</span>.exports = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"> options </span>) </span>{
   <span class="hljs-comment">/* jshint validthis:true */</span>
-  norma(<span class="hljs-string">'o'</span>,<span class="hljs-built_in">arguments</span>)
+  norma(<span class="hljs-string">'o'</span>, <span class="hljs-built_in">arguments</span>)
 
   <span class="hljs-keyword">var</span> seneca = <span class="hljs-keyword">this</span>
 
@@ -112,8 +112,8 @@
             </div>
             
             <div class="content"><div class='highlight'><pre>    stats: {
-      size:     <span class="hljs-number">1024</span>,
-      duration: <span class="hljs-number">60000</span>,
+      size: <span class="hljs-number">1024</span>,
+      duration: <span class="hljs-number">60000</span>
     },</pre></div></div>
             
         </li>
@@ -129,8 +129,8 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    make_defaulthandler:    make_defaulthandler,
-    make_defaultresponder:  make_defaultresponder,
+            <div class="content"><div class='highlight'><pre>    make_defaulthandler: make_defaulthandler,
+    make_defaultresponder: make_defaultresponder,
     make_redirectresponder: make_redirectresponder,</pre></div></div>
             
         </li>
@@ -149,7 +149,7 @@
             <div class="content"><div class='highlight'><pre>    warn: {
       req_body: <span class="hljs-literal">true</span>,
       req_params: <span class="hljs-literal">true</span>,
-      req_query: <span class="hljs-literal">true</span>,
+      req_query: <span class="hljs-literal">true</span>
     },</pre></div></div>
             
         </li>
@@ -169,10 +169,10 @@
       service: <span class="hljs-literal">false</span>
     }
 
-  },options)
+  }, options)
 
 
-  <span class="hljs-keyword">var</span> timestats = <span class="hljs-keyword">new</span> stats.NamedStats( options.stats.size, options.stats.duration )</pre></div></div>
+  <span class="hljs-keyword">var</span> timestats = <span class="hljs-keyword">new</span> stats.NamedStats(options.stats.size, options.stats.duration)</pre></div></div>
             
         </li>
         
@@ -189,15 +189,15 @@
             
             <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> services = []
 
-  <span class="hljs-keyword">var</span> configmap  = {}
+  <span class="hljs-keyword">var</span> configmap = {}
   <span class="hljs-keyword">var</span> servicemap = {}
 
   <span class="hljs-keyword">var</span> routemap = {}
   <span class="hljs-keyword">var</span> route_list_cache = <span class="hljs-literal">null</span>
 
   <span class="hljs-keyword">var</span> init_template = _.template(mstring(
-    <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{<span class="hljs-comment">/***
-      ;(function(){
+    <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{<span class="hljs-comment">/***
+     ;(function(){
         var w = this
         var seneca = w.seneca || (w.seneca={})
         seneca.config = {}
@@ -205,14 +205,15 @@
         seneca.config[&lt;%=JSON.stringify(name)%&gt;] = &lt;%=JSON.stringify(data)%&gt;
         &lt;%})%&gt;
       }).call(window);
-      ***/</span>}))
+     ***/</span>
+    }))
 
-  <span class="hljs-keyword">var</span> initsrc = init_template({_:_,configmap:configmap})
+  <span class="hljs-keyword">var</span> initsrc = init_template({_: _, configmap: configmap})
 
   <span class="hljs-keyword">var</span> sourcelist = []
 
 
-  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">add_action_patterns</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">add_action_patterns</span> (<span class="hljs-params"></span>) </span>{
     seneca</pre></div></div>
             
         </li>
@@ -228,7 +229,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      .add( <span class="hljs-string">'role:web'</span>, web_use)</pre></div></div>
+            <div class="content"><div class='highlight'><pre>      .add(<span class="hljs-string">'role:web'</span>, web_use)</pre></div></div>
             
         </li>
         
@@ -243,7 +244,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      .add( <span class="hljs-string">'role:web, list:service'</span>, list_service)</pre></div></div>
+            <div class="content"><div class='highlight'><pre>      .add(<span class="hljs-string">'role:web, list:service'</span>, list_service)</pre></div></div>
             
         </li>
         
@@ -258,7 +259,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      .add( <span class="hljs-string">'role:web, list:route'</span>, list_route)</pre></div></div>
+            <div class="content"><div class='highlight'><pre>      .add(<span class="hljs-string">'role:web, list:route'</span>, list_route)</pre></div></div>
             
         </li>
         
@@ -273,7 +274,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      .add( <span class="hljs-string">'role:web, stats:true'</span>, action_stats)</pre></div></div>
+            <div class="content"><div class='highlight'><pre>      .add(<span class="hljs-string">'role:web, stats:true'</span>, action_stats)</pre></div></div>
             
         </li>
         
@@ -288,7 +289,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      .add( <span class="hljs-string">'role:web, get:config'</span>, get_config)</pre></div></div>
+            <div class="content"><div class='highlight'><pre>      .add(<span class="hljs-string">'role:web, get:config'</span>, get_config)</pre></div></div>
             
         </li>
         
@@ -303,7 +304,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      .add( <span class="hljs-string">'role:web, set:source'</span>, set_source)</pre></div></div>
+            <div class="content"><div class='highlight'><pre>      .add(<span class="hljs-string">'role:web, set:source'</span>, set_source)</pre></div></div>
             
         </li>
         
@@ -318,7 +319,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      .add( <span class="hljs-string">'role:web, get:sourcelist'</span>, get_sourcelist)
+            <div class="content"><div class='highlight'><pre>      .add(<span class="hljs-string">'role:web, get:sourcelist'</span>, get_sourcelist)
   }</pre></div></div>
             
         </li>
@@ -334,7 +335,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">web_use</span>(<span class="hljs-params"> args, done </span>) </span>{
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">web_use</span> (<span class="hljs-params">args, done</span>) </span>{
     <span class="hljs-keyword">var</span> seneca = <span class="hljs-keyword">this</span></pre></div></div>
             
         </li>
@@ -350,15 +351,15 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span>( args.config &amp;&amp; args.plugin ) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (args.config &amp;&amp; args.plugin) {
       configmap[args.plugin] =
-        _.extend( {}, configmap[args.plugin]||{}, args.config )
+        _.extend({}, configmap[args.plugin] || {}, args.config)
 
-      initsrc = init_template({_:_,configmap:configmap})
+      initsrc = init_template({_: _, configmap: configmap})
     }
 
 
-    <span class="hljs-keyword">if</span>( args.use ) {</pre></div></div>
+    <span class="hljs-keyword">if</span> (args.use) {</pre></div></div>
             
         </li>
         
@@ -373,22 +374,22 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      args.use.plugin$    = args.plugin$
+            <div class="content"><div class='highlight'><pre>      args.use.plugin$ = args.plugin$
       args.use.serviceid$ = nid()
-      route_list_cache    = <span class="hljs-literal">null</span>
+      route_list_cache = <span class="hljs-literal">null</span>
 
-      define_service(seneca,args.use,<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err,service</span>)</span>{
-        <span class="hljs-keyword">if</span>( err ) <span class="hljs-keyword">return</span> done(err);
+      define_service(seneca, args.use, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">err, service</span>) </span>{
+        <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">return</span> done(err)
 
-        <span class="hljs-keyword">if</span>( service ) {
-          services.push( service )
+        <span class="hljs-keyword">if</span> (service) {
+          services.push(service)
           servicemap[service.serviceid$] = service
         }
 
-        done();
+        done()
       })
     }
-    <span class="hljs-keyword">else</span> done();
+    <span class="hljs-keyword">else</span> done()
   }
 
 
@@ -422,7 +423,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    config: {object$:<span class="hljs-literal">true</span>},</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    config: {object$: <span class="hljs-literal">true</span>},</pre></div></div>
             
         </li>
         
@@ -437,7 +438,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    plugin: {string$:<span class="hljs-literal">true</span>},
+            <div class="content"><div class='highlight'><pre>    plugin: {string$: <span class="hljs-literal">true</span>}
   }</pre></div></div>
             
         </li>
@@ -453,14 +454,14 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">set_source</span>(<span class="hljs-params"> args, done </span>) </span>{
-    sourcelist.push(<span class="hljs-string">'\n;// '</span>+args.title+<span class="hljs-string">'\n'</span>+args.source)
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">set_source</span> (<span class="hljs-params">args, done</span>) </span>{
+    sourcelist.push(<span class="hljs-string">'\n;// '</span> + args.title + <span class="hljs-string">'\n'</span> + args.source)
     done()
   }
 
   set_source.validate = {
-    title:  { string$:<span class="hljs-literal">true</span> },
-    source: { required$:<span class="hljs-literal">true</span>, string$:<span class="hljs-literal">true</span> },
+    title: {string$: <span class="hljs-literal">true</span>},
+    source: {required$: <span class="hljs-literal">true</span>, string$: <span class="hljs-literal">true</span>}
   }</pre></div></div>
             
         </li>
@@ -476,8 +477,8 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">get_sourcelist</span>(<span class="hljs-params"> args, done </span>) </span>{
-    done( <span class="hljs-literal">null</span>, _.clone(sourcelist) )
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">get_sourcelist</span> (<span class="hljs-params">args, done</span>) </span>{
+    done(<span class="hljs-literal">null</span>, _.clone(sourcelist))
   }</pre></div></div>
             
         </li>
@@ -493,12 +494,12 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">get_config</span>(<span class="hljs-params"> args, done </span>) </span>{
-    done( <span class="hljs-literal">null</span>, _.clone(configmap[args.plugin] || {}) )
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">get_config</span> (<span class="hljs-params">args, done</span>) </span>{
+    done(<span class="hljs-literal">null</span>, _.clone(configmap[args.plugin] || {}))
   }
 
   get_config.validate = {
-    plugin: { required:<span class="hljs-literal">true</span>, string$:<span class="hljs-literal">true</span> },
+    plugin: {required: <span class="hljs-literal">true</span>, string$: <span class="hljs-literal">true</span>}
   }</pre></div></div>
             
         </li>
@@ -514,8 +515,8 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">list_service</span>(<span class="hljs-params"> args, done </span>) </span>{
-    done( <span class="hljs-literal">null</span>, _.clone(services) )
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">list_service</span> (<span class="hljs-params">args, done</span>) </span>{
+    done(<span class="hljs-literal">null</span>, _.clone(services))
   }</pre></div></div>
             
         </li>
@@ -531,28 +532,28 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">list_route</span>(<span class="hljs-params"> args, done </span>) </span>{
-    <span class="hljs-keyword">if</span>( <span class="hljs-literal">null</span> == route_list_cache ) {
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">list_route</span> (<span class="hljs-params">args, done</span>) </span>{
+    <span class="hljs-keyword">if</span> (<span class="hljs-literal">null</span> == route_list_cache) {
       route_list_cache = []
       <span class="hljs-keyword">var</span> methods = _.keys(routemap)
-      _.each(methods,<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">method</span>)</span>{
+      _.each(methods, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">method</span>) </span>{
         <span class="hljs-keyword">var</span> urlmap = routemap[method]
-        <span class="hljs-keyword">if</span>( urlmap ) {
-          _.each( urlmap, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">srv,url</span>) </span>{
+        <span class="hljs-keyword">if</span> (urlmap) {
+          _.each(urlmap, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">srv, url</span>) </span>{
             route_list_cache.push({
-              url:     url,
-              method:  method.toUpperCase(),
+              url: url,
+              method: method.toUpperCase(),
               service: srv
             })
           })
         }
       })
-      route_list_cache.sort(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">a,b</span>)</span>{
-        <span class="hljs-keyword">return</span> a.url == b.url ? <span class="hljs-number">0</span> : a.url &lt; b.url ? <span class="hljs-number">-1</span> : +<span class="hljs-number">1</span>
+      route_list_cache.sort(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">a, b</span>) </span>{
+        <span class="hljs-keyword">return</span> a.url === b.url ? <span class="hljs-number">0</span> : a.url &lt; b.url ? -<span class="hljs-number">1</span> : +<span class="hljs-number">1</span>
       })
     }
 
-    done( <span class="hljs-literal">null</span>, _.clone(route_list_cache) )
+    done(<span class="hljs-literal">null</span>, _.clone(route_list_cache))
   }</pre></div></div>
             
         </li>
@@ -568,24 +569,24 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">action_stats</span>(<span class="hljs-params">args,done</span>) </span>{
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">action_stats</span> (<span class="hljs-params">args, done</span>) </span>{
     <span class="hljs-keyword">var</span> stats = {}
-    <span class="hljs-keyword">this</span>.act(<span class="hljs-string">'role:web,list:route'</span>,<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err,list</span>)</span>{
-      <span class="hljs-keyword">if</span>( err ) <span class="hljs-keyword">return</span> done(err);
+    <span class="hljs-keyword">this</span>.act(<span class="hljs-string">'role:web,list:route'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">err, list</span>) </span>{
+      <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">return</span> done(err)
 
-      _.each(list, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">route</span>)</span>{
+      _.each(list, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">route</span>) </span>{
         <span class="hljs-keyword">var</span> pluginname = (route.service &amp;&amp;
-                          route.service.plugin &amp;&amp;
-                          route.service.plugin.name) || <span class="hljs-string">'-'</span>
-        <span class="hljs-keyword">var</span> name = pluginname+<span class="hljs-string">';'</span>+route.method+<span class="hljs-string">';'</span>+route.url
+          route.service.plugin &amp;&amp;
+          route.service.plugin.name) || <span class="hljs-string">'-'</span>
+        <span class="hljs-keyword">var</span> name = pluginname + <span class="hljs-string">';'</span> + route.method + <span class="hljs-string">';'</span> + route.url
         stats[name] = {}
       })
 
-      _.each( timestats.names(), <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">name</span>) </span>{
+      _.each(timestats.names(), <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">name</span>) </span>{
         stats[name] = timestats.calculate(name)
       })
 
-      done(<span class="hljs-literal">null</span>,stats)
+      done(<span class="hljs-literal">null</span>, stats)
     })
   }
 
@@ -606,18 +607,18 @@
             </div>
             
             <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> spec_check = parambulator({
-    type$:     <span class="hljs-string">'object'</span>,
-    pin:       {required$:<span class="hljs-literal">true</span>},
-    map:       {required$:<span class="hljs-literal">true</span>,object$:<span class="hljs-literal">true</span>},
-    prefix:    <span class="hljs-string">'string$'</span>,
+    type$: <span class="hljs-string">'object'</span>,
+    pin: {required$: <span class="hljs-literal">true</span>},
+    map: {required$: <span class="hljs-literal">true</span>, object$: <span class="hljs-literal">true</span>},
+    prefix: <span class="hljs-string">'string$'</span>,
     startware: <span class="hljs-string">'function$'</span>,
-    premap:    <span class="hljs-string">'function$'</span>,
+    premap: <span class="hljs-string">'function$'</span>,
 
-    endware:   <span class="hljs-string">'function$'</span>,
-    postmap:   <span class="hljs-string">'function$'</span>,
+    endware: <span class="hljs-string">'function$'</span>,
+    postmap: <span class="hljs-string">'function$'</span>
   }, {
-    topname:<span class="hljs-string">'spec'</span>,
-    msgprefix:<span class="hljs-string">'web-use: '</span>,
+    topname: <span class="hljs-string">'spec'</span>,
+    msgprefix: <span class="hljs-string">'web-use: '</span>
   })</pre></div></div>
             
         </li>
@@ -633,13 +634,13 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">define_service</span>(<span class="hljs-params"> instance, spec, done </span>) </span>{
-    norma(<span class="hljs-string">'o o|f f'</span>,<span class="hljs-built_in">arguments</span>)
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">define_service</span> (<span class="hljs-params">instance, spec, done</span>) </span>{
+    norma(<span class="hljs-string">'o o|f f'</span>, <span class="hljs-built_in">arguments</span>)
 
-    <span class="hljs-keyword">if</span>( _.isFunction( spec ) ) <span class="hljs-keyword">return</span> done( <span class="hljs-literal">null</span>, spec );
+    <span class="hljs-keyword">if</span> (_.isFunction(spec)) <span class="hljs-keyword">return</span> done(<span class="hljs-literal">null</span>, spec)
 
-    spec_check.validate(spec,<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>)</span>{
-      <span class="hljs-keyword">if</span>( err ) <span class="hljs-keyword">return</span> done(err)</pre></div></div>
+    spec_check.validate(spec, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">err</span>) </span>{
+      <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">return</span> done(err)</pre></div></div>
             
         </li>
         
@@ -656,21 +657,17 @@
             
             <div class="content"><div class='highlight'><pre>      spec.postmap = spec.postmap || spec.endware
 
-      spec.prefix    = fixprefix( spec.prefix, options.prefix )
-      <span class="hljs-keyword">var</span> pin        = instance.pin( spec.pin )
-      <span class="hljs-keyword">var</span> actmap     = make_actmap( pin )
-      <span class="hljs-keyword">var</span> routespecs = make_routespecs( actmap, spec, options )
+      spec.prefix = fixprefix(spec.prefix, options.prefix)
+      <span class="hljs-keyword">var</span> pin = instance.pin(spec.pin)
+      <span class="hljs-keyword">var</span> actmap = make_actmap(pin)
+      <span class="hljs-keyword">var</span> routespecs = make_routespecs(actmap, spec, options)
 
-      resolve_actions( instance, routespecs )
-      resolve_methods( instance, spec, routespecs, options )
-      resolve_dispatch( instance, spec, routespecs, timestats, options )
+      resolve_actions(instance, routespecs)
+      resolve_methods(instance, spec, routespecs, options)
+      resolve_dispatch(instance, spec, routespecs, timestats, options)
 
-      <span class="hljs-keyword">var</span> maprouter = make_router( instance, spec, routespecs, routemap )
-      <span class="hljs-keyword">var</span> service   = make_service( instance, spec, maprouter )
-
-      <span class="hljs-keyword">return</span> done(<span class="hljs-literal">null</span>,service)
-    })
-  }</pre></div></div>
+      <span class="hljs-keyword">var</span> maprouter = make_router(instance, spec, routespecs, routemap)
+      <span class="hljs-keyword">var</span> service = make_service(instance, spec, maprouter)</pre></div></div>
             
         </li>
         
@@ -681,65 +678,18 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-31">&#182;</a>
               </div>
-              <p>Define exported middleware function
-TODO is connect the best option here?</p>
+              <p>in case that there is used Hapi
+then register routes</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>
-  <span class="hljs-keyword">var</span> app = connect()
-  app.use(serve_static(__dirname+<span class="hljs-string">'/web'</span>))
-
-  <span class="hljs-keyword">var</span> use = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">req,res,next</span>)</span>{
-    <span class="hljs-keyword">if</span>( <span class="hljs-number">0</span> === req.url.indexOf(options.contentprefix) ) {
-      <span class="hljs-keyword">if</span>( <span class="hljs-number">0</span> === req.url.indexOf(options.contentprefix+<span class="hljs-string">'/init.js'</span>) ) {
-        res.writeHead(<span class="hljs-number">200</span>,{<span class="hljs-string">'Content-Type'</span>:<span class="hljs-string">'text/javascript'</span>})
-        <span class="hljs-keyword">return</span> res.end(initsrc+sourcelist.join(<span class="hljs-string">'\n'</span>));
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">if</span> (internals.server_type === <span class="hljs-string">'hapi'</span>) {
+        addHapiRoute(spec, routespecs)
       }
 
-      req.url = req.url.substring(options.contentprefix.length)
-      <span class="hljs-keyword">return</span> app( req, res );
-    }
-    <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> next();
-  }
-
-
-  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">next_service</span>(<span class="hljs-params">req,res,next,i</span>) </span>{
-    <span class="hljs-keyword">if</span>( i &lt; services.length ) {
-      <span class="hljs-keyword">var</span> service = services[i]
-
-      <span class="hljs-keyword">if</span>( options.debug.service ) {
-        seneca.log.debug(
-          <span class="hljs-string">'service-chain'</span>,req.seneca.fixedargs.tx$,
-          req.method,req.url,service.serviceid$,
-          util.inspect(service.plugin$) )
-      }
-
-      service.call(req.seneca,req,res,<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>)</span>{
-        <span class="hljs-keyword">if</span>( err ) <span class="hljs-keyword">return</span> next(err);
-
-        next_service(req,res,next,i+<span class="hljs-number">1</span>)
-      })
-    }
-    <span class="hljs-keyword">else</span> {
-      <span class="hljs-keyword">if</span>( next ) <span class="hljs-keyword">return</span> next();
-    }
-  }
-
-
-  <span class="hljs-keyword">var</span> web = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"> req, res, next </span>) </span>{
-    res.seneca = req.seneca = seneca.root.delegate({
-      req$: req,
-      res$: res,
-      tx$:  seneca.root.idgen()
+      <span class="hljs-keyword">return</span> done(<span class="hljs-literal">null</span>, service)
     })
-
-    next_service( req, res, _error_handler, <span class="hljs-number">0</span> )
-
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_error_handler</span>(<span class="hljs-params">err, response</span>)</span>{
-      <span class="hljs-keyword">if</span> ( err ){
-        <span class="hljs-keyword">var</span> redirect = err.http$ &amp;&amp; err.http$.redirect
-        <span class="hljs-keyword">var</span> status   = err.http$ &amp;&amp; err.http$.status || <span class="hljs-number">400</span></pre></div></div>
+  }</pre></div></div>
             
         </li>
         
@@ -750,57 +700,57 @@ TODO is connect the best option here?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-32">&#182;</a>
               </div>
-              <p>Send redirect response.</p>
+              <p>Add Hapi routes</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span>( redirect ) {
-          res.writeHead( status, {
-            <span class="hljs-string">'Location'</span>: redirect
-          })
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">addHapiRoute</span> (<span class="hljs-params">spec, routespecs</span>) </span>{
+    <span class="hljs-keyword">for</span> ( <span class="hljs-keyword">var</span> i <span class="hljs-keyword">in</span> routespecs ) {
+      <span class="hljs-keyword">for</span> ( <span class="hljs-keyword">var</span> method <span class="hljs-keyword">in</span> routespecs[i].methods ) {
+        <span class="hljs-keyword">var</span> pattern = routespecs[i].pattern
+        <span class="hljs-keyword">var</span> path = routespecs[i].fullurl
+
+        <span class="hljs-keyword">var</span> hapi_route = {
+          method: method,
+          path: path,
+          handler: (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">spec, pattern</span>) </span>{
+            <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">request, reply</span>) </span>{
+              <span class="hljs-keyword">if</span> (spec.startware) {
+                spec.startware.call(request.seneca, request, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">err</span>) </span>{
+                  <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">return</span> reply(err)
+
+                  do_maprouter()
+                } )
+              }
+              <span class="hljs-keyword">else</span> {
+                do_maprouter()
+              }
+
+              <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">do_maprouter</span> (<span class="hljs-params"></span>) </span>{
+                request.seneca.act( pattern, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">err, result</span>) </span>{
+                  <span class="hljs-keyword">if</span> (err) {
+                    <span class="hljs-keyword">return</span> reply(err)
+                  }
+
+                  <span class="hljs-keyword">if</span> ( spec.postmap ) {
+                    spec.postmap.call( request.seneca, request, result, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"> err </span>) </span>{
+                      <span class="hljs-keyword">if</span> ( err ) {
+                        <span class="hljs-keyword">return</span> reply(err)
+                      }
+                      <span class="hljs-keyword">return</span> reply(result)
+                    } )
+                  }
+                  <span class="hljs-keyword">else</span> reply(result)
+                } )
+              }
+            }
+          }(spec, pattern))
         }
-        <span class="hljs-keyword">else</span>{
-          <span class="hljs-keyword">delete</span> err.http$
-          res.status(status).send(err)
-        }
-        res.end()
-      }
-      <span class="hljs-keyword">else</span>{
-        next(err, response)
+
+        internals.server.route( hapi_route )
       }
     }
-  }
-
-  seneca.add({init:<span class="hljs-string">'web'</span>},<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">args,done</span>) </span>{
-    <span class="hljs-keyword">var</span> seneca = <span class="hljs-keyword">this</span>
-
-    <span class="hljs-keyword">var</span> config = {prefix:options.contentprefix}
-
-    seneca.act({role:<span class="hljs-string">'web'</span>, plugin:<span class="hljs-string">'web'</span>, config:config, use:use})
-
-    seneca.act({role:<span class="hljs-string">'basic'</span>,note:<span class="hljs-literal">true</span>,cmd:<span class="hljs-string">'push'</span>,key:<span class="hljs-string">'admin/units'</span>,value:{
-      unit:<span class="hljs-string">'web-service'</span>,
-      spec:{
-        title:<span class="hljs-string">'Web Services'</span>,
-        ng:{<span class="hljs-built_in">module</span>:<span class="hljs-string">'senecaWebServiceModule'</span>,directive:<span class="hljs-string">'seneca-web-service'</span>}
-      },
-      content:[
-        {type:<span class="hljs-string">'js'</span>,file:__dirname+<span class="hljs-string">'/web/web-service.js'</span>},
-      ]
-    }})
-
-    done()
-  })
-
-
-  <span class="hljs-keyword">return</span> {
-    name: <span class="hljs-string">'web'</span>,
-    <span class="hljs-keyword">export</span>: web,
-    exportmap: {
-      httprouter:httprouter
-    }
-  }
-}</pre></div></div>
+  }</pre></div></div>
             
         </li>
         
@@ -811,9 +761,50 @@ TODO is connect the best option here?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-33">&#182;</a>
               </div>
-              <h3 id="route-functions">Route functions</h3>
+              <p>Define exported middleware function
+TODO is connect the best option here?</p>
 
             </div>
+            
+            <div class="content"><div class='highlight'><pre>
+  <span class="hljs-keyword">var</span> app = connect()
+  app.use(serve_static(__dirname + <span class="hljs-string">'/web'</span>))
+
+  <span class="hljs-keyword">var</span> use = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">req, res, next</span>) </span>{
+    <span class="hljs-keyword">if</span> (<span class="hljs-number">0</span> === req.url.indexOf(options.contentprefix)) {
+      <span class="hljs-keyword">if</span> (<span class="hljs-number">0</span> === req.url.indexOf(options.contentprefix + <span class="hljs-string">'/init.js'</span>)) {
+        res.writeHead(<span class="hljs-number">200</span>, {<span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'text/javascript'</span>})
+        <span class="hljs-keyword">return</span> res.end(initsrc + sourcelist.join(<span class="hljs-string">'\n'</span>))
+      }
+
+      req.url = req.url.substring(options.contentprefix.length)
+      <span class="hljs-keyword">return</span> app(req, res)
+    }
+    <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> next()
+  }
+
+
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">next_service</span> (<span class="hljs-params">req, res, next, i</span>) </span>{
+    <span class="hljs-keyword">if</span> (i &lt; services.length) {
+      <span class="hljs-keyword">var</span> service = services[i]
+
+      <span class="hljs-keyword">if</span> (options.debug.service) {
+        seneca.log.debug(
+          <span class="hljs-string">'service-chain'</span>, req.seneca.fixedargs.tx$,
+          req.method, req.url, service.serviceid$,
+          util.inspect(service.plugin$))
+      }
+
+      service.call(req.seneca, req, res, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">err</span>) </span>{
+        <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">return</span> next(err)
+
+        next_service(req, res, next, i + <span class="hljs-number">1</span>)
+      })
+    }
+    <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">if</span> (next) <span class="hljs-keyword">return</span> next()
+    }
+  }</pre></div></div>
             
         </li>
         
@@ -824,19 +815,30 @@ TODO is connect the best option here?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-34">&#182;</a>
               </div>
-              <p>Default action handler; just calls the action.</p>
+              <p>Switch mode for Hapi integration</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_defaulthandler</span>(<span class="hljs-params"> spec, routespec, methodspec </span>) </span>{
-  norma(<span class="hljs-string">'ooo'</span>,<span class="hljs-built_in">arguments</span>)
-
-  <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">defaulthandler</span>(<span class="hljs-params">req,res,args,act,respond</span>) </span>{
-    act(args,<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err,out</span>)</span>{
-      respond(err,out)
-    })
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">web_hapi</span> (<span class="hljs-params">server, options, next</span>) </span>{
+    internals.server = server
+    internals.options = options
+    internals.server_type = <span class="hljs-string">'hapi'</span>
+    next()
   }
-}</pre></div></div>
+
+  <span class="hljs-keyword">var</span> web = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">req, res, next</span>) </span>{
+    res.seneca = req.seneca = seneca.root.delegate({
+      req$: req,
+      res$: res,
+      tx$: seneca.root.idgen()
+    })
+
+    next_service(req, res, _error_handler, <span class="hljs-number">0</span>)
+
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_error_handler</span> (<span class="hljs-params">err, response</span>) </span>{
+      <span class="hljs-keyword">if</span> (err) {
+        <span class="hljs-keyword">var</span> redirect = err.http$ &amp;&amp; err.http$.redirect
+        <span class="hljs-keyword">var</span> status = err.http$ &amp;&amp; err.http$.status || <span class="hljs-number">400</span></pre></div></div>
             
         </li>
         
@@ -847,22 +849,60 @@ TODO is connect the best option here?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-35">&#182;</a>
               </div>
-              <p>Default response handler; applies custom http$ settings, if any</p>
+              <p>Send redirect response.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_defaultresponder</span>(<span class="hljs-params"> spec, routespec, methodspec </span>) </span>{
-  norma(<span class="hljs-string">'ooo'</span>,<span class="hljs-built_in">arguments</span>)
-
-  <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">defaultresponder</span>(<span class="hljs-params">req,res,err,obj</span>) </span>{
-    obj = (<span class="hljs-literal">null</span> == obj) ? {} : obj
-    <span class="hljs-keyword">var</span> outobj = {}
-
-    <span class="hljs-keyword">if</span>( !_.isObject( obj ) ) {
-      err = error(<span class="hljs-string">'result_not_object'</span>,{url:req.url,result:obj.toString()})
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (redirect) {
+          res.writeHead(status, {
+            <span class="hljs-string">'Location'</span>: redirect
+          })
+        }
+        <span class="hljs-keyword">else</span> {
+          <span class="hljs-keyword">delete</span> err.http$
+          res.status(status).send(err)
+        }
+        res.end()
+      }
+      <span class="hljs-keyword">else</span> {
+        next(err, response)
+      }
     }
-    <span class="hljs-keyword">else</span> {
-      outobj = _.clone( obj )</pre></div></div>
+  }
+
+  seneca.add({init: <span class="hljs-string">'web'</span>}, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">args, done</span>) </span>{
+    <span class="hljs-keyword">var</span> seneca = <span class="hljs-keyword">this</span>
+
+    <span class="hljs-keyword">var</span> config = {prefix: options.contentprefix}
+
+    seneca.act({role: <span class="hljs-string">'web'</span>, plugin: <span class="hljs-string">'web'</span>, config: config, use: use})
+
+    seneca.act({
+      role: <span class="hljs-string">'basic'</span>, note: <span class="hljs-literal">true</span>, cmd: <span class="hljs-string">'push'</span>, key: <span class="hljs-string">'admin/units'</span>, value: {
+        unit: <span class="hljs-string">'web-service'</span>,
+        spec: {
+          title: <span class="hljs-string">'Web Services'</span>,
+          ng: {<span class="hljs-built_in">module</span>: <span class="hljs-string">'senecaWebServiceModule'</span>, directive: <span class="hljs-string">'seneca-web-service'</span>}
+        },
+        content: [{
+          type: <span class="hljs-string">'js'</span>, file: __dirname + <span class="hljs-string">'/web/web-service.js'</span>
+        }]
+      }
+    })
+
+    done()
+  })
+
+
+  <span class="hljs-keyword">return</span> {
+    name: <span class="hljs-string">'web'</span>,
+    <span class="hljs-keyword">export</span>: web,
+    exportmap: {
+      httprouter: httprouter,
+      hapi: web_hapi
+    }
+  }
+}</pre></div></div>
             
         </li>
         
@@ -873,20 +913,9 @@ TODO is connect the best option here?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-36">&#182;</a>
               </div>
-              <p>Ensure metadata is cloned when obj is an array.</p>
+              <h3 id="route-functions">Route functions</h3>
 
             </div>
-            
-            <div class="content"><div class='highlight'><pre>      _.assign(outobj, _.pick(obj, [<span class="hljs-string">'http$'</span>, <span class="hljs-string">'redirect$'</span>, <span class="hljs-string">'httpstatus$'</span>]));
-    }
-
-    <span class="hljs-keyword">var</span> http = outobj.http$
-    <span class="hljs-keyword">if</span>( http ) {
-      <span class="hljs-keyword">delete</span> outobj.http$
-    }
-    <span class="hljs-keyword">else</span> {
-      http = {}
-    }</pre></div></div>
             
         </li>
         
@@ -897,11 +926,19 @@ TODO is connect the best option here?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-37">&#182;</a>
               </div>
-              <p>specific http settings</p>
+              <p>Default action handler; just calls the action.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    http = _.extend({},spec.http,routespec.http,methodspec.http,http)</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_defaulthandler</span> (<span class="hljs-params">spec, routespec, methodspec</span>) </span>{
+  norma(<span class="hljs-string">'ooo'</span>, <span class="hljs-built_in">arguments</span>)
+
+  <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">defaulthandler</span> (<span class="hljs-params">req, res, args, act, respond</span>) </span>{
+    act(args, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">err, out</span>) </span>{
+      respond(err, out)
+    })
+  }
+}</pre></div></div>
             
         </li>
         
@@ -912,24 +949,22 @@ TODO is connect the best option here?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-38">&#182;</a>
               </div>
-              <p>Legacy settings</p>
+              <p>Default response handler; applies custom http$ settings, if any</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span>( outobj.redirect$ ) {
-      http.redirect = outobj.redirect$
-      <span class="hljs-keyword">delete</span> outobj.redirect$
-    }
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_defaultresponder</span> (<span class="hljs-params">spec, routespec, methodspec</span>) </span>{
+  norma(<span class="hljs-string">'ooo'</span>, <span class="hljs-built_in">arguments</span>)
 
-    <span class="hljs-keyword">if</span>( outobj.httpstatus$ ) {
-      http.status = outobj.httpstatus$
-      <span class="hljs-keyword">delete</span> outobj.httpstatus$
-    }
+  <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">defaultresponder</span> (<span class="hljs-params">req, res, err, obj</span>) </span>{
+    obj = (<span class="hljs-literal">null</span> == obj) ? {} : obj
+    <span class="hljs-keyword">var</span> outobj = {}
 
-    <span class="hljs-keyword">if</span>( err ) {
-      <span class="hljs-keyword">var</span> errobj = err.seneca ? err.seneca : err
-      http = _.extend({}, http, {redirect: errobj.redirect$, status: errobj.httpstatus$}, errobj.http$ || {})
-    }</pre></div></div>
+    <span class="hljs-keyword">if</span> (!_.isObject(obj)) {
+      err = error(<span class="hljs-string">'result_not_object'</span>, {url: req.url, result: obj.toString()})
+    }
+    <span class="hljs-keyword">else</span> {
+      outobj = _.clone(obj)</pre></div></div>
             
         </li>
         
@@ -940,15 +975,19 @@ TODO is connect the best option here?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-39">&#182;</a>
               </div>
-              <p>Send redirect response.</p>
+              <p>Ensure metadata is cloned when obj is an array.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span>( http.redirect ) {
-      res.writeHead( http.status || <span class="hljs-number">302</span>, _.extend({
-        <span class="hljs-string">'Location'</span>: http.redirect
-      },http.headers))
-      res.end()
+            <div class="content"><div class='highlight'><pre>      _.assign(outobj, _.pick(obj, [<span class="hljs-string">'http$'</span>, <span class="hljs-string">'redirect$'</span>, <span class="hljs-string">'httpstatus$'</span>]))
+    }
+
+    <span class="hljs-keyword">var</span> http = outobj.http$
+    <span class="hljs-keyword">if</span> (http) {
+      <span class="hljs-keyword">delete</span> outobj.http$
+    }
+    <span class="hljs-keyword">else</span> {
+      http = {}
     }</pre></div></div>
             
         </li>
@@ -960,46 +999,11 @@ TODO is connect the best option here?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-40">&#182;</a>
               </div>
-              <p>Send JSON response.</p>
+              <p>specific http settings</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">else</span> {
-      <span class="hljs-keyword">var</span> outjson = err ? <span class="hljs-built_in">JSON</span>.stringify({error:<span class="hljs-string">''</span>+err}) : stringify(outobj)
-
-      http.status = http.status || ( err ? <span class="hljs-number">500</span> : <span class="hljs-number">200</span> )
-
-      res.writeHead(http.status,_.extend({
-        <span class="hljs-string">'Content-Type'</span>:  <span class="hljs-string">'application/json'</span>,
-        <span class="hljs-string">'Cache-Control'</span>: <span class="hljs-string">'private, max-age=0, no-cache, no-store'</span>,
-        <span class="hljs-string">"Content-Length"</span>: buffer.Buffer.byteLength(outjson)
-      },http.headers))
-
-      res.end( outjson )
-    }
-  }
-}
-
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_redirectresponder</span>(<span class="hljs-params"> spec, routespec, methodspec </span>) </span>{
-  norma(<span class="hljs-string">'ooo'</span>,<span class="hljs-built_in">arguments</span>)
-
-  <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">req,res,err,obj</span>) </span>{
-    <span class="hljs-keyword">var</span> url = methodspec.redirect || routespec.redirect
-
-    <span class="hljs-keyword">var</span> status = <span class="hljs-number">302</span> || methodspec.status || routespec.status
-
-    <span class="hljs-keyword">if</span>( err ) {
-      url += <span class="hljs-string">'?ec='</span>+<span class="hljs-built_in">encodeURIComponent</span>(err.code?err.code:err.message)
-      status = err.httpstatus$ || (err.http$ &amp;&amp; err.http$.status) || status
-    }
-
-    res.writeHead( status, {
-      <span class="hljs-string">'Location'</span>: url
-    })
-    res.end()
-  }
-}</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    http = _.extend({}, spec.http, routespec.http, methodspec.http, http)</pre></div></div>
             
         </li>
         
@@ -1010,20 +1014,24 @@ TODO is connect the best option here?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-41">&#182;</a>
               </div>
-              <h3 id="spec-parsing-functions">Spec parsing functions</h3>
+              <p>Legacy settings</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>
-<span class="hljs-keyword">var</span> defaultflags = {useparams:<span class="hljs-literal">true</span>,usequery:<span class="hljs-literal">true</span>,data:<span class="hljs-literal">false</span>}
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (outobj.redirect$) {
+      http.redirect = outobj.redirect$
+      <span class="hljs-keyword">delete</span> outobj.redirect$
+    }
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_routespecs</span>(<span class="hljs-params"> actmap, spec, options </span>) </span>{
-  norma(<span class="hljs-string">'ooo'</span>,<span class="hljs-built_in">arguments</span>)
+    <span class="hljs-keyword">if</span> (outobj.httpstatus$) {
+      http.status = outobj.httpstatus$
+      <span class="hljs-keyword">delete</span> outobj.httpstatus$
+    }
 
-  <span class="hljs-keyword">var</span> routespecs = []
-
-  _.each( actmap, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">pattern,fname</span>) </span>{
-    <span class="hljs-keyword">var</span> routespec = spec.map.hasOwnProperty(fname) ? spec.map[fname] : <span class="hljs-literal">null</span></pre></div></div>
+    <span class="hljs-keyword">if</span> (err) {
+      <span class="hljs-keyword">var</span> errobj = err.seneca ? err.seneca : err
+      http = _.extend({}, http, {redirect: errobj.redirect$, status: errobj.httpstatus$}, errobj.http$ || {})
+    }</pre></div></div>
             
         </li>
         
@@ -1034,13 +1042,16 @@ TODO is connect the best option here?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-42">&#182;</a>
               </div>
-              <p>Only build a route if explicitly defined in map</p>
+              <p>Send redirect response.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span>( !routespec ) <span class="hljs-keyword">return</span>;
-
-    <span class="hljs-keyword">var</span> url = spec.prefix + fname</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (http.redirect) {
+      res.writeHead(http.status || <span class="hljs-number">302</span>, _.extend({
+        <span class="hljs-string">'Location'</span>: http.redirect
+      }, http.headers))
+      res.end()
+    }</pre></div></div>
             
         </li>
         
@@ -1051,157 +1062,46 @@ TODO is connect the best option here?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-43">&#182;</a>
               </div>
-              <p>METHOD:true abbrev</p>
+              <p>Send JSON response.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    routespec = _.isBoolean(routespec) ? {} : routespec
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">var</span> outjson = err ? <span class="hljs-built_in">JSON</span>.stringify({error: <span class="hljs-string">''</span> + err}) : stringify(outobj)
 
-    <span class="hljs-keyword">if</span>( routespec.alias ) {
-      url = spec.prefix + fixalias(routespec.alias)
+      http.status = http.status || ( err ? <span class="hljs-number">500</span> : <span class="hljs-number">200</span> )
+
+      res.writeHead(http.status, _.extend({
+        <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'application/json'</span>,
+        <span class="hljs-string">'Cache-Control'</span>: <span class="hljs-string">'private, max-age=0, no-cache, no-store'</span>,
+        <span class="hljs-string">'Content-Length'</span>: buffer.Buffer.byteLength(outjson)
+      }, http.headers))
+
+      res.end(outjson)
     }
-
-    routespec.premap = routespec.premap || spec.premap
-
-    routespec.prefix  = spec.prefix
-    routespec.suffix  = routespec.suffix || <span class="hljs-string">''</span>
-    routespec.fullurl = url + routespec.suffix
-
-    routespec.fname = fname
-    routespec.pattern = pattern
-
-    _.each(defaultflags, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">val,flag</span>) </span>{
-      routespec[flag] = <span class="hljs-literal">null</span> == routespec[flag] ? val : routespec[flag]
-    })
-
-    <span class="hljs-keyword">if</span>( _.isString(routespec.redirect) &amp;&amp; !routespec.responder) {
-      routespec.responder = make_redirectresponder( spec, routespec, {} )
-    }
-
-    routespecs.push( _.clone(routespec) )
-  })
-
-  <span class="hljs-keyword">return</span> routespecs
+  }
 }
 
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">resolve_actions</span>(<span class="hljs-params"> instance, routespecs </span>) </span>{
-  norma(<span class="hljs-string">'oa'</span>,<span class="hljs-built_in">arguments</span>)
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_redirectresponder</span> (<span class="hljs-params">spec, routespec, methodspec</span>) </span>{
+  norma(<span class="hljs-string">'ooo'</span>, <span class="hljs-built_in">arguments</span>)
 
-  _.each( routespecs, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"> routespec </span>) </span>{
-    <span class="hljs-keyword">var</span> actmeta = instance.findact( routespec.pattern )
-    <span class="hljs-keyword">if</span>( !actmeta ) <span class="hljs-keyword">return</span>;
+  <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">req, res, err, obj</span>) </span>{
+    <span class="hljs-keyword">var</span> url = methodspec.redirect || routespec.redirect
 
-    <span class="hljs-keyword">var</span> act = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">args,cb</span>) </span>{
-      <span class="hljs-keyword">this</span>.act.call(<span class="hljs-keyword">this</span>,_.extend({},routespec.pattern,args),cb)
+    <span class="hljs-keyword">var</span> status = <span class="hljs-number">302</span> || methodspec.status || routespec.status
+
+    <span class="hljs-keyword">if</span> (err) {
+      url += <span class="hljs-string">'?ec='</span> + <span class="hljs-built_in">encodeURIComponent</span>(err.code ? err.code : err.message)
+      status = err.httpstatus$ || (err.http$ &amp;&amp; err.http$.status) || status
     }
 
-    routespec.act     = act
-    routespec.actmeta = actmeta
-  })
-}
-
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">resolve_methods</span>(<span class="hljs-params"> instance, spec, routespecs, options </span>) </span>{
-  norma(<span class="hljs-string">'ooao'</span>,<span class="hljs-built_in">arguments</span>)
-
-  _.each( routespecs, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"> routespec </span>) </span>{
-
-    <span class="hljs-keyword">var</span> methods = {}
-
-    _.each( methodlist, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">method</span>) </span>{
-      <span class="hljs-keyword">var</span> methodspec = routespec[method] || routespec[method.toUpperCase()]
-      <span class="hljs-keyword">if</span>( !methodspec ) <span class="hljs-keyword">return</span>;
-
-      <span class="hljs-keyword">var</span> handler = methodspec
-      <span class="hljs-keyword">if</span>( _.isFunction( methodspec ) || !_.isObject( methodspec ) ) {
-        methodspec = { handler:handler }
-      }
-
-      methodspec.method = method
-
-      methods[method] = methodspec
+    res.writeHead(status, {
+      <span class="hljs-string">'Location'</span>: url
     })
-
-    <span class="hljs-keyword">if</span>( <span class="hljs-number">0</span> === _.keys(methods).length ) {
-      methods.get = { method:<span class="hljs-string">'get'</span> }
-    }
-
-    _.each( methods, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"> methodspec</span>) </span>{
-
-      _.each(defaultflags, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">val,flag</span>) </span>{
-        methodspec[flag] =
-          (<span class="hljs-literal">null</span> == methodspec[flag]) ? routespec[flag] : methodspec[flag]
-      })
-
-      methodspec.handler =
-        _.isFunction( methodspec.handler ) ? methodspec.handler :
-        _.isFunction( routespec.handler ) ? routespec.handler :
-        options.make_defaulthandler( spec, routespec, methodspec )
-
-
-      <span class="hljs-keyword">if</span>( _.isString(methodspec.redirect) &amp;&amp; !methodspec.responder) {
-        methodspec.responder =
-          options.make_redirectresponder( spec, routespec, methodspec )
-      }
-
-      methodspec.responder =
-        _.isFunction( methodspec.responder ) ? methodspec.responder :
-        _.isFunction( routespec.responder ) ? routespec.responder :
-        options.make_defaultresponder( spec, routespec, methodspec )
-
-      methodspec.modify =
-        _.isFunction( methodspec.modify ) ? methodspec.modify :
-        _.isFunction( routespec.modify ) ? routespec.modify :
-        defaultmodify
-
-
-      methodspec.argparser = make_argparser( instance, options, methodspec )
-    })
-
-    routespec.methods = methods
-  })
-}
-
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">resolve_dispatch</span>(<span class="hljs-params"> instance, spec, routespecs, timestats, options </span>) </span>{
-  norma(<span class="hljs-string">'ooaoo'</span>,<span class="hljs-built_in">arguments</span>)
-
-  _.each( routespecs, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"> routespec </span>) </span>{
-    _.each( routespec.methods, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"> methodspec, method </span>) </span>{
-
-      methodspec.dispatch = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"> req, res, next </span>) </span>{
-        <span class="hljs-keyword">if</span>( options.debug.service ) {
-          instance.log(
-            <span class="hljs-string">'service-dispatch'</span>,req.seneca.fixedargs.tx$,
-            req.method,req.url,spec.serviceid$,
-            util.inspect(methodspec) )
-        }
-
-        <span class="hljs-keyword">var</span> begin = <span class="hljs-built_in">Date</span>.now()
-        <span class="hljs-keyword">var</span> args  = methodspec.argparser(req)
-
-        <span class="hljs-keyword">var</span> si = req.seneca
-
-        <span class="hljs-keyword">var</span> respond = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err,obj</span>)</span>{
-          <span class="hljs-keyword">var</span> qi = req.url.indexOf(<span class="hljs-string">'?'</span>)
-          <span class="hljs-keyword">var</span> url = <span class="hljs-number">-1</span> == qi ? req.url : req.url.substring(<span class="hljs-number">0</span>,qi)
-
-          <span class="hljs-keyword">var</span> name = (routespec.actmeta.plugin_fullname || <span class="hljs-string">''</span>)+
-                <span class="hljs-string">';'</span>+routespec.actmeta.pattern
-          timestats.point( <span class="hljs-built_in">Date</span>.now()-begin, name+<span class="hljs-string">';'</span>+req.method+<span class="hljs-string">';'</span>+url );
-
-          <span class="hljs-keyword">var</span> result = {err:err,out:obj}
-          methodspec.modify(result)
-
-          methodspec.responder.call(si,req,res,result.err,result.out)
-        }
-
-        <span class="hljs-keyword">var</span> act_si = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">args,done</span>)</span>{
-          routespec.act.call(si,args,done)
-        }
-
-        <span class="hljs-keyword">var</span> premap = routespec.premap || <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{<span class="hljs-built_in">arguments</span>[<span class="hljs-number">3</span>]()}</pre></div></div>
+    res.end()
+  }
+}</pre></div></div>
             
         </li>
         
@@ -1212,61 +1112,20 @@ TODO is connect the best option here?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-44">&#182;</a>
               </div>
-              <p>legacy signature</p>
+              <h3 id="spec-parsing-functions">Spec parsing functions</h3>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span>( <span class="hljs-number">3</span> == premap.length ) {
-          <span class="hljs-keyword">var</span> orig_premap = premap
-          premap = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">args,req,res,next</span>)</span>{
-            orig_premap.call(<span class="hljs-keyword">this</span>,req,res,next)
-          }
-        }
+            <div class="content"><div class='highlight'><pre>
+<span class="hljs-keyword">var</span> defaultflags = {useparams: <span class="hljs-literal">true</span>, usequery: <span class="hljs-literal">true</span>, data: <span class="hljs-literal">false</span>}
 
-        premap.call(si,args,req,res,<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>)</span>{
-          <span class="hljs-keyword">if</span>(err ) <span class="hljs-keyword">return</span> next(err);
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_routespecs</span> (<span class="hljs-params">actmap, spec, options</span>) </span>{
+  norma(<span class="hljs-string">'ooo'</span>, <span class="hljs-built_in">arguments</span>)
 
-          methodspec.handler.call( si, req, res, args, act_si, respond)
-        })
-      }
-    })
-  })
-}
+  <span class="hljs-keyword">var</span> routespecs = []
 
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_argparser</span>(<span class="hljs-params"> instance, options, methodspec </span>) </span>{
-  norma(<span class="hljs-string">'ooo'</span>,<span class="hljs-built_in">arguments</span>)
-
-  <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"> req </span>) </span>{
-    <span class="hljs-keyword">if</span>( !_.isObject(req.body) &amp;&amp; options.warn.req_body ) {
-      instance.log.warn(
-        <span class="hljs-string">'seneca-web: req.body not present! '</span>+
-          <span class="hljs-string">'Do you need: express_app.use( require("body-parser").json() ?'</span>)
-    }
-
-    <span class="hljs-keyword">if</span>( methodspec.useparams &amp;&amp; options.warn.req_params &amp;&amp;
-        !_.isObject(req.params) )
-    {
-      instance.log.warn(
-        <span class="hljs-string">'seneca-web: req.params not present! '</span>+
-          <span class="hljs-string">"To access URL params, you'll express or an appropriate parser module."</span>)
-    }
-
-    <span class="hljs-keyword">if</span>( methodspec.usequery &amp;&amp; options.warn.req_query &amp;&amp;
-        !_.isObject(req.query) )
-    {
-      instance.log.warn(
-        <span class="hljs-string">'seneca-web: req.query not present! '</span>+
-          <span class="hljs-string">"To access the URL query string, you'll need express "</span>+
-          <span class="hljs-string">"or an appropriate parser module."</span>)
-    }
-
-    <span class="hljs-keyword">var</span> data = _.extend(
-      {},
-      (_.isObject(req.body) &amp;&amp; !methodspec.data) ? req.body: {},
-      ( methodspec.useparams &amp;&amp; _.isObject(req.params) ) ? req.params: {},
-      ( methodspec.usequery &amp;&amp;  _.isObject(req.query)  ) ? req.query : {}
-    )</pre></div></div>
+  _.each(actmap, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">pattern, fname</span>) </span>{
+    <span class="hljs-keyword">var</span> routespec = spec.map.hasOwnProperty(fname) ? spec.map[fname] : <span class="hljs-literal">null</span></pre></div></div>
             
         </li>
         
@@ -1277,87 +1136,13 @@ TODO is connect the best option here?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-45">&#182;</a>
               </div>
-              <p>data flag means put body into separate data property</p>
+              <p>Only build a route if explicitly defined in map</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span>( methodspec.data ) {
-      data.data = _.isObject(req.body) ? req.body : {}
-      <span class="hljs-keyword">return</span> data;
-    }
-    <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> data;
-  }
-}
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (!routespec) <span class="hljs-keyword">return</span>
 
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_router</span>(<span class="hljs-params">instance,spec,routespecs,routemap</span>) </span>{
-  norma(<span class="hljs-string">'ooao'</span>,<span class="hljs-built_in">arguments</span>)
-
-  <span class="hljs-keyword">var</span> routes = []
-  <span class="hljs-keyword">var</span> mr = httprouter(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">http</span>)</span>{
-    _.each( routespecs, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"> routespec </span>) </span>{
-      _.each( routespec.methods, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"> methodspec, method </span>) </span>{
-
-        instance.log.debug(<span class="hljs-string">'http'</span>,method,routespec.fullurl)
-        http[method](routespec.fullurl, methodspec.dispatch)
-
-        <span class="hljs-keyword">var</span> rm = (routemap[method] = (routemap[method]||{}))
-        rm[routespec.fullurl] = {
-          pattern:   routespec.pattern,
-          plugin:    spec.plugin$,
-          serviceid: spec.serviceid$,
-          prefix:    spec.prefix
-        }
-
-        routes.push( method.toUpperCase()+<span class="hljs-string">' '</span>+routespec.fullurl )
-      })
-    })
-  })
-
-  mr.routes$ = routes
-
-  <span class="hljs-keyword">return</span> mr;
-}
-
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_service</span>(<span class="hljs-params"> instance, spec, maprouter </span>) </span>{
-  <span class="hljs-keyword">var</span> service = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">service</span>(<span class="hljs-params">req,res,next</span>) </span>{
-    <span class="hljs-keyword">var</span> si = req.seneca || instance
-
-    <span class="hljs-keyword">if</span>( spec.startware ) {
-      spec.startware.call(si, req, res, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"> err </span>)</span>{
-        <span class="hljs-keyword">if</span>( err ) <span class="hljs-keyword">return</span> next( err )
-
-        do_maprouter()
-      })
-    }
-    <span class="hljs-keyword">else</span> {
-      do_maprouter()
-    }
-
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">do_maprouter</span>(<span class="hljs-params">err</span>) </span>{
-      <span class="hljs-keyword">if</span>(err) <span class="hljs-keyword">return</span> next(err);
-
-      maprouter(req,res,<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>)</span>{
-        <span class="hljs-keyword">if</span>(err) <span class="hljs-keyword">return</span> next(err);
-
-        <span class="hljs-keyword">if</span>( spec.postmap ) {
-          spec.postmap.call(si,req,res,<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>)</span>{
-            <span class="hljs-keyword">return</span> next(err);
-          })
-        }
-        <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> next();
-      })
-    }
-  }
-
-  service.pin$       = spec.pin
-  service.plugin$    = spec.plugin$
-  service.serviceid$ = spec.serviceid$
-  service.routes$    = maprouter.routes$
-
-  <span class="hljs-keyword">return</span> service;
-}</pre></div></div>
+    <span class="hljs-keyword">var</span> url = spec.prefix + fname</pre></div></div>
             
         </li>
         
@@ -1368,9 +1153,152 @@ TODO is connect the best option here?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-46">&#182;</a>
               </div>
-              <h3 id="utility-functions">Utility functions</h3>
+              <p>METHOD:true abbrev</p>
 
             </div>
+            
+            <div class="content"><div class='highlight'><pre>    routespec = _.isBoolean(routespec) ? {} : routespec
+
+    <span class="hljs-keyword">if</span> (routespec.alias) {
+      url = spec.prefix + fixalias(routespec.alias)
+    }
+
+    routespec.premap = routespec.premap || spec.premap
+
+    routespec.prefix = spec.prefix
+    routespec.suffix = routespec.suffix || <span class="hljs-string">''</span>
+    routespec.fullurl = url + routespec.suffix
+
+    routespec.fname = fname
+    routespec.pattern = pattern
+
+    _.each(defaultflags, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">val, flag</span>) </span>{
+      routespec[flag] = <span class="hljs-literal">null</span> == routespec[flag] ? val : routespec[flag]
+    })
+
+    <span class="hljs-keyword">if</span> (_.isString(routespec.redirect) &amp;&amp; !routespec.responder) {
+      routespec.responder = make_redirectresponder(spec, routespec, {})
+    }
+
+    routespecs.push(_.clone(routespec))
+  })
+
+  <span class="hljs-keyword">return</span> routespecs
+}
+
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">resolve_actions</span> (<span class="hljs-params">instance, routespecs</span>) </span>{
+  norma(<span class="hljs-string">'oa'</span>, <span class="hljs-built_in">arguments</span>)
+
+  _.each(routespecs, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">routespec</span>) </span>{
+    <span class="hljs-keyword">var</span> actmeta = instance.findact(routespec.pattern)
+    <span class="hljs-keyword">if</span> (!actmeta) <span class="hljs-keyword">return</span>
+
+    <span class="hljs-keyword">var</span> act = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">args, cb</span>) </span>{
+      <span class="hljs-keyword">this</span>.act(<span class="hljs-keyword">this</span>, _.extend({}, routespec.pattern, args), cb)
+    }
+
+    routespec.act = act
+    routespec.actmeta = actmeta
+  })
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">resolve_methods</span> (<span class="hljs-params">instance, spec, routespecs, options</span>) </span>{
+  norma(<span class="hljs-string">'ooao'</span>, <span class="hljs-built_in">arguments</span>)
+
+  _.each(routespecs, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">routespec</span>) </span>{
+    <span class="hljs-keyword">var</span> methods = {}
+
+    _.each(methodlist, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">method</span>) </span>{
+      <span class="hljs-keyword">var</span> methodspec = routespec[method] || routespec[method.toUpperCase()]
+      <span class="hljs-keyword">if</span> (!methodspec) <span class="hljs-keyword">return</span>
+
+      <span class="hljs-keyword">var</span> handler = methodspec
+      <span class="hljs-keyword">if</span> (_.isFunction(methodspec) || !_.isObject(methodspec)) {
+        methodspec = {handler: handler}
+      }
+
+      methodspec.method = method
+
+      methods[method] = methodspec
+    })
+
+    <span class="hljs-keyword">if</span> (<span class="hljs-number">0</span> === _.keys(methods).length) {
+      methods.get = {method: <span class="hljs-string">'get'</span>}
+    }
+
+    _.each(methods, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">methodspec</span>) </span>{
+      _.each(defaultflags, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">val, flag</span>) </span>{
+        methodspec[flag] =
+          (<span class="hljs-literal">null</span> == methodspec[flag]) ? routespec[flag] : methodspec[flag]
+      })
+
+      methodspec.handler =
+        _.isFunction(methodspec.handler) ? methodspec.handler
+          : _.isFunction(routespec.handler) ? routespec.handler
+          : options.make_defaulthandler(spec, routespec, methodspec)
+
+      <span class="hljs-keyword">if</span> (_.isString(methodspec.redirect) &amp;&amp; !methodspec.responder) {
+        methodspec.responder =
+          options.make_redirectresponder(spec, routespec, methodspec)
+      }
+
+      methodspec.responder =
+        _.isFunction(methodspec.responder) ? methodspec.responder
+          : _.isFunction(routespec.responder) ? routespec.responder
+          : options.make_defaultresponder(spec, routespec, methodspec)
+
+      methodspec.modify =
+        _.isFunction(methodspec.modify) ? methodspec.modify
+          : _.isFunction(routespec.modify) ? routespec.modify
+          : defaultmodify
+
+      methodspec.argparser = make_argparser(instance, options, methodspec)
+    })
+
+    routespec.methods = methods
+  })
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">resolve_dispatch</span> (<span class="hljs-params">instance, spec, routespecs, timestats, options</span>) </span>{
+  norma(<span class="hljs-string">'ooaoo'</span>, <span class="hljs-built_in">arguments</span>)
+
+  _.each(routespecs, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">routespec</span>) </span>{
+    _.each(routespec.methods, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">methodspec, method</span>) </span>{
+      methodspec.dispatch = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">req, res, next</span>) </span>{
+        <span class="hljs-keyword">if</span> (options.debug.service) {
+          instance.log(
+            <span class="hljs-string">'service-dispatch'</span>, req.seneca.fixedargs.tx$,
+            req.method, req.url, spec.serviceid$,
+            util.inspect(methodspec))
+        }
+
+        <span class="hljs-keyword">var</span> begin = <span class="hljs-built_in">Date</span>.now()
+        <span class="hljs-keyword">var</span> args = methodspec.argparser(req)
+
+        <span class="hljs-keyword">var</span> si = req.seneca
+
+        <span class="hljs-keyword">var</span> respond = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">err, obj</span>) </span>{
+          <span class="hljs-keyword">var</span> qi = req.url.indexOf(<span class="hljs-string">'?'</span>)
+          <span class="hljs-keyword">var</span> url = -<span class="hljs-number">1</span> === qi ? req.url : req.url.substring(<span class="hljs-number">0</span>, qi)
+
+          <span class="hljs-keyword">var</span> name = (routespec.actmeta.plugin_fullname || <span class="hljs-string">''</span>) +
+            <span class="hljs-string">';'</span> + routespec.actmeta.pattern
+          timestats.point(<span class="hljs-built_in">Date</span>.now() - begin, name + <span class="hljs-string">';'</span> + req.method + <span class="hljs-string">';'</span> + url)
+
+          <span class="hljs-keyword">var</span> result = {err: err, out: obj}
+          methodspec.modify(result)
+
+          methodspec.responder.call(si, req, res, result.err, result.out)
+        }
+
+        <span class="hljs-keyword">var</span> act_si = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">args, done</span>) </span>{
+          routespec.act.call(si, args, done)
+        }
+
+        <span class="hljs-keyword">var</span> premap = routespec.premap || <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+          <span class="hljs-built_in">arguments</span>[<span class="hljs-number">3</span>]()
+        }</pre></div></div>
             
         </li>
         
@@ -1381,16 +1309,57 @@ TODO is connect the best option here?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-47">&#182;</a>
               </div>
-              <p>Convert an object to a JSON string, handling circular refs.</p>
+              <p>legacy signature</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">stringify</span>(<span class="hljs-params">obj,indent,depth,decycler</span>) </span>{
-  indent = indent || <span class="hljs-literal">null</span>
-  depth  = depth || <span class="hljs-number">0</span>
-  decycler = decycler || <span class="hljs-literal">null</span>
-  <span class="hljs-keyword">return</span> json_stringify_safe(obj,indent,depth,decycler)
-}</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (<span class="hljs-number">3</span> === premap.length) {
+          <span class="hljs-keyword">var</span> orig_premap = premap
+          premap = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">args, req, res, next</span>) </span>{
+            orig_premap.call(<span class="hljs-keyword">this</span>, req, res, next)
+          }
+        }
+
+        premap.call(si, args, req, res, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">err</span>) </span>{
+          <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">return</span> next(err)
+
+          methodspec.handler.call(si, req, res, args, act_si, respond)
+        })
+      }
+    })
+  })
+}
+
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_argparser</span> (<span class="hljs-params">instance, options, methodspec</span>) </span>{
+  norma(<span class="hljs-string">'ooo'</span>, <span class="hljs-built_in">arguments</span>)
+
+  <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">req</span>) </span>{
+    <span class="hljs-keyword">if</span> (!_.isObject(req.body) &amp;&amp; options.warn.req_body) {
+      instance.log.warn(
+        <span class="hljs-string">'seneca-web: req.body not present! '</span> +
+        <span class="hljs-string">'Do you need: express_app.use( require("body-parser").json() ?'</span>)
+    }
+
+    <span class="hljs-keyword">if</span> (methodspec.useparams &amp;&amp; options.warn.req_params &amp;&amp; !_.isObject(req.params)) {
+      instance.log.warn(
+        <span class="hljs-string">'seneca-web: req.params not present! '</span> +
+        <span class="hljs-string">"To access URL params, you'll express or an appropriate parser module."</span>)
+    }
+
+    <span class="hljs-keyword">if</span> (methodspec.usequery &amp;&amp; options.warn.req_query &amp;&amp; !_.isObject(req.query)) {
+      instance.log.warn(
+        <span class="hljs-string">'seneca-web: req.query not present! '</span> +
+        <span class="hljs-string">'To access the URL query string, you\'ll need express'</span> +
+        <span class="hljs-string">'or an appropriate parser module.'</span>)
+    }
+
+    <span class="hljs-keyword">var</span> data = _.extend(
+      {},
+      (_.isObject(req.body) &amp;&amp; !methodspec.data) ? req.body : {},
+      (methodspec.useparams &amp;&amp; _.isObject(req.params)) ? req.params : {},
+      (methodspec.usequery &amp;&amp; _.isObject(req.query)) ? req.query : {}
+    )</pre></div></div>
             
         </li>
         
@@ -1401,22 +1370,85 @@ TODO is connect the best option here?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-48">&#182;</a>
               </div>
-              <p>Ensure the URL prefix is well-formed.</p>
+              <p>data flag means put body into separate data property</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fixprefix</span>(<span class="hljs-params"> prefix, defaultprefix </span>) </span>{
-  prefix = <span class="hljs-literal">null</span> != prefix ? prefix : defaultprefix
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (methodspec.data) {
+      data.data = _.isObject(req.body) ? req.body : {}
+      <span class="hljs-keyword">return</span> data
+    }
+    <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> data
+  }
+}
 
-  <span class="hljs-keyword">if</span>( !prefix.match(<span class="hljs-regexp">/\/$/</span>) ) {
-    prefix += <span class="hljs-string">'/'</span>
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_router</span> (<span class="hljs-params">instance, spec, routespecs, routemap</span>) </span>{
+  norma(<span class="hljs-string">'ooao'</span>, <span class="hljs-built_in">arguments</span>)
+
+  <span class="hljs-keyword">var</span> routes = []
+  <span class="hljs-keyword">var</span> mr = httprouter(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">http</span>) </span>{
+    _.each(routespecs, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">routespec</span>) </span>{
+      _.each(routespec.methods, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">methodspec, method</span>) </span>{
+        instance.log.debug(<span class="hljs-string">'http'</span>, method, routespec.fullurl)
+        http[method](routespec.fullurl, methodspec.dispatch)
+
+        <span class="hljs-keyword">var</span> rm = (routemap[method] = (routemap[method] || {}))
+        rm[routespec.fullurl] = {
+          pattern: routespec.pattern,
+          plugin: spec.plugin$,
+          serviceid: spec.serviceid$,
+          prefix: spec.prefix
+        }
+
+        routes.push(method.toUpperCase() + <span class="hljs-string">' '</span> + routespec.fullurl)
+      })
+    })
+  })
+
+  mr.routes$ = routes
+
+  <span class="hljs-keyword">return</span> mr
+}
+
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_service</span> (<span class="hljs-params">instance, spec, maprouter</span>) </span>{
+  <span class="hljs-keyword">var</span> service = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">service</span> (<span class="hljs-params">req, res, next</span>) </span>{
+    <span class="hljs-keyword">var</span> si = req.seneca || instance
+
+    <span class="hljs-keyword">if</span> (spec.startware) {
+      spec.startware.call(si, req, res, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">err</span>) </span>{
+        <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">return</span> next(err)
+
+        do_maprouter()
+      })
+    }
+    <span class="hljs-keyword">else</span> {
+      do_maprouter()
+    }
+
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">do_maprouter</span> (<span class="hljs-params">err</span>) </span>{
+      <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">return</span> next(err)
+
+      maprouter(req, res, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">err</span>) </span>{
+        <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">return</span> next(err)
+
+        <span class="hljs-keyword">if</span> (spec.postmap) {
+          spec.postmap.call(si, req, res, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">err</span>) </span>{
+            <span class="hljs-keyword">return</span> next(err)
+          })
+        }
+        <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> next()
+      })
+    }
   }
 
-  <span class="hljs-keyword">if</span>( !prefix.match(<span class="hljs-regexp">/^\//</span>) ) {
-    prefix = <span class="hljs-string">'/'</span>+prefix
-  }
+  service.pin$ = spec.pin
+  service.plugin$ = spec.plugin$
+  service.serviceid$ = spec.serviceid$
+  service.routes$ = maprouter.routes$
 
-  <span class="hljs-keyword">return</span> prefix
+  <span class="hljs-keyword">return</span> service
 }</pre></div></div>
             
         </li>
@@ -1428,17 +1460,9 @@ TODO is connect the best option here?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-49">&#182;</a>
               </div>
-              <p>Ensure alias has no leading slash.</p>
+              <h3 id="utility-functions">Utility functions</h3>
 
             </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fixalias</span>(<span class="hljs-params"> alias </span>) </span>{
-  alias = <span class="hljs-literal">null</span> != alias ? <span class="hljs-string">''</span>+alias : <span class="hljs-string">''</span>
-
-  alias = alias.replace(<span class="hljs-regexp">/^\/+/</span>,<span class="hljs-string">''</span>)
-
-  <span class="hljs-keyword">return</span> alias
-}</pre></div></div>
             
         </li>
         
@@ -1449,27 +1473,16 @@ TODO is connect the best option here?</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-50">&#182;</a>
               </div>
-              <p>Map action pin function names to action patterns.
-The function names form part of the URL.</p>
+              <p>Convert an object to a JSON string, handling circular refs.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_actmap</span>(<span class="hljs-params"> pin </span>) </span>{
-  <span class="hljs-keyword">var</span> actmap = {}
-
-  <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> fn <span class="hljs-keyword">in</span> pin ) {
-    <span class="hljs-keyword">var</span> f = pin[fn]
-    <span class="hljs-keyword">if</span>( _.isFunction(f) &amp;&amp; <span class="hljs-literal">null</span> != f.pattern$ ) {
-      actmap[f.name$] = f.pattern$
-    }
-  }
-
-  <span class="hljs-keyword">return</span> actmap
-}
-
-
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">defaultmodify</span>(<span class="hljs-params"> result </span>) </span>{</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">stringify</span> (<span class="hljs-params">obj, indent, depth, decycler</span>) </span>{
+  indent = indent || <span class="hljs-literal">null</span>
+  depth = depth || <span class="hljs-number">0</span>
+  decycler = decycler || <span class="hljs-literal">null</span>
+  <span class="hljs-keyword">return</span> json_stringify_safe(obj, indent, depth, decycler)
+}</pre></div></div>
             
         </li>
         
@@ -1480,30 +1493,109 @@ The function names form part of the URL.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-51">&#182;</a>
               </div>
+              <p>Ensure the URL prefix is well-formed.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fixprefix</span> (<span class="hljs-params">prefix, defaultprefix</span>) </span>{
+  prefix = <span class="hljs-literal">null</span> != prefix ? prefix : defaultprefix
+
+  <span class="hljs-keyword">if</span> (!prefix.match(<span class="hljs-regexp">/\/$/</span>)) {
+    prefix += <span class="hljs-string">'/'</span>
+  }
+
+  <span class="hljs-keyword">if</span> (!prefix.match(<span class="hljs-regexp">/^\//</span>)) {
+    prefix = <span class="hljs-string">'/'</span> + prefix
+  }
+
+  <span class="hljs-keyword">return</span> prefix
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-52">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-52">&#182;</a>
+              </div>
+              <p>Ensure alias has no leading slash.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fixalias</span> (<span class="hljs-params">alias</span>) </span>{
+  alias = <span class="hljs-literal">null</span> != alias ? <span class="hljs-string">''</span> + alias : <span class="hljs-string">''</span>
+
+  alias = alias.replace(<span class="hljs-regexp">/^\/+/</span>, <span class="hljs-string">''</span>)
+
+  <span class="hljs-keyword">return</span> alias
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-53">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-53">&#182;</a>
+              </div>
+              <p>Map action pin function names to action patterns.
+The function names form part of the URL.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">make_actmap</span> (<span class="hljs-params">pin</span>) </span>{
+  <span class="hljs-keyword">var</span> actmap = {}
+
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> fn <span class="hljs-keyword">in</span> pin) {
+    <span class="hljs-keyword">var</span> f = pin[fn]
+    <span class="hljs-keyword">if</span> (_.isFunction(f) &amp;&amp; <span class="hljs-literal">null</span> != f.pattern$) {
+      actmap[f.name$] = f.pattern$
+    }
+  }
+
+  <span class="hljs-keyword">return</span> actmap
+}
+
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">defaultmodify</span> (<span class="hljs-params">result</span>) </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-54">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-54">&#182;</a>
+              </div>
               <p>strip out $ properties, apart from http$, which is dealt with later</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> clean = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">item</span>) </span>{
-    <span class="hljs-keyword">if</span>( _.isObject( item ) ) {
-      _.each(item,<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">v,k</span>)</span>{
-        <span class="hljs-keyword">if</span>(~k.indexOf(<span class="hljs-string">'$'</span>) &amp;&amp; <span class="hljs-string">'http$'</span> !== k &amp;&amp; <span class="hljs-string">'httpstatus$'</span> !== k) {
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> clean = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">item</span>) </span>{
+    <span class="hljs-keyword">if</span> (_.isObject(item)) {
+      _.each(item, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">v, k</span>) </span>{
+        <span class="hljs-keyword">if</span> (~k.indexOf(<span class="hljs-string">'$'</span>) &amp;&amp; <span class="hljs-string">'http$'</span> !== k &amp;&amp; <span class="hljs-string">'httpstatus$'</span> !== k) {
           <span class="hljs-keyword">delete</span> item[k]
         }
       })
     }
   }
 
-  <span class="hljs-keyword">if</span>( _.isArray( result.out )) {
+  <span class="hljs-keyword">if</span> (_.isArray(result.out)) {
     _.each(result.out, clean)
-  } <span class="hljs-keyword">else</span> {
+  }
+  <span class="hljs-keyword">else</span> {
     clean(result.out)
   }
 }
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">ERRMSGMAP</span>(<span class="hljs-params"></span>) </span>{
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">ERRMSGMAP</span> (<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">return</span> {
-    result_not_object: <span class="hljs-string">'API result is not an object: &lt;%=url%&gt; returned &lt;%=result%&gt;.'</span>,
+    result_not_object: <span class="hljs-string">'API result is not an object: &lt;%=url%&gt; returned &lt;%=result%&gt;.'</span>
   }
 }</pre></div></div>
             
