@@ -265,7 +265,7 @@ The action mapping object is a convenience format for declarative
 definition of a HTTP API based on Seneca actions. You can see examples
 of this use-case in these projects:
 
-   * [seneca-examples project](http://github.com/senecajs/seneca-examples)
+   * [Getting Started project](http://github.com/senecajs/getting-started)
    * [Well App](http://github.com/nearform/well)
    * [Nodezoo module search engine](http://github.com/rjrodger/nodezoo)
 
