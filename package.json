@@ -41,6 +41,7 @@
     "web"
   ],
   "dependencies": {
+    "async": "1.5.2",
     "connect": "3.4.0",
     "eraro": "0.4.1",
     "json-stringify-safe": "5.0.1",

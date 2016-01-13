@@ -4,6 +4,7 @@
 
 var util = require('util')
 var buffer = require('buffer')
+var async = require('async')
 
 var _ = require('lodash')
 var parambulator = require('parambulator')
@@ -123,11 +124,23 @@ module.exports = function (options) {
       .add('role:web, get:sourcelist', get_sourcelist)
 
       .add('role: web, do: startware', default_startware)
+
+      .add('role: web, get: server', get_server)
+
+      .add('role: web, get: restriction', default_get_restriction)
   }
 
 
+  function default_get_restriction(msg, done){
+    done()
+  }
+
   function default_startware(msg, done){
     done()
+  }
+
+  function get_server(msg, done){
+    done(null, {server: internals.server})
   }
 
   // Action: _role:web_
@@ -306,75 +319,106 @@ module.exports = function (options) {
       // in case that there is used Hapi
       // then register routes
       if (internals.server_type === 'hapi') {
-        addHapiRoute(spec, routespecs)
+        addHapiRoute(spec, routespecs, function(err){
+          done(null, service)
+        })
       }
-
-      return done(null, service)
+      else{
+        return done(null, service)
+      }
     })
   }
 
   // Add Hapi routes
-  function addHapiRoute (spec, routespecs) {
+  function addHapiRoute (spec, routespecs, done) {
+    var endpoints_specs = []
     for ( var i in routespecs ) {
-      for ( var method in routespecs[i].methods ) {
-        var pattern = routespecs[i].pattern
-        var path = routespecs[i].fullurl
-        var data = routespecs[i].data || false
-
-        var hapi_route = {
+      for (var method in routespecs[i].methods) {
+        endpoints_specs.push({
+          routespecs: routespecs[i],
           method: method,
-          path: path,
-          handler: (function (config) {
-            var spec = config.spec
-            var pattern = config.pattern
-            var data = config.data
+          spec: spec
+        })
+      }
+    }
 
-            return function (request, reply) {
-              request.seneca.act('role: web, do: startware', {req: request}, function (err, out){
-                if (err) return reply(err)
+    async.each(endpoints_specs, register_hapi_endpoints, done)
+  }
 
-                do_maprouter(out)
-              })
+  function register_hapi_endpoints(endpoint_spec, done){
+    var routespecs = endpoint_spec.routespecs
+    var method = endpoint_spec.method
+    var spec = endpoint_spec.spec
 
-              function do_maprouter (out) {
-                if (data){
-                  pattern.data = request.payload
-                }
-                if (out){
-                  pattern = _.extend({}, pattern, out)
-                }
+    var pattern = routespecs.pattern
+    var path = routespecs.fullurl
+    var data = routespecs.data || false
 
-                request.seneca.act( pattern, function (err, result) {
-                  if (err) {
-                    return sendreply(err)
-                  }
+    var hapi_route = {
+      method: method,
+      path: path,
+      config: {},
+      handler: spec.handler || (function () {
 
-                  if ( spec.postmap ) {
-                    spec.postmap.call( request.seneca, request, result, function ( err ) {
-                      if ( err ) {
-                        return sendreply(err)
-                      }
-                      return sendreply(result)
-                    } )
-                  }
-                  else {
-                    sendreply(result)
-                  }
-                } )
+        return function (request, reply) {
+          request.seneca.act('role: web, do: startware', {req: request}, function (err, out){
+            if (err) return reply(err)
+
+            do_maprouter(out)
+          })
+
+          function do_maprouter (out) {
+            if (data){
+              pattern.data = request.payload
+            }
+            if (out){
+              pattern = _.extend({}, pattern, out)
+            }
+
+            request.seneca.act( pattern, function (err, result) {
+              if (err) {
+                return sendreply(err)
               }
 
-              function sendreply(result){
-                    var repl = reply(result)
-                    for (var cookie in request.raw.res.cookies){
-                      repl.state(cookie, request.raw.res.cookies[cookie])
-                    }
+              if ( spec.postmap ) {
+                spec.postmap.call( request.seneca, request, result, function ( err ) {
+                  if ( err ) {
+                    return sendreply(err)
                   }
+                  return sendreply(result)
+                } )
+              }
+              else {
+                sendreply(result)
+              }
+            } )
+          }
+
+          function sendreply(result){
+            var repl = reply(result)
+            for (var cookie in request.raw.res.cookies){
+              repl.state(cookie, request.raw.res.cookies[cookie])
             }
-          }({ spec: spec, pattern: pattern, data: data}))
+          }
+        }
+      }())
+    }
+
+    if (routespecs.auth && routespecs.auth != 'none'){
+      hapi_route.config.auth = routespecs.auth
+      internals.server.route( hapi_route )
+      done()
+
+    }else{
+      // try to find auth - if is restricted in another plugins - like seneca-auth
+      seneca.act('role: web, get: restriction', {path: path}, function (err, restrict){
+        if (restrict && restrict.auth) {
+          hapi_route.config.auth = restrict.auth
         }
 
         internals.server.route( hapi_route )
-      }
+        done()
+      })
     }
   }
 
