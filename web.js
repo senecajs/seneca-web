@@ -27,7 +27,7 @@ var methodlist = _.clone(HttpRouter.methods)
 
 module.exports = function (options) {
   var internals = {
-    server_type: 'express'
+    framework_type: 'express'
   }
 
   /* jshint validthis:true */
@@ -128,6 +128,8 @@ module.exports = function (options) {
       .add('role: web, get: server', get_server)
 
       .add('role: web, get: restriction', default_get_restriction)
+
+      .add('role: web, set: framework', set_framework)
   }
 
 
@@ -318,7 +320,7 @@ module.exports = function (options) {
 
       // in case that there is used Hapi
       // then register routes
-      if (internals.server_type === 'hapi') {
+      if (internals.framework_type === 'hapi') {
         addHapiRoute(spec, routespecs, function (err) {
           done(err, service)
         })
@@ -469,10 +471,21 @@ module.exports = function (options) {
 
   // Switch mode for Hapi integration
   function web_hapi (server, options, next) {
-    internals.server = server
-    internals.options = options
-    internals.server_type = 'hapi'
-    next()
+    set_framework({
+      server: server,
+      options: options,
+      framework_type: 'hapi'
+    }, next)
+  }
+
+  function set_framework(msg, done){
+    internals.server = msg.server
+    internals.options = msg.options
+    internals.framework_type = msg.framework_type
+
+    // set framework type in seneca.options to signal to other modules the framework type
+    seneca.option()
+    done()
   }
 
   var web = function (req, res, next) {
