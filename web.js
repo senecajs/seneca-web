@@ -37,6 +37,9 @@ module.exports = function (options) {
 
   options = seneca.util.deepextend({
 
+    // default frameworl
+    framework: 'express',
+
     // URL prefix for all generated paths
     prefix: '/api/',
 
@@ -484,7 +487,11 @@ module.exports = function (options) {
     internals.framework_type = msg.framework_type
 
     // set framework type in seneca.options to signal to other modules the framework type
-    seneca.option()
+    if (!seneca.options().plugin.web){
+      seneca.options().plugin.web = {}
+    }
+    seneca.options().plugin.web.framework = 'hapi'
+
     done()
   }
 
