@@ -27,7 +27,8 @@ var methodlist = _.clone(HttpRouter.methods)
 
 module.exports = function (options) {
   var internals = {
-    framework_type: 'express'
+    // default framework
+    framework: 'express'
   }
 
   /* jshint validthis:true */
@@ -36,10 +37,6 @@ module.exports = function (options) {
   var seneca = this
 
   options = seneca.util.deepextend({
-
-    // default frameworl
-    framework: 'express',
-
     // URL prefix for all generated paths
     prefix: '/api/',
 
@@ -71,6 +68,12 @@ module.exports = function (options) {
     }
 
   }, options)
+
+  // set framework type in seneca.options to signal to other modules the framework type
+  if (!seneca.options().plugin.web) {
+    seneca.options().plugin.web = {}
+  }
+  seneca.options().plugin.web.framework = internals.framework
 
 
   var timestats = new Stats.NamedStats(options.stats.size, options.stats.duration)
@@ -323,7 +326,7 @@ module.exports = function (options) {
 
       // in case that there is used Hapi
       // then register routes
-      if (internals.framework_type === 'hapi') {
+      if (internals.framework === 'hapi') {
         addHapiRoute(spec, routespecs, function (err) {
           done(err, service)
         })
@@ -477,20 +480,19 @@ module.exports = function (options) {
     set_framework({
       server: server,
       options: options,
-      framework_type: 'hapi'
+      framework: 'hapi'
     }, next)
   }
 
-  function set_framework(msg, done){
+  function set_framework (msg, done) {
+    internals.framework = msg.framework
     internals.server = msg.server
-    internals.options = msg.options
-    internals.framework_type = msg.framework_type
 
     // set framework type in seneca.options to signal to other modules the framework type
-    if (!seneca.options().plugin.web){
+    if (!seneca.options().plugin.web) {
       seneca.options().plugin.web = {}
     }
-    seneca.options().plugin.web.framework = 'hapi'
+    seneca.options().plugin.web.framework = msg.framework
 
     done()
   }
