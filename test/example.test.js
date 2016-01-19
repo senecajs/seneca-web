@@ -10,21 +10,21 @@ var seneca
 
 var util = require('./util.js')
 
-suite('example suite tests ', function() {
-  before({}, function(done){
-    util.init(function(err, agentData, si){
+suite('example suite tests ', function () {
+  before({}, function (done) {
+    util.init(function (err, agentData, si) {
       agent = agentData
       seneca = si
 
-      seneca.add('role:foo,cmd:zig',function(args,done){
+      seneca.add('role:foo,cmd:zig',function (args,done) {
         done(null,{bar:'zig'})
       })
 
-      seneca.add('role:foo,cmd:bar',function(args,done){
+      seneca.add('role:foo,cmd:bar',function (args,done) {
         done(null,{bar:'b'})
       })
 
-      var qaz = function(args,done){
+      var qaz = function (args,done) {
         done(null,{qaz:args.zoo+'z'})
       }
 
@@ -45,46 +45,46 @@ suite('example suite tests ', function() {
     })
   })
 
-  test('simple test', function(done) {
+  test('simple test - get method', function (done) {
     agent
       .get('/my-api/bar')
       .expect(200)
-      .end(function (err, res){
+      .end(function (err, res) {
         util.log(res)
         assert.equal('b', res.body.bar, 'Invalid response')
         done(err)
       })
   })
 
-  test('simple test', function(done) {
+  test('can send data on get method', function (done) {
     agent
       .get('/my-api/qaz')
       .send({zoo: 'test'})
       .expect(200)
-      .end(function (err, res){
+      .end(function (err, res) {
         util.log(res)
         assert.equal('testz', res.body.qaz, 'Invalid response')
         done(err)
       })
   })
 
-  test('simple test', function(done) {
+  test('maps to post method', function (done) {
     agent
       .post('/my-api/qaz')
       .send({zoo: 'test'})
       .expect(200)
-      .end(function (err, res){
+      .end(function (err, res) {
         util.log(res)
         assert.equal('testz', res.body.qaz, 'Invalid response')
         done(err)
       })
   })
 
-  test('simple test', function(done) {
+  test('maps to get method', function (done) {
     agent
       .get('/my-api/qazz/val')
       .expect(200)
-      .end(function (err, res){
+      .end(function (err, res) {
         util.log(res)
         assert.equal('valz', res.body.qaz, 'Invalid response')
         done(err)

@@ -9,7 +9,8 @@ exports.init = function(cb){
   var seneca = require('seneca')
 
   var si = require('seneca')({
-    default_plugins:{web:false}
+    default_plugins: { web: false },
+    log: 'silent'
   })
   si.use('../web.js')
 
