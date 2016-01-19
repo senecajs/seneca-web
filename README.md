@@ -559,6 +559,18 @@ seneca.act('role:web, cmd:list', function(err, services) {
 });
 ```
 
+### `role:web,handle:response`
+
+This command is used to send processing response to Express. A default implementation is provided. 
+This implementation will take into account that if error is reported then the next middleware implementations will not be called
+and also http$.redirect and http$.status are used. This action can be used to implement another desired behavior. 
+
+Parameters:
+ * req - web request
+ * res - web response
+ * err - processing error
+ * response - processing response
+ * next - next function to be used to call the next middleware registered in Express.
 
 
 ## Development & Test

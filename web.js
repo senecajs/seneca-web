@@ -27,7 +27,8 @@ var methodlist = _.clone(HttpRouter.methods)
 
 module.exports = function (options) {
   var internals = {
-    server_type: 'express'
+    // default framework
+    framework: 'express'
   }
 
   /* jshint validthis:true */
@@ -36,7 +37,6 @@ module.exports = function (options) {
   var seneca = this
 
   options = seneca.util.deepextend({
-
     // URL prefix for all generated paths
     prefix: '/api/',
 
@@ -68,6 +68,12 @@ module.exports = function (options) {
     }
 
   }, options)
+
+  // set framework type in seneca.options to signal to other modules the framework type
+  if (!seneca.options().plugin.web) {
+    seneca.options().plugin.web = {}
+  }
+  seneca.options().plugin.web.framework = internals.framework
 
 
   var timestats = new Stats.NamedStats(options.stats.size, options.stats.duration)
@@ -128,6 +134,10 @@ module.exports = function (options) {
       .add('role: web, get: server', get_server)
 
       .add('role: web, get: restriction', default_get_restriction)
+
+      .add('role: web, set: framework', set_framework)
+
+      .add('role: web, handle: response', handle_response)
   }
 
 
@@ -318,7 +328,7 @@ module.exports = function (options) {
 
       // in case that there is used Hapi
       // then register routes
-      if (internals.server_type === 'hapi') {
+      if (internals.framework === 'hapi') {
         addHapiRoute(spec, routespecs, function (err) {
           done(err, service)
         })
@@ -360,36 +370,45 @@ module.exports = function (options) {
       config: {},
       handler: spec.handler || (function () {
         return function (request, reply) {
-          request.seneca.act('role: web, do: startware', {req: request}, function (err, out) {
-            if (err) return reply(err)
+          if (spec.startware) {
+            spec.startware.call(request.seneca, request, function (err) {
+              if (err) return reply(err)
 
-            do_maprouter(out)
-          })
+              do_maprouter()
+            } )
+          }
+          else {
+            do_maprouter()
+          }
 
           function do_maprouter (out) {
-            if (data) {
-              pattern.data = request.payload
-            }
-            if (out) {
-              pattern = _.extend({}, pattern, out)
-            }
+            request.seneca.act('role: web, do: startware', {req: request}, function (err, out) {
+              if (err) return reply(err)
 
-            request.seneca.act( pattern, function (err, result) {
-              if (err) {
-                return sendreply(err)
+              if (data) {
+                pattern.data = request.payload
+              }
+              if (out) {
+                pattern = _.extend({}, pattern, out)
               }
 
-              if ( spec.postmap ) {
-                spec.postmap.call( request.seneca, request, result, function ( err ) {
-                  if ( err ) {
-                    return sendreply(err)
-                  }
-                  return sendreply(result)
-                } )
-              }
-              else {
-                sendreply(result)
-              }
+              request.seneca.act( pattern, function (err, result) {
+                if (err) {
+                  return sendreply(err)
+                }
+
+                if ( spec.postmap ) {
+                  spec.postmap.call( request.seneca, request, result, function ( err ) {
+                    if ( err ) {
+                      return sendreply(err)
+                    }
+                    return sendreply(result)
+                  } )
+                }
+                else {
+                  sendreply(result)
+                }
+              } )
             } )
           }
 
@@ -469,10 +488,24 @@ module.exports = function (options) {
 
   // Switch mode for Hapi integration
   function web_hapi (server, options, next) {
-    internals.server = server
-    internals.options = options
-    internals.server_type = 'hapi'
-    next()
+    set_framework({
+      server: server,
+      options: options,
+      framework: 'hapi'
+    }, next)
+  }
+
+  function set_framework (msg, done) {
+    internals.framework = msg.framework
+    internals.server = msg.server
+
+    // set framework type in seneca.options to signal to other modules the framework type
+    if (!seneca.options().plugin.web) {
+      seneca.options().plugin.web = {}
+    }
+    seneca.options().plugin.web.framework = msg.framework
+
+    done()
   }
 
   var web = function (req, res, next) {
@@ -485,26 +518,47 @@ module.exports = function (options) {
     next_service(req, res, _error_handler, 0)
 
     function _error_handler (err, response) {
-      if (err) {
-        var redirect = err.http$ && err.http$.redirect
-        var status = err.http$ && err.http$.status || 400
+      req.seneca.act(
+        'role: web, handle: response',
+        {
+          req: req,
+          res: res,
+          err: err,
+          response: response,
+          next: next
+        },
+        function () {
+          // nothing to do here
+        })
+    }
+  }
 
-        // Send redirect response.
-        if (redirect) {
-          res.writeHead(status, {
-            'Location': redirect
-          })
-        }
-        else {
-          delete err.http$
-          res.status(status).send(err)
-        }
-        res.end()
+  function handle_response (msg, done) {
+    var err = msg.err
+    var res = msg.res
+    var response = msg.response
+    var next = msg.next
+
+    if (err) {
+      var redirect = err.http$ && err.http$.redirect
+      var status = err.http$ && err.http$.status || 400
+
+      // Send redirect response.
+      if (redirect) {
+        res.writeHead(status, {
+          'Location': redirect
+        })
       }
       else {
-        next(err, response)
+        delete err.http$
+        res.status(status).send(err)
       }
+      res.end()
     }
+    else {
+      next(err, response)
+    }
+    done()
   }
 
   seneca.add({init: 'web'}, function (args, done) {

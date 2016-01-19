@@ -15,10 +15,7 @@ exports.init = function ( done ) {
     {
       register: Chairo,
       options: {
-        'defaultPlugins': {
-          'web': false
-        },
-        web_plugin: require ( '..' )
+        web: require ( '..' )
       }
     }, function ( err ) {
       console.log( 'Server registered Chairo', err )
