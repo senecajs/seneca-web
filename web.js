@@ -136,6 +136,8 @@ module.exports = function (options) {
       .add('role: web, get: restriction', default_get_restriction)
 
       .add('role: web, set: framework', set_framework)
+
+      .add('role: web, handle: response', handle_response)
   }
 
 
@@ -516,26 +518,47 @@ module.exports = function (options) {
     next_service(req, res, _error_handler, 0)
 
     function _error_handler (err, response) {
-      if (err) {
-        var redirect = err.http$ && err.http$.redirect
-        var status = err.http$ && err.http$.status || 400
+      req.seneca.act(
+        'role: web, handle: response',
+        {
+          req: req,
+          res: res,
+          err: err,
+          response: response,
+          next: next
+        },
+        function () {
+          // nothing to do here
+        })
+    }
+  }
 
-        // Send redirect response.
-        if (redirect) {
-          res.writeHead(status, {
-            'Location': redirect
-          })
-        }
-        else {
-          delete err.http$
-          res.status(status).send(err)
-        }
-        res.end()
+  function handle_response (msg, done) {
+    var err = msg.err
+    var res = msg.res
+    var response = msg.response
+    var next = msg.next
+
+    if (err) {
+      var redirect = err.http$ && err.http$.redirect
+      var status = err.http$ && err.http$.status || 400
+
+      // Send redirect response.
+      if (redirect) {
+        res.writeHead(status, {
+          'Location': redirect
+        })
       }
       else {
-        next(err, response)
+        delete err.http$
+        res.status(status).send(err)
       }
+      res.end()
     }
+    else {
+      next(err, response)
+    }
+    done()
   }
 
   seneca.add({init: 'web'}, function (args, done) {
