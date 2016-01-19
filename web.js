@@ -368,36 +368,45 @@ module.exports = function (options) {
       config: {},
       handler: spec.handler || (function () {
         return function (request, reply) {
-          request.seneca.act('role: web, do: startware', {req: request}, function (err, out) {
-            if (err) return reply(err)
+          if (spec.startware) {
+            spec.startware.call(request.seneca, request, function (err) {
+              if (err) return reply(err)
 
-            do_maprouter(out)
-          })
+              do_maprouter()
+            } )
+          }
+          else {
+            do_maprouter()
+          }
 
           function do_maprouter (out) {
-            if (data) {
-              pattern.data = request.payload
-            }
-            if (out) {
-              pattern = _.extend({}, pattern, out)
-            }
+            request.seneca.act('role: web, do: startware', {req: request}, function (err, out) {
+              if (err) return reply(err)
 
-            request.seneca.act( pattern, function (err, result) {
-              if (err) {
-                return sendreply(err)
+              if (data) {
+                pattern.data = request.payload
+              }
+              if (out) {
+                pattern = _.extend({}, pattern, out)
               }
 
-              if ( spec.postmap ) {
-                spec.postmap.call( request.seneca, request, result, function ( err ) {
-                  if ( err ) {
-                    return sendreply(err)
-                  }
-                  return sendreply(result)
-                } )
-              }
-              else {
-                sendreply(result)
-              }
+              request.seneca.act( pattern, function (err, result) {
+                if (err) {
+                  return sendreply(err)
+                }
+
+                if ( spec.postmap ) {
+                  spec.postmap.call( request.seneca, request, result, function ( err ) {
+                    if ( err ) {
+                      return sendreply(err)
+                    }
+                    return sendreply(result)
+                  } )
+                }
+                else {
+                  sendreply(result)
+                }
+              } )
             } )
           }
 
