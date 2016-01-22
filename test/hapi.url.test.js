@@ -145,4 +145,62 @@ suite('test server suite', function() {
       done()
     })
   })
+
+  test('simple parameter test, data: false', function(done) {
+    var url = '/t0/x1?x=b'
+
+    server.inject({
+      url: url,
+      method: 'POST'
+    }, function(res){
+      assert.equal(200, res.statusCode)
+      assert.deepEqual( {x:'b'}, JSON.parse(res.payload))
+
+      done()
+    })
+  })
+
+  test('simple request body test, data: false', function(done) {
+    var url = '/t0/x1'
+
+    server.inject({
+      url: url,
+      method: 'POST',
+      payload: {x: 'b'}
+    }, function(res){
+      assert.equal(200, res.statusCode)
+      assert.deepEqual( {x:'b'}, JSON.parse(res.payload))
+
+      done()
+    })
+  })
+
+  test('simple parameter test, data: false', function(done) {
+    var url = '/t0/x2?x=b'
+
+    server.inject({
+      url: url,
+      method: 'POST'
+    }, function(res){
+      assert.equal(200, res.statusCode)
+      assert.deepEqual( {x:'b', loc: 0}, JSON.parse(res.payload))
+
+      done()
+    })
+  })
+
+  test('simple request body test, data: false', function(done) {
+    var url = '/t0/x2'
+
+    server.inject({
+      url: url,
+      method: 'POST',
+      payload: {x: 'b'}
+    }, function(res){
+      assert.equal(200, res.statusCode)
+      assert.deepEqual( {x:'b', loc: 1}, JSON.parse(res.payload))
+
+      done()
+    })
+  })
 })

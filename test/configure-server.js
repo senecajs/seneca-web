@@ -48,6 +48,18 @@ exports.init = function(done){
         done(null,{d0:args.d0+'f0'})
       })
 
+      this.add('role:api,cmd:x1',function(args,done){
+        done(null,{x: args.x})
+      })
+
+      this.add('role:api,cmd:x2',function(args,done){
+        if (args.data && args.data.x){
+          return done(null,{x: args.data.x, loc: 1})
+        }
+        done(null,{x: args.x, loc: 0})
+
+      })
+
       this.add('role:api,cmd:c2',function(args,done){
         var src = 'PUT' == args.req$.method ? args.data : args
         done(null,{d1:src.d1+'f1',d2:src.d2})
@@ -95,6 +107,13 @@ exports.init = function(done){
           next()
         },
         map: {
+          x1: {
+            POST: true
+          },
+          x2: {
+            data: true,
+            POST: true
+          },
           c0: {
             alias: '/a0/:a0',
             GET:   true,

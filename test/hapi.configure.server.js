@@ -15,6 +15,7 @@ exports.init = function ( done ) {
     {
       register: Chairo,
       options: {
+        log: 'print',
         web: require ( '..' )
       }
     }, function ( err ) {
@@ -66,10 +67,24 @@ exports.init = function ( done ) {
           done ( new Error('some error') )
         }
 
-        seneca.add( 'role:api,cmd:c0', c0 )
-        seneca.add( 'role:api,cmd:c1', c1 )
-        seneca.add( 'role:api,cmd:c2', c2 )
-        seneca.add( 'role:api,cmd:e1', e1 )
+        function x1(args,done){
+          done(null,{x: args.x})
+        }
+
+        function x2(args,done){
+          if (args.data && args.data.x){
+            return done(null,{x: args.data.x, loc: 1})
+          }
+          done(null,{x: args.x, loc: 0})
+        }
+
+        seneca
+          .add( 'role:api,cmd:c0', c0 )
+          .add( 'role:api,cmd:c1', c1 )
+          .add( 'role:api,cmd:c2', c2 )
+          .add( 'role:api,cmd:e1', e1 )
+          .add( 'role:api,cmd:x1', x1 )
+          .add( 'role:api,cmd:x2', x2 )
 
         seneca.act( 'role:web', {
           use: {
@@ -84,7 +99,9 @@ exports.init = function ( done ) {
               c0: { GET: true, alias: '/a0' },
               c1: { GET: true, POST: true, alias: '/a0/{m}' },
               c2: { POST: true, alias: '/c0/{m}' },
-              e1: { GET: true, alias: '/e1' }
+              e1: { GET: true, alias: '/e1' },
+              x1: { POST: true },
+              x2: { POST: true, data: true }
             }
           }
         }, function () {

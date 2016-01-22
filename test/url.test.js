@@ -249,4 +249,62 @@ suite('test server suite', function() {
         done()
       })
   })
+
+  test('simple request body test, data: false', function(done) {
+    var url = '/t0/x1'
+
+    agent
+      .post(url)
+      .send({x: 'b'})
+      .expect(200)
+      .end(function (err, res){
+        util.log(res)
+        assert.ok( !err )
+        assert.deepEqual( res.body, {x:'b'} )
+        done()
+      })
+  })
+
+  test('simple parameter test, data: false', function(done) {
+    var url = '/t0/x1?x=b'
+
+    agent
+      .post(url)
+      .expect(200)
+      .end(function (err, res){
+        util.log(res)
+        assert.ok( !err )
+        assert.deepEqual( res.body, {x:'b'} )
+        done()
+      })
+  })
+
+  test('simple request body test, data: true', function(done) {
+    var url = '/t0/x2'
+
+    agent
+      .post(url)
+      .send({x: 'b'})
+      .expect(200)
+      .end(function (err, res){
+        util.log(res)
+        assert.ok( !err )
+        assert.deepEqual( res.body, {x:'b', loc: 1} )
+        done()
+      })
+  })
+
+  test('simple parameter test, data: true', function(done) {
+    var url = '/t0/x2?x=b'
+
+    agent
+      .post(url)
+      .expect(200)
+      .end(function (err, res){
+        util.log(res)
+        assert.ok( !err )
+        assert.deepEqual( res.body, {x:'b', loc: 0} )
+        done()
+      })
+  })
 })
