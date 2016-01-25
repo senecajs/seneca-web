@@ -39,13 +39,13 @@ exports.init = function ( done ) {
         }
 
         function c1(msg, done){
-          var out = _.extend(
-            {
-              t: 'c1'
-            },
-            msg.req$.params,
-            msg.req$.query
-          )
+          var out = {
+            t: 'c1',
+            m: msg.m,
+            x0: msg.x0,
+            a1: msg.a1,
+            a2: msg.a2
+          }
 
           done ( null, out )
         }

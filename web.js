@@ -384,31 +384,29 @@ module.exports = function (options) {
             do_maprouter()
           }
 
-          function do_maprouter (out) {
+          function do_maprouter () {
             request.seneca.act('role: web, do: startware', {req: request}, function (err, out) {
               if (err) return reply(err)
 
-              if (out) {
-                pattern = _.extend({}, pattern, out)
-              }
+              var currentPattern = _.clone(pattern)
 
               if (request.payload) {
                 if (data) {
-                  pattern.data = request.payload
+                  currentPattern.data = request.payload
                 }
                 else {
-                  pattern = _.extend({}, request.payload, pattern)
+                  currentPattern = _.extend({}, request.payload, currentPattern)
                 }
               }
 
               if (request.params) {
-                pattern = _.extend({}, request.params, pattern)
+                currentPattern = _.extend({}, request.params, currentPattern)
               }
               if (request.query) {
-                pattern = _.extend({}, request.query, pattern)
+                currentPattern = _.extend({}, request.query, currentPattern)
               }
 
-              request.seneca.act( pattern, function (err, result) {
+              request.seneca.act( currentPattern, function (err, result) {
                 if (err) {
                   return sendreply(err)
                 }
