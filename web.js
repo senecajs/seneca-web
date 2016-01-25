@@ -385,11 +385,24 @@ module.exports = function (options) {
             request.seneca.act('role: web, do: startware', {req: request}, function (err, out) {
               if (err) return reply(err)
 
-              if (data) {
-                pattern.data = request.payload
-              }
               if (out) {
                 pattern = _.extend({}, pattern, out)
+              }
+
+              if (request.payload) {
+                if (data) {
+                  pattern.data = request.payload
+                }
+                else {
+                  pattern = _.extend({}, request.payload, pattern)
+                }
+              }
+
+              if (request.params) {
+                pattern = _.extend({}, request.params, pattern)
+              }
+              if (request.query) {
+                pattern = _.extend({}, request.query, pattern)
               }
 
               request.seneca.act( pattern, function (err, result) {
