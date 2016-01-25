@@ -97,8 +97,8 @@ exports.init = function ( done ) {
             pin: 'role:api,cmd:*',
             map: {
               c0: { GET: true, alias: '/a0' },
-              c1: { GET: true, POST: true, alias: '/a0/{m}' },
-              c2: { POST: true, alias: '/c0/{m}' },
+              c1: { GET: true, POST: true, alias: '/a0/:m' },
+              c2: { POST: true, alias: '/c0/:m' },
               e1: { GET: true, alias: '/e1' },
               x1: { POST: true },
               x2: { POST: true, data: true }

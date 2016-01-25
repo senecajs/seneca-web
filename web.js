@@ -362,6 +362,9 @@ module.exports = function (options) {
 
     var pattern = routespecs.pattern
     var path = routespecs.fullurl
+
+    path = changeToHapi(path)
+
     var data = routespecs.data || false
 
     var hapi_route = {
@@ -453,6 +456,17 @@ module.exports = function (options) {
         internals.server.route( hapi_route )
         done()
       })
+    }
+
+    function changeToHapi (path) {
+      var tokens = path.split('/')
+
+      for (var i in tokens) {
+        if (tokens[i].indexOf(':') === 0) {
+          tokens[i] = '{' + tokens[i].substr(1) + '}'
+        }
+      }
+      return tokens.join('/')
     }
   }
 
