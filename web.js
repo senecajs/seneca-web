@@ -460,7 +460,7 @@ module.exports = function (options) {
       var tokens = path.split('/')
 
       for (var i in tokens) {
-        if (tokens[i].indexOf(':') === 0) {
+        if (tokens[i].charAt(0) === ':') {
           tokens[i] = '{' + tokens[i].substr(1) + '}'
         }
       }
