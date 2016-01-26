@@ -21,7 +21,7 @@ exports.init = function (done) {
     app.use(Bodyparser.json())
 
     seneca.use(function p0 () {
-      this.add('role:api,cmd:c0', function (args, done) {
+      this.add('role:api,cmd:c0', function (args, response) {
         var out = {
           r0: 'r0' + args.a0,
           r1: 'r1' + args.a1,
@@ -39,38 +39,38 @@ exports.init = function (done) {
           out.c = args.c
         }
 
-        done(null, out)
+        response(null, out)
       })
 
-      this.add('role:api,cmd:c1', function (args, done) {
-        done(null, {d0: args.d0 + 'f0'})
+      this.add('role:api,cmd:c1', function (args, response) {
+        response(null, {d0: args.d0 + 'f0'})
       })
 
-      this.add('role:api,cmd:x1', function (args, done) {
-        done(null, {x: args.x})
+      this.add('role:api,cmd:x1', function (args, response) {
+        response(null, {x: args.x})
       })
 
-      this.add('role:api,cmd:x2', function (args, done) {
+      this.add('role:api,cmd:x2', function (args, response) {
         if (args.data && args.data.x) {
-          return done(null, {x: args.data.x, loc: 1})
+          return response(null, {x: args.data.x, loc: 1})
         }
-        done(null, {x: args.x, loc: 0})
+        response(null, {x: args.x, loc: 0})
       })
-      this.add('role:api,cmd:c2', function (args, done) {
+      this.add('role:api,cmd:c2', function (args, response) {
         var src = 'PUT' === args.req$.method ? args.data : args
-        done(null, {d1: src.d1 + 'f1', d2: src.d2})
+        response(null, {d1: src.d1 + 'f1', d2: src.d2})
       })
 
-      this.add('role:api,cmd:e0', function (args, done) {
-        done(new Error('e0'))
+      this.add('role:api,cmd:e0', function (args, response) {
+        response(new Error('e0'))
       })
 
-      this.add('role:api,cmd:e1', function (args, done) {
-        done(new Error('e1'))
+      this.add('role:api,cmd:e1', function (args, response) {
+        response(new Error('e1'))
       })
 
-      this.add('role:api,cmd:r0', function (args, done) {
-        done(null, {
+      this.add('role:api,cmd:r0', function (args, response) {
+        response(null, {
           ok: false,
           why: 'No input will satisfy me.',
           http$: {
@@ -114,22 +114,22 @@ exports.init = function (done) {
             c0: {
               alias: '/a0/:a0',
               GET: true,
-              POST: function (req, res, args, act, respond) {
+              POST: function (req, res, args, act, response) {
                 args.a0 = 'p' + args.a0
                 act(args, function (err, out) {
-                  if (err) return respond(err)
+                  if (err) return response(err)
 
                   out.r1 = 'p' + out.r1
                   out.c = args.c || undefined
-                  respond(null, out)
+                  response(null, out)
                 })
               },
               PUT: {
                 useparams: false,
                 usequery: false,
-                handler: function (req, res, args, act, respond) {
+                handler: function (req, res, args, act, response) {
                   args.a1 = 'p' + args.a1
-                  act(args, respond)
+                  act(args, response)
                 },
                 modify: function (result) {
                   result.out.o0 = 'p0'
