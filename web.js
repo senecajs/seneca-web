@@ -362,6 +362,9 @@ module.exports = function (options) {
 
     var pattern = routespecs.pattern
     var path = routespecs.fullurl
+
+    path = changeToHapi(path)
+
     var data = routespecs.data || false
 
     var hapi_route = {
@@ -381,18 +384,29 @@ module.exports = function (options) {
             do_maprouter()
           }
 
-          function do_maprouter (out) {
+          function do_maprouter () {
             request.seneca.act('role: web, do: startware', {req: request}, function (err, out) {
               if (err) return reply(err)
 
-              if (data) {
-                pattern.data = request.payload
-              }
-              if (out) {
-                pattern = _.extend({}, pattern, out)
+              var currentPattern = _.clone(pattern)
+
+              if (request.payload) {
+                if (data) {
+                  currentPattern.data = request.payload
+                }
+                else {
+                  currentPattern = _.extend({}, request.payload, currentPattern)
+                }
               }
 
-              request.seneca.act( pattern, function (err, result) {
+              if (request.params) {
+                currentPattern = _.extend({}, request.params, currentPattern)
+              }
+              if (request.query) {
+                currentPattern = _.extend({}, request.query, currentPattern)
+              }
+
+              request.seneca.act( currentPattern, function (err, result) {
                 if (err) {
                   return sendreply(err)
                 }
@@ -440,6 +454,17 @@ module.exports = function (options) {
         internals.server.route( hapi_route )
         done()
       })
+    }
+
+    function changeToHapi (path) {
+      var tokens = path.split('/')
+
+      for (var i in tokens) {
+        if (tokens[i].charAt(0) === ':') {
+          tokens[i] = '{' + tokens[i].substr(1) + '}'
+        }
+      }
+      return tokens.join('/')
     }
   }
 
