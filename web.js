@@ -620,6 +620,26 @@ module.exports = function (options) {
   }
 }
 
+module.exports.preload = function () {
+  var seneca = this
+
+  var meta = {
+    name: 'web',
+    export: function () {
+      var args = arguments
+
+      seneca.ready(function () {
+        // prevent infinite loop
+        if (seneca.export('web') !== meta.export) {
+          seneca.export('web').apply(seneca, args)
+        }
+      })
+    }
+  }
+
+  return meta
+}
+
 
 // ### Route functions
 
