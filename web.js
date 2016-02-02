@@ -165,8 +165,11 @@ module.exports = function (options) {
       initsrc = init_template({_: _, configmap: configmap})
     }
 
+    if (!args.use) {
+      return done()
+    }
 
-    if (args.use) {
+    var wrapper = function () {
       // Add service to middleware layers, order is significant
       args.use.plugin$ = args.plugin$
       args.use.serviceid$ = Nid()
@@ -183,7 +186,14 @@ module.exports = function (options) {
         done()
       })
     }
-    else done()
+
+    if (seneca.private$._isReady) {
+      return wrapper()
+    }
+
+    done()
+    done = _.noop
+    seneca.ready(wrapper)
   }
 
 
@@ -634,6 +644,16 @@ module.exports.preload = function () {
           seneca.export('web').apply(seneca, args)
         }
       })
+    },
+    exportmap: {
+      httprouter: HttpRouter,
+      hapi: function () {
+        var args = arguments
+        // prevent infinite loop
+        if (seneca.export('web/hapi') !== meta.export.hapi) {
+          seneca.export('web/hapi').apply(this, args)
+        }
+      }
     }
   }
 
