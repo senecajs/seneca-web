@@ -431,6 +431,17 @@ module.exports = function (options) {
             for (var cookie in request.raw.res.cookies) {
               repl.state(cookie, request.raw.res.cookies[cookie])
             }
+            if (result.http$) {
+              if (result.http$.redirect) {
+                var redirect = result.http$.redirect
+                repl.redirect(redirect)
+              }
+              if (result.http$.status) {
+                var status = result.http$.status
+                repl.statusCode(status)
+              }
+              delete result.http$
+            }
           }
         }
       }())
