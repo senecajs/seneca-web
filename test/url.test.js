@@ -2,18 +2,19 @@
 
 var Assert = require('assert')
 var Lab = require('lab')
+var Server = require('./configure-server.js')
+
 var lab = exports.lab = Lab.script()
 var suite = lab.suite
 var test = lab.test
 var before = lab.before
 
-var Util = require('./util.js')
 
 suite('test server suite', function () {
   var agent
 
   before({}, function (done) {
-    require('./configure-server.js').init(function (err, agentData, si) {
+    Server.init(function (err, agentData, si) {
       Assert.ok(!err)
       agent = agentData
 
@@ -28,7 +29,6 @@ suite('test server suite', function () {
       .get(url)
       .expect(200)
       .end(function (err, res) {
-        Util.log(res)
         Assert.ok(!err)
         Assert.equal(res.headers.h0, 'i0')
         Assert.deepEqual(res.body, {r0: 'r0b0', r1: 'r1b1', r2: 'r2b2', x0: 'ry0'})
@@ -44,7 +44,6 @@ suite('test server suite', function () {
       .send({a2: 'b2', c: 'c'})
       .expect(200)
       .end(function (err, res) {
-        Util.log(res)
         Assert.ok(!err)
         Assert.equal(res.headers.h0, 'i0')
         Assert.deepEqual(res.body, {r0: 'r0pb0', r1: 'pr1b1', r2: 'r2b2', x0: 'ry0', c: 'C'})
@@ -60,7 +59,6 @@ suite('test server suite', function () {
       .send({a2: 'b2'})
       .expect(200)
       .end(function (err, res) {
-        Util.log(res)
         Assert.ok(!err)
         Assert.deepEqual(JSON.parse(res.text), {
           'r0': 'r0undefined',
@@ -82,7 +80,6 @@ suite('test server suite', function () {
       .get(url)
       .expect(200)
       .end(function (err, res) {
-        Util.log(res)
         Assert.ok(!err)
         Assert.deepEqual(res.body, {d0: 'e0f0'})
         done()
@@ -97,7 +94,6 @@ suite('test server suite', function () {
       .send({d1: 'e1', d2: 'e2'})
       .expect(200)
       .end(function (err, res) {
-        Util.log(res)
         Assert.ok(!err)
         Assert.deepEqual(res.body, {d1: 'e1f1', d2: 'e2'})
         done()
@@ -112,7 +108,6 @@ suite('test server suite', function () {
       .send({d1: 'e1', d2: 'e2'})
       .expect(200)
       .end(function (err, res) {
-        Util.log(res)
         Assert.ok(!err)
         Assert.deepEqual(res.body, {d1: 'e1f1', d2: 'e2'})
         done()
@@ -127,7 +122,6 @@ suite('test server suite', function () {
       .send({d1: 'e1', d2: 'e2'})
       .expect(500)
       .end(function (err, res) {
-        Util.log(res)
         Assert.ok(!err)
         Assert.deepEqual(res.body, {error: 'Error: seneca: Action cmd:e0,role:api failed: e0.'})
         done()
@@ -142,7 +136,6 @@ suite('test server suite', function () {
       .send({d1: 'e1', d2: 'e2'})
       .expect(500)
       .end(function (err, res) {
-        Util.log(res)
         Assert.ok(!err)
         Assert.equal(res.text, 'e1')
         done()
@@ -156,7 +149,6 @@ suite('test server suite', function () {
       .get(url)
       .expect(400)
       .end(function (err, res) {
-        Util.log(res)
         Assert.ok(!err)
         Assert.deepEqual(res.body, {ok: false, why: 'No input will satisfy me.'})
         done()
@@ -171,7 +163,6 @@ suite('test server suite', function () {
       .get(url)
       .expect(200)
       .end(function (err, res) {
-        Util.log(res)
         Assert.ok(!err)
         Assert.equal(res.text, 'A')
         done()
@@ -187,7 +178,6 @@ suite('test server suite', function () {
       .send({a: 'a'})
       .expect(200)
       .end(function (err, res) {
-        Util.log(res)
         Assert.ok(!err)
         Assert.deepEqual(res.body, {a: 'a'})
         done()
@@ -203,7 +193,6 @@ suite('test server suite', function () {
       .send({a: 'a', c: 'c'})
       .expect(200)
       .end(function (err, res) {
-        Util.log(res)
         Assert.ok(!err)
         Assert.deepEqual(res.body, {a: 'a', c: 'c'})
         done()
@@ -219,7 +208,6 @@ suite('test server suite', function () {
       .send({a: 'a', c: 'c'})
       .expect(200)
       .end(function (err, res) {
-        Util.log(res)
         Assert.ok(!err)
         Assert.equal(res.text, 'B')
         done()
@@ -235,7 +223,6 @@ suite('test server suite', function () {
       .send({b: 'b'})
       .expect(200)
       .end(function (err, res) {
-        Util.log(res)
         Assert.ok(!err)
         Assert.deepEqual(res.body, {b: 'B'})
         done()
@@ -251,7 +238,6 @@ suite('test server suite', function () {
       .send({b: 'b', c: 'c'})
       .expect(200)
       .end(function (err, res) {
-        Util.log(res)
         Assert.ok(!err)
         Assert.deepEqual(res.body, {b: 'B', c: 'c'})
         done()
@@ -266,7 +252,6 @@ suite('test server suite', function () {
       .send({x: 'b'})
       .expect(200)
       .end(function (err, res) {
-        Util.log(res)
         Assert.ok(!err)
         Assert.deepEqual(res.body, {x: 'b'})
         done()
@@ -280,7 +265,6 @@ suite('test server suite', function () {
       .post(url)
       .expect(200)
       .end(function (err, res) {
-        Util.log(res)
         Assert.ok(!err)
         Assert.deepEqual(res.body, {x: 'b'})
         done()
@@ -295,7 +279,6 @@ suite('test server suite', function () {
       .send({x: 'b'})
       .expect(200)
       .end(function (err, res) {
-        Util.log(res)
         Assert.ok(!err)
         Assert.deepEqual(res.body, {x: 'b', loc: 1})
         done()
@@ -309,7 +292,6 @@ suite('test server suite', function () {
       .post(url)
       .expect(200)
       .end(function (err, res) {
-        Util.log(res)
         Assert.ok(!err)
         Assert.deepEqual(res.body, {x: 'b', loc: 0})
         done()

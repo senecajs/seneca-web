@@ -1,3 +1,5 @@
+'use strict'
+
 exports.init = function (cb) {
   var agent
   var request = require('supertest')

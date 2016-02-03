@@ -1,8 +1,11 @@
+'use strict'
+
 var Assert = require('assert')
 var Lab = require('lab')
 var lab = exports.lab = Lab.script()
 var suite = lab.suite
 var test = lab.test
+var after = lab.after
 var before = lab.before
 
 var agent
@@ -48,12 +51,15 @@ suite('example suite tests ', function () {
     })
   })
 
+  after(function (done) {
+    seneca.close(done)
+  })
+
   test('simple test - get method', function (done) {
     agent
       .get('/my-api/bar')
       .expect(200)
       .end(function (err, res) {
-        Util.log(res)
         Assert.equal('b', res.body.bar, 'Invalid response')
         done(err)
       })
@@ -65,7 +71,6 @@ suite('example suite tests ', function () {
       .send({zoo: 'test'})
       .expect(200)
       .end(function (err, res) {
-        Util.log(res)
         Assert.equal('testz', res.body.qaz, 'Invalid response')
         done(err)
       })
@@ -77,7 +82,6 @@ suite('example suite tests ', function () {
       .send({zoo: 'test'})
       .expect(200)
       .end(function (err, res) {
-        Util.log(res)
         Assert.equal('testz', res.body.qaz, 'Invalid response')
         done(err)
       })
@@ -88,7 +92,6 @@ suite('example suite tests ', function () {
       .get('/my-api/qazz/val')
       .expect(200)
       .end(function (err, res) {
-        Util.log(res)
         Assert.equal('valz', res.body.qaz, 'Invalid response')
         done(err)
       })
