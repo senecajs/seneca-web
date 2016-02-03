@@ -427,20 +427,26 @@ module.exports = function (options) {
           }
 
           function sendreply (result) {
+            var http_status = result.http$
+            delete result.http$
+
+            // send result
             var repl = reply(result)
+
+            // send cookies
             for (var cookie in request.raw.res.cookies) {
               repl.state(cookie, request.raw.res.cookies[cookie])
             }
-            if (result.http$) {
-              if (result.http$.redirect) {
-                var redirect = result.http$.redirect
-                repl.redirect(redirect)
+
+            if (http_status) {
+              // redirect if necessary
+              if (http_status.redirect) {
+                repl.redirect(http_status.redirect)
               }
-              if (result.http$.status) {
-                var status = result.http$.status
-                repl.statusCode(status)
+              // change status
+              if (http_status.status) {
+                repl.statusCode(http_status.status)
               }
-              delete result.http$
             }
           }
         }
