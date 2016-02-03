@@ -10,37 +10,35 @@ var Lab = require('lab')
 var lab = exports.lab = Lab.script()
 var suite = lab.suite
 var test = lab.test
-var before = lab.before
 
-var si
 
 suite('configuration suite', function () {
-  before({}, function (done) {
-    si = Seneca({log: 'silent'})
-    si.use('../web.js')
-    done()
-  })
-
   test('empty', function (done) {
+    var si = Seneca({log: 'silent', default_plugins: { web: false }})
+    si.use('../web.js')
     si.act({role: 'web', use: {pin: {}, map: {}}}, done)
   })
 
 
   test('bad', function (done) {
-    var lsi = Seneca({
-      log: 'silent', debug: {undead: true}, errhandler: function (err) {
-        Assert.equal('seneca: Action role:web failed: web-use: The property \'pin\' is missing and is always required (parent: spec)..', err.message)
+    var si = Seneca({
+      log: 'silent', debug: {undead: true}, default_plugins: { web: false }, errhandler: function (err) {
+        Assert.equal(err.message.indexOf('seneca: Action'), 0)
         done()
+        // prevent multiple callbacks
+        done = _.noop
       }
     })
-    lsi.use('../web.js')
-    lsi.use(function bad () {
+    si.use('../web.js')
+    si.use(function bad () {
       this.act({role: 'web', use: {}})
     })
   })
 
 
   test('config', function (done) {
+    var si = Seneca({log: 'silent', default_plugins: { web: false }})
+    si.use('../web.js')
     si.act(
       {
         role: 'web',
@@ -64,6 +62,8 @@ suite('configuration suite', function () {
   })
 
   test('source', function (done) {
+    var si = Seneca({log: 'silent', default_plugins: { web: false }})
+    si.use('../web.js')
     si.act(
       {
         role: 'web',
@@ -87,7 +87,7 @@ suite('configuration suite', function () {
 
 
   test('plugin', function (done) {
-    var si = Seneca({log: 'silent', errhandler: done})
+    var si = Seneca({log: 'silent', errhandler: done, default_plugins: { web: false }})
     si.use('../web.js')
 
     si.use(function qaz () {
@@ -107,7 +107,8 @@ suite('configuration suite', function () {
         }
       })
 
-      this.act('role:web', {
+      this.act({
+        role: 'web',
         use: {
           prefix: '/foo',
           pin: {role: 'foo', cmd: '*'},
@@ -120,18 +121,19 @@ suite('configuration suite', function () {
       })
     })
 
-    si.act('role:web,list:service', Success(done, function (out) {
-      Assert.equal(out.length, 4)
+    si.ready(function () {
+      si.act('role:web,list:service', Success(done, function (out) {
+        Assert.equal(out.length, 3)
 
-      si.act('role:web,list:route', Success(done, function (out) {
-        Assert.equal(out.length, 4)
+        si.act('role:web,list:route', Success(done, function (out) {
+          Assert.equal(out.length, 4)
 
-        si.act({role: 'web', stats: true}, Success(done, function (out) {
-          Assert.equal(4, _.keys(out).length)
-          done()
+          si.act({role: 'web', stats: true}, Success(done, function (out) {
+            Assert.equal(4, _.keys(out).length)
+            done()
+          }))
         }))
       }))
-    }))
+    })
   })
 })
-
