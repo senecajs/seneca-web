@@ -23,7 +23,7 @@ suite('test server stats', function () {
       Assert.ok(!err)
       Assert.equal(3, services.length)
       Assert.equal('role:api,cmd:*', services[1]['pin$'])
-      Assert.equal(7, services[1]['routes$'].length)
+      Assert.equal(9, services[1]['routes$'].length)
 
       done()
     })
@@ -33,7 +33,7 @@ suite('test server stats', function () {
     server.seneca.act('role: web, list: route', function (err, routes) {
       Assert.ok(!err)
 
-      Assert.equal(8, routes.length)
+      Assert.equal(10, routes.length)
       Assert.equal('/r0/x0', routes[0]['url'])
 
       done()

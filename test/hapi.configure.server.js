@@ -76,6 +76,14 @@ exports.init = function (done) {
           done(null, {x: args.x, loc: 0})
         }
 
+        function s1 (args, done) {
+          done(null, {http$: {status: 401}})
+        }
+
+        function s2 (args, done) {
+          done(null, {http$: {status: 302, redirect: '/myPath'}})
+        }
+
         seneca
           .add('role:api,cmd:c0', c0)
           .add('role:api,cmd:c1', c1)
@@ -83,6 +91,8 @@ exports.init = function (done) {
           .add('role:api,cmd:e1', e1)
           .add('role:api,cmd:x1', x1)
           .add('role:api,cmd:x2', x2)
+          .add('role:api,cmd:s1', s1)
+          .add('role:api,cmd:s2', s2)
 
         seneca.act('role:web', {
           use: {
@@ -99,7 +109,9 @@ exports.init = function (done) {
               c2: {POST: true, alias: '/c0/:m'},
               e1: {GET: true, alias: '/e1'},
               x1: {POST: true},
-              x2: {POST: true, data: true}
+              x2: {POST: true, data: true},
+              s1: {GET: true},
+              s2: {GET: true}
             }
           }
         }, function () {
