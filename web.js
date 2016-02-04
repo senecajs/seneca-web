@@ -445,7 +445,7 @@ module.exports = function (options) {
               }
               // change status
               if (http_status.status) {
-                repl.statusCode(http_status.status)
+                repl.statusCode = http_status.status
               }
             }
           }
