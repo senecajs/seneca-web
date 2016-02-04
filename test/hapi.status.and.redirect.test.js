@@ -33,7 +33,7 @@ suite('status & redirect suite', function () {
 
     server.inject(url, function (res) {
       Assert.equal(302, res.statusCode)
-      Assert.equal("/myPath", res.headers.location)
+      Assert.equal('/myPath', res.headers.location)
 
       done()
     })
