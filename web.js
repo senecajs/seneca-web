@@ -61,12 +61,10 @@ module.exports = function (options) {
       req_query: true
     },
 
-
     // Extended debugging
     debug: {
       service: false
     }
-
   }, options)
 
   // set framework type in seneca.options to signal to other modules the framework type
@@ -84,7 +82,9 @@ module.exports = function (options) {
   var configmap = {}
   var servicemap = {}
 
-  var routemap = {}
+  seneca.private$._web = {
+    routemap: {}
+  }
   var route_list_cache = null
 
   var init_template = _.template(Mstring(
@@ -153,6 +153,22 @@ module.exports = function (options) {
     done(null, {server: internals.server})
   }
 
+  // Service specification schema.
+  var spec_check = Parambulator({
+    type$: 'object',
+    pin: {required$: true},
+    map: {required$: true, object$: true},
+    prefix: 'string$',
+    startware: 'function$',
+    premap: 'function$',
+
+    endware: 'function$',
+    postmap: 'function$'
+  }, {
+    topname: 'spec',
+    msgprefix: 'web-use: '
+  })
+
   // Action: _role:web_
   function web_use (args, done) {
     var seneca = this
@@ -165,13 +181,36 @@ module.exports = function (options) {
       initsrc = init_template({_: _, configmap: configmap})
     }
 
+    if (!args.use) {
+      return done()
+    }
 
-    if (args.use) {
-      // Add service to middleware layers, order is significant
-      args.use.plugin$ = args.plugin$
-      args.use.serviceid$ = Nid()
-      route_list_cache = null
+    // Add service to middleware layers, order is significant
+    args.use.plugin$ = args.plugin$
+    args.use.serviceid$ = Nid()
+    route_list_cache = null
 
+    if (_.isFunction(args.use)) {
+      services.push(args.use)
+      servicemap[args.use.serviceid$] = args.use
+      return done()
+    }
+
+    spec_check.validate(args.use, function (err) {
+      if (err) {
+        return done(err)
+      }
+
+      if (seneca.private$._isReady) {
+        return wrapper()
+      }
+
+      done()
+      //done = _.noop
+      seneca.once('after-pin', wrapper)
+    })
+
+    function wrapper () {
       define_service(seneca, args.use, function (err, service) {
         if (err) return done(err)
 
@@ -183,7 +222,6 @@ module.exports = function (options) {
         done()
       })
     }
-    else done()
   }
 
 
@@ -237,9 +275,9 @@ module.exports = function (options) {
   function list_route (args, done) {
     if (null == route_list_cache) {
       route_list_cache = []
-      var methods = _.keys(routemap)
+      var methods = _.keys(seneca.private$._web.routemap)
       _.each(methods, function (method) {
-        var urlmap = routemap[method]
+        var urlmap = seneca.private$._web.routemap[method]
         if (urlmap) {
           _.each(urlmap, function (srv, url) {
             route_list_cache.push({
@@ -285,58 +323,33 @@ module.exports = function (options) {
   add_action_patterns()
 
 
-  // Service specification schema.
-  var spec_check = Parambulator({
-    type$: 'object',
-    pin: {required$: true},
-    map: {required$: true, object$: true},
-    prefix: 'string$',
-    startware: 'function$',
-    premap: 'function$',
-
-    endware: 'function$',
-    postmap: 'function$'
-  }, {
-    topname: 'spec',
-    msgprefix: 'web-use: '
-  })
-
-
   // Define service middleware
   function define_service (instance, spec, done) {
-    Norma('o o|f f', arguments)
+    // legacy properties
+    spec.postmap = spec.postmap || spec.endware
 
-    if (_.isFunction(spec)) return done(null, spec)
+    spec.prefix = fixprefix(spec.prefix, options.prefix)
+    var pin = instance.pin(spec.pin)
+    var actmap = make_actmap(pin)
+    var routespecs = make_routespecs(actmap, spec, options)
 
-    spec_check.validate(spec, function (err) {
-      if (err) return done(err)
+    resolve_actions(instance, routespecs)
+    resolve_methods(instance, spec, routespecs, options)
+    resolve_dispatch(instance, spec, routespecs, timestats, options)
 
-      // legacy properties
-      spec.postmap = spec.postmap || spec.endware
+    var maprouter = make_router(instance, spec, routespecs)
+    var service = make_service(instance, spec, maprouter)
 
-      spec.prefix = fixprefix(spec.prefix, options.prefix)
-      var pin = instance.pin(spec.pin)
-      var actmap = make_actmap(pin)
-      var routespecs = make_routespecs(actmap, spec, options)
-
-      resolve_actions(instance, routespecs)
-      resolve_methods(instance, spec, routespecs, options)
-      resolve_dispatch(instance, spec, routespecs, timestats, options)
-
-      var maprouter = make_router(instance, spec, routespecs, routemap)
-      var service = make_service(instance, spec, maprouter)
-
-      // in case that there is used Hapi
-      // then register routes
-      if (internals.framework === 'hapi') {
-        addHapiRoute(spec, routespecs, function (err) {
-          done(err, service)
-        })
-      }
-      else {
-        return done(null, service)
-      }
-    })
+    // in case that there is used Hapi
+    // then register routes
+    if (internals.framework === 'hapi') {
+      addHapiRoute(spec, routespecs, function (err) {
+        done(err, service)
+      })
+    }
+    else {
+      return done(null, service)
+    }
   }
 
   // Add Hapi routes
@@ -635,6 +648,39 @@ module.exports = function (options) {
       hapi: web_hapi
     }
   }
+}
+
+module.exports.preload = function () {
+  var seneca = this
+
+  var meta = {
+    name: 'web',
+    export: function () {
+      var args = arguments
+
+      seneca.ready(function () {
+        // prevent infinite loop
+        if (seneca.export('web') !== meta.export) {
+          seneca.export('web').apply(seneca, args)
+        }
+      })
+    },
+    exportmap: {
+      httprouter: HttpRouter,
+      hapi: function (server, options, next) {
+        seneca.act({
+          role: 'web',
+          set: 'framework',
+          server: server,
+          options: options,
+          framework: 'hapi'
+        },
+        next)
+      }
+    }
+  }
+
+  return meta
 }
 
 
@@ -963,9 +1009,10 @@ function make_argparser (instance, options, methodspec) {
 }
 
 
-function make_router (instance, spec, routespecs, routemap) {
-  Norma('ooao', arguments)
+function make_router (instance, spec, routespecs) {
+  Norma('ooa', arguments)
 
+  var routemap = instance.private$._web.routemap
   var routes = []
   var mr = HttpRouter(function (http) {
     _.each(routespecs, function (routespec) {

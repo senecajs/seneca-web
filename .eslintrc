@@ -1,7 +1,10 @@
 {
+  "extends": "seneca",
   "rules": {
     "space-in-parens": 0,
-    "spaced-comment": 0
-  },
-  "extends": "seneca"
+    "spaced-comment": 0,
+    "arrow-body-style": 0,
+    "no-arrow-condition": 0,
+    "no-empty-pattern": 0
+  }
 }
