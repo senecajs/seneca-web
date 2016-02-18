@@ -1,42 +1,39 @@
 'use strict'
 
-var Assert = require('assert')
+var Code = require('code')
 var Lab = require('lab')
+var TestServer = require('./hapi.configure.server.js')
+
+
 var lab = exports.lab = Lab.script()
-var suite = lab.suite
-var test = lab.test
-var before = lab.before
+var describe = lab.describe
+var it = lab.it
+var expect = Code.expect
 
-var server
 
-suite('test server stats', function () {
-  before({}, function (done) {
-    require('./hapi.configure.server.js').init(function (err, srv) {
-      Assert(!err)
-      server = srv
-      done()
+describe.skip('test server stats', function () {
+  it('list services', function (done) {
+    TestServer.init(function (err, server) {
+      expect(err).to.not.exist()
+      server.seneca.act('role: web, list: service', function (err, services) {
+        expect(err).to.not.exist()
+        expect(services.length).to.equal(3)
+        expect(services[1]['pin$']).to.equal('role:api,cmd:*')
+        expect(services[1]['routes$'].length).to.equal(9)
+        done()
+      })
     })
   })
 
-  test('list services', function (done) {
-    server.seneca.act('role: web, list: service', function (err, services) {
-      Assert.ok(!err)
-      Assert.equal(3, services.length)
-      Assert.equal('role:api,cmd:*', services[1]['pin$'])
-      Assert.equal(9, services[1]['routes$'].length)
-
-      done()
-    })
-  })
-
-  test('list routes', function (done) {
-    server.seneca.act('role: web, list: route', function (err, routes) {
-      Assert.ok(!err)
-
-      Assert.equal(10, routes.length)
-      Assert.equal('/r0/x0', routes[0]['url'])
-
-      done()
+  it('list routes', function (done) {
+    TestServer.init(function (err, server) {
+      expect(err).to.not.exist()
+      server.seneca.act('role: web, list: route', function (err, routes) {
+        expect(err).to.not.exist()
+        expect(routes.length).to.equal(10)
+        expect(routes[0]['url']).to.equal('/r0/x0')
+        done()
+      })
     })
   })
 })
