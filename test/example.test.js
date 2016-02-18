@@ -2,6 +2,9 @@
 
 var Assert = require('assert')
 var Lab = require('lab')
+var Util = require('./util.js')
+
+
 var lab = exports.lab = Lab.script()
 var suite = lab.suite
 var test = lab.test
@@ -10,8 +13,6 @@ var before = lab.before
 
 var agent
 var seneca
-
-var Util = require('./util.js')
 
 suite('example suite tests ', function () {
   before({}, function (done) {

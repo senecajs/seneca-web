@@ -1,41 +1,39 @@
 'use strict'
 
-var Assert = require('assert')
+var Code = require('code')
 var Lab = require('lab')
+var TestServer = require('./hapi.configure.server.js')
+
+
 var lab = exports.lab = Lab.script()
-var suite = lab.suite
-var test = lab.test
-var before = lab.before
+var describe = lab.describe
+var it = lab.it
+var expect = Code.expect
 
-var server
 
-suite('status & redirect suite', function () {
-  before({}, function (done) {
-    require('./hapi.configure.server.js').init(function (err, srv) {
-      Assert(!err)
-      server = srv
-      done()
-    })
-  })
-
-  test('custom status', function (done) {
+describe.skip('status & redirect suite', function () {
+  it('custom status', function (done) {
     var url = '/t0/s1'
 
-    server.inject(url, function (res) {
-      Assert.equal(401, res.statusCode)
-
-      done()
+    TestServer.init(function (err, server) {
+      expect(err).to.not.exist()
+      server.inject(url, function (res) {
+        expect(res.statusCode).to.equal(401)
+        done()
+      })
     })
   })
 
-  test('redirect', function (done) {
+  it('redirect', function (done) {
     var url = '/t0/s2'
 
-    server.inject(url, function (res) {
-      Assert.equal(302, res.statusCode)
-      Assert.equal('/myPath', res.headers.location)
-
-      done()
+    TestServer.init(function (err, server) {
+      expect(err).to.not.exist()
+      server.inject(url, function (res) {
+        expect(res.statusCode).to.equal(302)
+        expect(res.headers.location).to.equal('/myPath')
+        done()
+      })
     })
   })
 })
