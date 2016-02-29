@@ -380,6 +380,8 @@ module.exports = function (options) {
 
     var data = routespecs.data || false
 
+    seneca.log.debug('register Hapi route', method, path, pattern)
+
     var hapi_route = {
       method: method,
       path: path,
