@@ -47,6 +47,8 @@ npm install seneca
 
 ## Hapi usage
 
+Note: Hapi implementation is supported only for node v4 or later.
+
 ### Quick example
 
 This example defines some API end point URLs that correspond to Seneca actions:
