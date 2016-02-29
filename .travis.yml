@@ -4,6 +4,8 @@ sudo: false
 node_js:
   - "5"
   - "4"
+  - "0.10"
+  - "0.12"
 
 after_script:
   npm run coverage

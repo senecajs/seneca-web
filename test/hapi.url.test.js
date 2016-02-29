@@ -1,5 +1,10 @@
 'use strict'
 
+// DO NOT RUN HAPI TESTS FOR NODE LESS THAN 4.0.0
+if (process.version < 'v4.0.0') {
+  return
+}
+
 var Assert = require('assert')
 var Lab = require('lab')
 var lab = exports.lab = Lab.script()
