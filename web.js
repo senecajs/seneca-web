@@ -419,7 +419,14 @@ module.exports = function (options) {
                 currentPattern = _.extend({}, request.query, currentPattern)
               }
 
-              request.seneca.act( currentPattern, function (err, result) {
+              if (routespecs.methods && routespecs.methods[method] && routespecs.methods[method].handler) {
+                routespecs.methods[method].handler.call(request.seneca, request, {}, currentPattern, request.seneca.act.bind(request.seneca), verify_postmap)
+              }
+              else {
+                request.seneca.act( currentPattern, verify_postmap )
+              }
+
+              function verify_postmap (err, result) {
                 if (err) {
                   return sendreply(err)
                 }
@@ -435,7 +442,7 @@ module.exports = function (options) {
                 else {
                   sendreply(result)
                 }
-              } )
+              }
             } )
           }
 
@@ -685,7 +692,6 @@ module.exports.preload = function () {
 
 
 // ### Route functions
-
 // Default action handler; just calls the action.
 function make_defaulthandler (spec, routespec, methodspec) {
   Norma('ooo', arguments)
