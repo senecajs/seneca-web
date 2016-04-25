@@ -3,12 +3,16 @@ sudo: false
 
 env:
   - SENECA_VER=@1.4.0
+  - SENECA_VER=@2.0.x
 
 node_js:
   - "5"
   - "4"
   - "0.10"
   - "0.12"
+
+  before_script:
+  - npm install seneca$SENECA_VER
 
 after_script:
   npm run coverage
