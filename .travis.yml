@@ -11,7 +11,7 @@ node_js:
   - "0.10"
   - "0.12"
 
-  before_script:
+before_script:
   - npm install seneca$SENECA_VER
 
 after_script:
