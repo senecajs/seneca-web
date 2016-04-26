@@ -36,6 +36,8 @@ If you're using this module, and need help, you can:
 If you are new to Seneca in general, please take a look at [senecajs.org][]. We have everything from
 tutorials to sample apps to help get you up and running quickly.
 
+### Seneca compatibility
+Supports Seneca versions **1.x** and **2.x**
 
 ## Install
 
