@@ -1,7 +1,7 @@
 ![Seneca](http://senecajs.org/files/assets/seneca-logo.png)
 > A [Seneca.js][] Web plugin
 
-## Seneca web plugin
+# Seneca web plugin
 
 [![npm version][npm-badge]][npm-url]
 [![Build Status][travis-badge]][travis-url]
@@ -9,14 +9,16 @@
 [![Dependency Status][david-badge]][david-url]
 [![Gitter chat][gitter-badge]][gitter-url]
 
+## Description
+
 This plugin provides a web service API routing layer for Seneca action
 patterns. It translates HTTP requests with specific URL routes into
 action pattern calls. It's a built-in dependency of the Seneca module,
 so you don't need to include it manually. Use this plugin to define
 your web service API.
 
-This plugin supports [Express](http://expressjs.com/)-style middleware. 
-This plugin supports (starting from version 0.5.0) also [hapi](http://hapijs.com/), 
+This plugin supports [Express](http://expressjs.com/)-style middleware.
+This plugin supports (starting from version 0.5.0) also [hapi](http://hapijs.com/),
 see bellow usage example.
 
 - __Node:__ 0.10, 0.12, 4, 5
@@ -47,6 +49,30 @@ This plugin module is included in the main Seneca module:
 npm install seneca
 ```
 
+## Usage
+
+The primary purpose of this plugin is to define URL routes that map to
+action patterns. This lets you turn your action patterns into a
+well-defined web service API.
+
+* Use a separate set of action patterns for your web service
+  API. Don't expose your internal patterns! *
+
+The `role:web` action accepts a `use` parameter that is a declarative
+definition of a set of routes. You specify a set of action patterns
+that will be exposed, and the URL routes that map to each
+pattern. Each call to the `role:web` action defines a middleware
+service with a set of routes. Incoming requests are passed to each
+service in turn until one matches. If none match, the request is
+passed onwards down the middleware chain.
+
+The `use` parameter can also be an Express-style middleware function
+of the form `function( req, res, next )`. You are then free to handle
+the action mapping yourself.
+
+To use the services in your app, call `seneca.export('web')` to obtain
+a wrapper middleware function that performs the route matching.
+
 ## Hapi usage
 
 Note: Hapi implementation is supported only for node v4 or later.
@@ -60,7 +86,7 @@ This example defines some API end point URLs that correspond to Seneca actions:
    * `GET /my-api/qaz`: `role:api,cmd:qaz`
    * `POST /my-api/qaz`: `role:api,cmd:qaz`
 
-```JavaScript
+```js
 
 var Chairo = require ( 'chairo' )
 var Hapi = require ( 'hapi' )
@@ -80,23 +106,23 @@ server.register(
     seneca.add('role:api,cmd:zig',function(args,done){
       done(null,{bar:'g'})
     })
-    
+
     seneca.add('role:api,cmd:bar',function(args,done){
       done(null,{bar:'b'})
     })
-    
+
     seneca.add('role:api,cmd:qaz',function(args,done){
       done(null,{qaz:'z'})
     })
-    
+
     seneca.act('role:web',{use:{
-    
+
       // define some routes that start with /my-api
       prefix: '/api',
-    
+
       // use action patterns where role has the value 'api' and cmd has some defined value
       pin: {role:'api',cmd:'*'},
-    
+
       // for each value of cmd, match some HTTP method, and use the
       // query parameters as values for the action
       map:{
@@ -123,7 +149,7 @@ This example defines some API end point URLs that correspond to Seneca actions:
    * `GET /my-api/qaz`: `role:api,cmd:qaz`
    * `POST /my-api/qaz`: `role:api,cmd:qaz`
 
-```JavaScript
+```js
 var seneca = require('seneca')()
 
 
@@ -175,31 +201,6 @@ app.listen(3000)
 ```
 
 
-## Usage
-
-The primary purpose of this plugin is to define URL routes that map to
-action patterns. This lets you turn your action patterns into a
-well-defined web service API.
-
-* Use a separate set of action patterns for your web service
-  API. Don't expose your internal patterns! *
-
-The `role:web` action accepts a `use` parameter that is a declarative
-definition of a set of routes. You specify a set of action patterns
-that will be exposed, and the URL routes that map to each
-pattern. Each call to the `role:web` action defines a middleware
-service with a set of routes. Incoming requests are passed to each
-service in turn until one matches. If none match, the request is
-passed onwards down the middleware chain.
-
-The `use` parameter can also be an Express-style middleware function
-of the form `function( req, res, next )`. You are then free to handle
-the action mapping yourself.
-
-To use the services in your app, call `seneca.export('web')` to obtain
-a wrapper middleware function that performs the route matching.
-
-
 #### Alternative Approach
 
 You can use Seneca directly from with your route handlers by just
@@ -214,7 +215,7 @@ existing system.
 This plugin does not provide an access control feature, or protect you
 from attacks such as request forgery. However, since it does support
 the middleware pattern, you can use [other middleware
-modules](http://expressjs.com/resources/middleware.html) to provide
+modules](http://expressjs.com/en/resources/middleware.html) to provide
 these features.
 
 
@@ -241,7 +242,7 @@ middleware context it's important to use the request specific Seneca
 instance, as other plugins may have added context to that
 instance. See, for example: [seneca-user](http://github.com/senecajs/seneca-user).
 
-```JavaScript
+```js
 seneca.add('zed:1',function(args,done){
   done(null,{dez:2})
 })
@@ -269,7 +270,7 @@ of this use-case in these projects:
 
    * [Getting Started project](http://github.com/senecajs/getting-started)
    * [Well App](http://github.com/nearform/well)
-   * [Nodezoo module search engine](http://github.com/rjrodger/nodezoo)
+   * [Nodezoo module search engine](https://github.com/nodezoo/nodezoo-workshop)
 
 You specify a set of action patterns, and the URL routes that map to
 these patterns. The set of patterns is specified using a _pin_, an
@@ -292,7 +293,7 @@ but not `role:sound,cmd:piano` as that does not match the pin pattern.
 
 A simple mapping can then be defined as follows:
 
-```
+```js
 seneca.add('role:color,cmd:red', function( args, done ){
   done( null, {color:'#F00'} )
 })
@@ -316,8 +317,7 @@ seneca.act('role:web', {use:{
 }})
 ```
 
-Which creates an HTTP API that responds like so (review
-[test.sh](test.sh) and [test/example.js](test/example.js) to see full code):
+Which creates an HTTP API that responds like so:
 
 ```bash
 $ curl -m 1 -s http://localhost:3000/color/red
@@ -347,7 +347,7 @@ the full URL. So you end up with these endpoints:
 
 To respond to POST requests, do this:
 
-```
+```js
 seneca.act('role:web', {use:{
   prefix: '/color',
   pin:    'role:color,cmd:*',
@@ -364,7 +364,7 @@ _usequery_ settings, as described below.
 
 Example:
 
-```
+```js
 // just echo the args back out again!
 seneca.add('role:api,cmd:echo', function( args, done ){
   done( null, args )
@@ -435,7 +435,7 @@ override the route specification:
 
 Example:
 
-```
+```js
 seneca.act('role:web', {use:{
   prefix: '/color',
   pin:    'role:color,cmd:*',
@@ -490,7 +490,7 @@ that get called before the mapping handlers are executed. These
 functions allow you to perform shared operations, such as extracting a
 cookie token, or attaching meta data to Request objects.
 
-```
+```js
 seneca.act('role:web', {use:{
   prefix: '/color',
   pin:    'role:color,cmd:*',
@@ -531,14 +531,14 @@ number of routes.
 You can see some (admittedly terse) examples of mapping specifications
 in the [test/test-server.js](test-server.js) and
 [test/test-client.js](test-client.js) testing code, or in the example
-applications noted above ([nodezoo.com](nodezoo.com) etc).
+applications noted above ([nodezoo.com](http://www.nodezoo.com/) etc).
 
 
 ### `role:web,cmd:routes`
 
 This command returns an array of all of the routes that have been defined.
 
-```JavaScript
+```js
 seneca.act('role:web, cmd:routes', function(err, routes) {
   console.log(routes);
 });
@@ -555,7 +555,7 @@ Each route is described as an object with properties:
 
 This command returns an array of all of the service functions that have been defined.
 
-```JavaScript
+```js
 seneca.act('role:web, cmd:list', function(err, services) {
   console.log(service);
 });
@@ -563,9 +563,9 @@ seneca.act('role:web, cmd:list', function(err, services) {
 
 ### `role:web,handle:response`
 
-This command is used to send processing response to Express. A default implementation is provided. 
+This command is used to send processing response to Express. A default implementation is provided.
 This implementation will take into account that if error is reported then the next middleware implementations will not be called
-and also http$.redirect and http$.status are used. This action can be used to implement another desired behavior. 
+and also http$.redirect and http$.status are used. This action can be used to implement another desired behavior.
 
 Parameters:
  * req - web request
@@ -575,7 +575,12 @@ Parameters:
  * next - next function to be used to call the next middleware registered in Express.
 
 
-## Development & Test
+## Contributing
+
+ The [Senecajs org][] encourage open participation. If you feel you can help in any way, be it with
+ documentation, examples, extra testing, or new features please get in touch.
+
+## Test
 
 To test, use:
 
@@ -601,12 +606,9 @@ seneca.use( require('seneca-web') )
 
 ```
 
-## Contributing
-The [Senecajs org][] encourage open participation. If you feel you can help in any way, be it with
-documentation, examples, extra testing, or new features please get in touch.
-
 ## License
-Copyright Richard Rodger and other contributors 2015, Licensed under [MIT][].
+Copyright (c) 2013, Richard Rodger and other contributors.
+Licensed under [MIT][].
 
 
 [npm-badge]: https://badge.fury.io/js/seneca-web.svg
@@ -619,7 +621,6 @@ Copyright Richard Rodger and other contributors 2015, Licensed under [MIT][].
 [david-url]: https://david-dm.org/senecajs/seneca-web
 [gitter-badge]: https://badges.gitter.im/senecajs/seneca.png
 [gitter-url]: https://gitter.im/senecajs/seneca
-
 [MIT]: ./LICENSE
 [Senecajs org]: https://github.com/senecajs/
 [Seneca.js]: https://www.npmjs.com/package/seneca
