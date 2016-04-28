@@ -607,7 +607,7 @@ seneca.use( require('seneca-web') )
 ```
 
 ## License
-Copyright (c) 2013, Richard Rodger and other contributors.
+Copyright (c) 2013 - 2016, Richard Rodger and other contributors.
 Licensed under [MIT][].
 
 
