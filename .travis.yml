@@ -12,6 +12,7 @@ node_js:
   - "0.12"
 
 before_script:
+  - npm uninstall seneca
   - npm install seneca$SENECA_VER
 
 after_script:

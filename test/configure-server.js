@@ -8,8 +8,7 @@ var Bodyparser = require('body-parser')
 
 exports.init = function (done) {
   var seneca = require('seneca')({
-    default_plugins: {web: false},
-    log: 'silent'
+    default_plugins: {web: false}
   })
   seneca.use('../web.js')
 
