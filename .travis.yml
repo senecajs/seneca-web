@@ -6,6 +6,7 @@ env:
   - SENECA_VER=@2.x.x
 
 node_js:
+  - "6"
   - "5"
   - "4"
   - "0.10"
