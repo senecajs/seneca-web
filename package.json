@@ -27,7 +27,8 @@
   "license": "MIT",
   "main": "web.js",
   "scripts": {
-    "test": "lab test/*.test.js -r console -v -L -m 3000 -t 75",
+    "test": "lab test/*.test.js -r console -v -L -m 3000 -t 75 $LAB_FLAGS",
+    "test:node6": "LAB_FLAGS='--leaks' && npm test",
     "lint": "lab -dL",
     "coverage": "lab -s -P test -r lcov | coveralls",
     "build": "docco web.js -o doc; cp -r doc/* ../gh-pages/seneca-web/doc",
