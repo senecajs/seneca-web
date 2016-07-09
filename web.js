@@ -4,7 +4,6 @@
 
 var Async = require('async')
 var Util = require('util')
-var Buffer = require('buffer')
 
 var _ = require('lodash')
 var Parambulator = require('parambulator')
@@ -15,6 +14,7 @@ var ServeStatic = require('serve-static')
 var JsonStringifySafe = require('json-stringify-safe')
 var Stats = require('rolling-stats')
 var Norma = require('norma')
+var fs = require('fs')
 
 var Error = require('eraro')({
   package: 'seneca',
@@ -758,19 +758,36 @@ function make_defaultresponder (spec, routespec, methodspec) {
       res.end()
     }
 
-    // Send JSON response.
+    // Send response JSON or attachment.
     else {
-      var outjson = err ? JSON.stringify({error: '' + err}) : stringify(outobj)
+        http.status = http.status || (err ? 500 : 200)
 
-      http.status = http.status || (err ? 500 : 200)
+        // Send and attachments
+        if (outobj.attachment) {
+            var bin_attach = new Buffer(outobj.attachment, 'base64').toString('binary');
+            var hrTime = process.hrtime();
+            var tmpfilename = "/tmp/attach_" + hrTime[0] * 1000000 + hrTime[1] + ".pptx";
 
-      res.writeHead(http.status, _.extend({
-        'Content-Type': 'application/json',
-        'Cache-Control': 'private, max-age=0, no-cache, no-store',
-        'Content-Length': Buffer.Buffer.byteLength(outjson)
-      }, http.headers))
+            fs.writeFile(tmpfilename, bin_attach, 'binary', function(err) {
+                if (!err) {
+                    res.download(tmpfilename, function(err) {
+                      fs.unlink(tmpfilename, function() {});
+                      res.end();
+                    });
+                }
+            });
+        }
+        // Reply with JSON
+        else {
+              var outjson = err ? JSON.stringify({error: '' + err}) : stringify(outobj)
+              res.writeHead(http.status, _.extend({
+                'Content-Type': 'application/json',
+                'Cache-Control': 'private, max-age=0, no-cache, no-store',
+                'Content-Length': Buffer.byteLength(outjson)
+              }, http.headers))
 
-      res.end(outjson)
+              res.end(outjson)
+        }
     }
   }
 }
