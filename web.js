@@ -14,7 +14,7 @@ var ServeStatic = require('serve-static')
 var JsonStringifySafe = require('json-stringify-safe')
 var Stats = require('rolling-stats')
 var Norma = require('norma')
-var fs = require('fs')
+var Fs = require('fs')
 
 var Error = require('eraro')({
   package: 'seneca',
@@ -768,10 +768,10 @@ function make_defaultresponder (spec, routespec, methodspec) {
         var hrTime = process.hrtime()
         var tmpfilename = '/tmp/attach_' + hrTime[0] * 1000000 + hrTime[1] + '.pptx'
 
-        fs.writeFile(tmpfilename, bin_attach, 'binary', function (err) {
+        Fs.writeFile(tmpfilename, bin_attach, 'binary', function (err) {
           if (!err) {
             res.download(tmpfilename, function (err) {
-              fs.unlink(tmpfilename, function () {})
+              Fs.unlink(tmpfilename, function () {})
               if (err) {
                 res.send(err)
               }
