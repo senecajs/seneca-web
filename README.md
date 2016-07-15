@@ -402,7 +402,7 @@ that let you refine the route specification:
    * _suffix_: appended to route URL.
    * _useparams_: merge any URL parameter values into the arguments for the Seneca action; default: `true`
    * _usequery_: merge any URL query values into the arguments for the Seneca action; default: `true`
-   * _dataprop_: provide all request parameters inside a `data` property on the Seneca action, default: `false`
+   * _data_: provide all request parameters inside a `data` property on the Seneca action, default: `false`
    * _redirect_: perform a 302 redirection with the value as the new location URL.
    * _handler_: function that translates inbound requests to Seneca actions, see below.
    * _responder_: function that translates outbound Seneca results into HTTP response data, see below.
@@ -428,7 +428,7 @@ override the route specification:
 
     * _useparams_
     * _usequery_
-    * _dataprop_
+    * _data_
     * _handler_
     * _responder_
     * _modify_
@@ -440,7 +440,7 @@ seneca.act('role:web', {use:{
   prefix: '/color',
   pin:    'role:color,cmd:*',
   map: {
-    red: { POST:{dataprop:true} }
+    red: { POST:{data:true} }
   }
 }})
 ```
