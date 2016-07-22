@@ -1,7 +1,7 @@
 {
   "name": "seneca-web",
   "description": "A plugin that provides HTTP functionality for the Seneca framework.",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "keywords": [
     "seneca",
     "web",
@@ -22,6 +22,11 @@
       "name": "Cristian Kiss",
       "email": "cristian.kiss@nearform.com ",
       "url": "https://github.com/ckiss"
+    },
+    {
+      "name": "Mihai Dima",
+      "email": "mihaizn@gmail.com",
+      "url": "https://github.com/mihaidma"
     }
   ],
   "license": "MIT",
