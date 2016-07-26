@@ -68,6 +68,13 @@ exports.init = function (done) {
       cb(new Error('some error'))
     }
 
+    function n0 (msg, cb) {
+      cb(null, {
+        name: msg.name,
+        id: msg.id
+      })
+    }
+
     function x1 (args, cb) {
       cb(null, {x: args.x})
     }
@@ -86,6 +93,7 @@ exports.init = function (done) {
       .add('role:api,cmd:e1', e1)
       .add('role:api,cmd:x1', x1)
       .add('role:api,cmd:x2', x2)
+      .add('role:api,cmd:n0', n0)
 
     seneca.ready(function () {
       seneca.act('role:web', {
@@ -102,6 +110,7 @@ exports.init = function (done) {
             c1: {GET: true, POST: true, alias: '/a0/:m'},
             c2: {POST: true, alias: '/c0/:m'},
             e1: {GET: true, alias: '/e1'},
+            n0: {GET: true, alias: '/n0/:name/:id'},
             x1: {POST: true},
             x2: {POST: true, data: true}
           }

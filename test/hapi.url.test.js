@@ -209,4 +209,18 @@ suite('test server suite', function () {
       done()
     })
   })
+
+  test('named parameter name and id', function (done) {
+    var url = '/t0/n0/name1/id1'
+
+    server.inject({
+      url: url,
+      method: 'GET'
+    }, function (res) {
+      Assert.equal(200, res.statusCode)
+      Assert.deepEqual({name: 'name1', id: 'id1'}, JSON.parse(res.payload))
+
+      done()
+    })
+  })
 })
