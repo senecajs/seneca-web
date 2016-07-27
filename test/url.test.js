@@ -297,4 +297,17 @@ suite('test server suite', function () {
         done()
       })
   })
+
+  test('named parameter name and id', function (done) {
+    var url = '/t0/n0/name1/id1'
+
+    agent
+      .get(url)
+      .expect(200)
+      .end(function (err, res) {
+        Assert.ok(!err)
+        Assert.deepEqual(res.body, {name: 'name1', id: 'id1'})
+        done()
+      })
+  })
 })

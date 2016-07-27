@@ -68,6 +68,13 @@ exports.init = function (done) {
         response(new Error('e1'))
       })
 
+      this.add('role:api,cmd:n0', function (args, response) {
+        response(null, {
+          name: args.name,
+          id: args.id
+        })
+      })
+
       this.add('role:api,cmd:r0', function (args, response) {
         response(null, {
           ok: false,
@@ -165,6 +172,10 @@ exports.init = function (done) {
                 }
                 else res.send(obj)
               }
+            },
+
+            n0: {
+              alias: '/n0/:name/:id'
             },
 
             r0: true

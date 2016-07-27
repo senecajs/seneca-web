@@ -853,7 +853,7 @@ function resolve_actions (instance, routespecs) {
     if (!actmeta) return
 
     var act = function (args, cb) {
-      this.act(this, _.extend({}, routespec.pattern, args), cb)
+      this.act(_.extend({}, routespec.pattern, args), cb)
     }
 
     routespec.act = act
