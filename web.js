@@ -157,7 +157,7 @@ module.exports = function (options) {
   var spec_check = Parambulator({
     type$: 'object',
     pin: {required$: true},
-    map: {required$: true, object$: true},
+    map: {required$: true},
     prefix: 'string$',
     startware: 'function$',
     premap: 'function$',
@@ -806,12 +806,31 @@ function make_routespecs (actmap, spec, options) {
 
   var routespecs = []
 
-  _.each(actmap, function (pattern, fname) {
-    var routespec = spec.map.hasOwnProperty(fname) ? spec.map[fname] : null
+  // if passed an Array spec.map, iterate through it in order
+  if (Array.isArray(spec.map)) {
+    _.each(spec.map, function (mapping) {
+      var fname = mapping.route
+      var routespec = _.omit(mapping, 'route')
+      var pattern = actmap[fname]
 
-    // Only build a route if explicitly defined in map
-    if (!routespec) return
+      if (!pattern) return
+      createRoute(pattern, fname, routespec)
+    })
 
+  // otherwise just use the order that the services came back in
+  }
+  else {
+    _.each(actmap, function (pattern, fname) {
+      var routespec = spec.map.hasOwnProperty(fname) ? spec.map[fname] : null
+
+      // Only build a route if explicitly defined in map
+      if (!routespec) return
+      createRoute(pattern, fname, routespec)
+    })
+  }
+
+  // create a shiny new route
+  function createRoute (pattern, fname, routespec) {
     var url = spec.prefix + fname
 
     // METHOD:true abbrev
@@ -839,7 +858,7 @@ function make_routespecs (actmap, spec, options) {
     }
 
     routespecs.push(_.clone(routespec))
-  })
+  }
 
   return routespecs
 }
