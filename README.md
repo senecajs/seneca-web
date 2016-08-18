@@ -137,6 +137,20 @@ server.register(
 
 ```
 
+## Ordered Mapping
+
+You can also define an ordered mapping using an array:
+
+```javascript
+map: [
+  {route: 'zig'},
+  {route: 'bar', GET: true},
+  {route: 'qaz', GET: true, POST: true}
+]
+```
+
+Routes towards the top will be prefered over routes further down.
+
 
 ## Express usage
 
