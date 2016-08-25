@@ -1,5 +1,23 @@
 'use strict'
 
+function compatibilityUse (si) {
+  if (si.version >= '3.0.0') {
+    si.use(require('seneca-basic'))
+  }
+}
+
+function initSeneca () {
+  var si = require('seneca')({
+    default_plugins: {web: false}
+  })
+
+  compatibilityUse(si)
+
+  si.use('../web.js')
+
+  return si
+}
+
 exports.init = function (cb) {
   var agent
   var request = require('supertest')
@@ -7,12 +25,7 @@ exports.init = function (cb) {
   var cookieparser = require('cookie-parser')
   var bodyparser = require('body-parser')
 
-  var si = require('seneca')({
-    default_plugins: {web: false},
-    log: 'silent'
-  })
-  si.use('../web.js')
-
+  var si = initSeneca()
   si.ready(function (err) {
     if (err) return process.exit(!console.error(err))
 
@@ -26,6 +39,9 @@ exports.init = function (cb) {
   })
 }
 
+exports.initSeneca = initSeneca
+exports.compatibilityUse = compatibilityUse
+
 exports.log = function (res) {
   // comment next line for logging of req/responses
   console.log('\n****************************************')
@@ -35,3 +51,4 @@ exports.log = function (res) {
   console.log('RESPONSE    : ', JSON.stringify(res.text))
   console.log('****************************************')
 }
+
