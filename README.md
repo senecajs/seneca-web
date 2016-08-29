@@ -21,7 +21,7 @@ This plugin supports [Express](http://expressjs.com/)-style middleware.
 This plugin supports (starting from version 0.5.0) also [hapi](http://hapijs.com/),
 see bellow usage example.
 
-- __Node:__ 0.10, 0.12, 4, 5
+- __Node:__ 4, 6
 - __License:__ [MIT][]
 
 seneca-web's source can be read in an annotated fashion by,
