@@ -5,13 +5,10 @@ var Assert = require('assert')
 var Request = require('supertest')
 var Cookieparser = require('cookie-parser')
 var Bodyparser = require('body-parser')
+var Util = require('./util.js')
 
 exports.init = function (done) {
-  var seneca = require('seneca')({
-    default_plugins: {web: false}
-  })
-  seneca.use('../web.js')
-
+  var seneca = Util.initSeneca()
   seneca.ready(function (err) {
     Assert(!err, 'Seneca configured')
 

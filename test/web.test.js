@@ -5,6 +5,7 @@ var _ = require('lodash')
 var Assert = require('assert')
 var Seneca = require('seneca')
 var Success = require('success')
+var Util = require('./util.js')
 
 var Lab = require('lab')
 var lab = exports.lab = Lab.script()
@@ -15,6 +16,7 @@ var test = lab.test
 suite('configuration suite', function () {
   test('empty', function (done) {
     var si = Seneca({log: 'silent', default_plugins: { web: false }})
+    Util.compatibilityUse(si)
     si.use('../web.js')
     si.act({role: 'web', use: {pin: {}, map: {}}}, done)
   })
@@ -29,6 +31,7 @@ suite('configuration suite', function () {
         done = _.noop
       }
     })
+    Util.compatibilityUse(si)
     si.use('../web.js')
     si.use(function bad () {
       this.act({role: 'web', use: {}})
@@ -38,6 +41,7 @@ suite('configuration suite', function () {
 
   test('config', function (done) {
     var si = Seneca({log: 'silent', default_plugins: { web: false }})
+    Util.compatibilityUse(si)
     si.use('../web.js')
     si.act(
       {
@@ -63,6 +67,7 @@ suite('configuration suite', function () {
 
   test('source', function (done) {
     var si = Seneca({log: 'silent', default_plugins: { web: false }})
+    Util.compatibilityUse(si)
     si.use('../web.js')
     si.act(
       {
@@ -88,6 +93,7 @@ suite('configuration suite', function () {
 
   test('plugin', function (done) {
     var si = Seneca({log: 'silent', errhandler: done, default_plugins: { web: false }})
+    Util.compatibilityUse(si)
     si.use('../web.js')
 
     si.use(function qaz () {
