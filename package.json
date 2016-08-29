@@ -13,31 +13,30 @@
     "url": "http://richardrodger.com/"
   },
   "contributors": [
-    {
-      "name": "Mircea Alexandru",
-      "email": "mircea.alexandru@gmail.com",
-      "url": "http://alexandrumircea.ro"
-    },
-    {
-      "name": "Cristian Kiss",
-      "email": "cristian.kiss@nearform.com ",
-      "url": "https://github.com/ckiss"
-    },
-    {
-      "name": "Mihai Dima",
-      "email": "mihaizn@gmail.com",
-      "url": "https://github.com/mihaidma"
-    }
+    "Richard Rodger <richard.rodger@nearform.com> (http://richardrodger.com/)",
+    "Mircea Alexandru <mircea.alexandru@gmail.com> (http://alexandrumircea.ro)",
+    "Mihai Dima <mihaizn@gmail.com> (https://github.com/mihaidma)",
+    "Michael Robinson (https://github.com/faceleg)",
+    "Wyatt Preul (https://github.com/geek)",
+    "Cristian Kiss (https://github.com/ckiss)",
+    "Shane Lacey (https://github.com/shanel262)",
+    "William P. Riley-Land (https://github.com/wprl)",
+    "Adrien Becchis (https://github.com/AdrieanKhisbe)",
+    "Marius Ursache (https://github.com/bamse16)",
+    "Vito Tardia (https://github.com/vtardia)",
+    "Michele Capra (https://github.com/piccoloaiutante)",
+    "David Mark Clements (https://github.com/davidmarkclements)",
+    "Reto Inderbitzin (https://github.com/indr)"
   ],
   "license": "MIT",
   "main": "web.js",
   "scripts": {
-    "test": "lab test/*.test.js -r console -v -L -m 3000 -t 75 $LAB_FLAGS",
-    "test:node6": "LAB_FLAGS='--leaks' && npm test",
+    "test": "lab test/*.test.js -r console -v -L -m 3000 -c -t 75",
     "lint": "lab -dL",
-    "coverage": "lab -s -P test -r lcov | coveralls",
+    "coveralls": "lab -s -P test -r lcov | coveralls",
+    "coverage": "lab -v -P test -L -t 75 -r html > docs/coverage.html",
     "build": "docco web.js -o doc; cp -r doc/* ../gh-pages/seneca-web/doc",
-    "annotate": "docco web.js -o doc"
+    "annotate": "docco web.js -o docs/annotated"
   },
   "files": [
     "LICENSE",
@@ -47,12 +46,12 @@
     "web"
   ],
   "dependencies": {
-    "async": "1.5.2",
+    "async": "2.0.x",
     "connect": "3.4.1",
     "eraro": "0.4.1",
     "json-stringify-safe": "5.0.1",
-    "lodash": "4.2.1",
-    "methods": "^1.1.1",
+    "lodash": "4.15.0",
+    "methods": "1.1.2",
     "mstring": "0.1.2",
     "nid": "0.3.2",
     "norma": "0.3.0",
@@ -64,15 +63,16 @@
     "assert": "^1.3.0",
     "body-parser": "^1.13.3",
     "chairo": "2.x.x",
-    "code": "^2.1.0",
+    "code": "3.0.x",
     "cookie-parser": "^1.3.5",
-    "coveralls": "^2.11.6",
+    "coveralls": "2.11.x",
     "docco": "0.7.0",
-    "eslint-config-seneca": "1.x.x",
-    "eslint-plugin-standard": "1.3.1",
+    "eslint-config-seneca": "3.x.x",
+    "eslint-plugin-standard": "2.x.x",
     "express": "^4.13.3",
     "hapi": "13.x.x",
-    "lab": "6.x.x",
+    "lab": "11.0.x",
+    "pre-commit": "^1.1.3",
     "seneca": "plugin",
     "success": "0.1.0",
     "supertest": "^1.0.1"
@@ -80,5 +80,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/senecajs/seneca-web.git"
-  }
+  },
+  "pre-commit": [
+    "test"
+  ]
 }

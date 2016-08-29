@@ -88,7 +88,7 @@ module.exports = function (options) {
   var route_list_cache = null
 
   var init_template = _.template(Mstring(
-    function () {/***
+    function () { /***
      ;(function(){
         var w = this
         var seneca = w.seneca || (w.seneca={})
