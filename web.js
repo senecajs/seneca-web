@@ -207,7 +207,7 @@ module.exports = function (options) {
 
       done()
       done = _.noop
-      seneca.once('after-pin', wrapper)
+      seneca.once('ready', wrapper)
     })
 
     function wrapper () {
