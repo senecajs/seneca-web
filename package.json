@@ -72,7 +72,7 @@
     "eslint-plugin-hapi": "4.x.x",
     "eslint-plugin-standard": "2.x.x",
     "express": "4.14.0",
-    "hapi": "13.x.x",
+    "hapi": "15.x.x",
     "lab": "11.0.x",
     "seneca": "plugin",
     "success": "0.1.x",
