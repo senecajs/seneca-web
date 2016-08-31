@@ -86,54 +86,64 @@ suite('configuration suite', function () {
   })
 
 
-  test('plugin', function (done) {
-    var si = Seneca({log: 'silent', errhandler: done, default_plugins: { web: false }})
-    si.use('../web.js')
+  test('plugin with object mapping', testPlugin({
+    zig: true,
+    bar: {GET: true},
+    qaz: {GET: true, POST: true}
+  }))
 
-    si.use(function qaz () {
-      this.add('role:foo,cmd:zig', function (args, done) {
-        done(null, {bar: args.zoo + 'g'})
-      })
-      this.add('role:foo,cmd:bar', function (args, done) {
-        done(null, {bar: args.zoo + 'b'})
-      })
-      this.add('role:foo,cmd:qaz', function (args, done) {
-        done(null, {qaz: args.zoo + 'z'})
-      })
+  test('plugin with array mapping', testPlugin([
+    {route: 'zig'},
+    {route: 'bar', GET: true},
+    {route: 'qaz', GET: true, POST: true}
+  ]))
 
-      this.act('role:web', {
-        use: function (req, res, next) {
-          next()
-        }
-      })
+  function testPlugin (mapping) {
+    return function (done) {
+      var si = Seneca({log: 'silent', errhandler: done, default_plugins: { web: false }})
+      si.use('../web.js')
 
-      this.act({
-        role: 'web',
-        use: {
-          prefix: '/foo',
-          pin: {role: 'foo', cmd: '*'},
-          map: {
-            zig: true,
-            bar: {GET: true},
-            qaz: {GET: true, POST: true}
+      si.use(function qaz () {
+        this.add('role:foo,cmd:zig', function (args, done) {
+          done(null, {bar: args.zoo + 'g'})
+        })
+        this.add('role:foo,cmd:bar', function (args, done) {
+          done(null, {bar: args.zoo + 'b'})
+        })
+        this.add('role:foo,cmd:qaz', function (args, done) {
+          done(null, {qaz: args.zoo + 'z'})
+        })
+
+        this.act('role:web', {
+          use: function (req, res, next) {
+            next()
           }
-        }
+        })
+
+        this.act({
+          role: 'web',
+          use: {
+            prefix: '/foo',
+            pin: {role: 'foo', cmd: '*'},
+            map: mapping
+          }
+        })
       })
-    })
 
-    si.ready(function () {
-      si.act('role:web,list:service', Success(done, function (out) {
-        Assert.equal(out.length, 3)
+      si.ready(function () {
+        si.act('role:web,list:service', Success(done, function (out) {
+          Assert.equal(out.length, 3)
 
-        si.act('role:web,list:route', Success(done, function (out) {
-          Assert.equal(out.length, 4)
+          si.act('role:web,list:route', Success(done, function (out) {
+            Assert.equal(out.length, 4)
 
-          si.act({role: 'web', stats: true}, Success(done, function (out) {
-            Assert.equal(4, _.keys(out).length)
-            done()
+            si.act({role: 'web', stats: true}, Success(done, function (out) {
+              Assert.equal(4, _.keys(out).length)
+              done()
+            }))
           }))
         }))
-      }))
-    })
-  })
+      })
+    }
+  }
 })
