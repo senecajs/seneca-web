@@ -7,15 +7,10 @@
     "web",
     "plugin"
   ],
-  "author": {
-    "name": "Richard Rodger",
-    "email": "richard.rodger@nearform.com",
-    "url": "http://richardrodger.com/"
-  },
+  "author": "Richard Rodger (https://github.com/rjrodger)",
   "contributors": [
-    "Richard Rodger <richard.rodger@nearform.com> (http://richardrodger.com/)",
-    "Mircea Alexandru <mircea.alexandru@gmail.com> (http://alexandrumircea.ro)",
-    "Mihai Dima <mihaizn@gmail.com> (https://github.com/mihaidma)",
+    "Mircea Alexandru (http://alexandrumircea.ro)",
+    "Mihai Dima (https://github.com/mihaidma)",
     "Michael Robinson (https://github.com/faceleg)",
     "Wyatt Preul (https://github.com/geek)",
     "Cristian Kiss (https://github.com/ckiss)",
@@ -31,47 +26,29 @@
   "license": "MIT",
   "main": "web.js",
   "scripts": {
-    "test": "lab test/*.test.js -r console -v -L -m 3000 -c -t 75",
-    "lint": "lab -dL",
+    "test": "lab -v -L -t 75 -m 5000",
     "coveralls": "lab -s -P test -r lcov | coveralls",
     "coverage": "lab -v -P test -L -t 75 -r html > docs/coverage.html",
-    "build": "docco web.js -o doc; cp -r doc/* ../gh-pages/seneca-web/doc",
     "annotate": "docco web.js -o docs/annotated"
   },
   "files": [
     "LICENSE",
     "README.md",
     "web.js",
-    "http-router.js",
-    "web"
+    "lib"
   ],
   "dependencies": {
-    "async": "2.0.x",
-    "connect": "3.4.1",
     "eraro": "0.4.1",
-    "json-stringify-safe": "5.0.1",
     "lodash": "4.15.0",
-    "methods": "1.1.2",
-    "mstring": "0.1.2",
-    "nid": "0.3.2",
-    "norma": "0.3.0",
-    "parambulator": "1.5.2",
-    "rolling-stats": "0.1.1",
-    "seneca-basic": "0.5.x",
-    "serve-static": "1.11.1"
+    "methods": "1.1.2"
   },
   "devDependencies": {
-    "assert": "1.4.x",
-    "body-parser": "1.15.x",
-    "chairo": "2.2.x",
     "code": "3.0.x",
-    "cookie-parser": "1.4.x",
     "coveralls": "2.11.x",
     "docco": "0.7.x",
     "eslint-config-seneca": "3.x.x",
     "eslint-plugin-hapi": "4.x.x",
     "eslint-plugin-standard": "2.x.x",
-    "express": "4.14.0",
     "hapi": "15.x.x",
     "lab": "11.0.x",
     "seneca": "plugin",
