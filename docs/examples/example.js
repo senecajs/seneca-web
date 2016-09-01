@@ -21,7 +21,7 @@ function plugin () {
       headers: res.headers
     })
 
-    done()
+    done() 
   })
 }
 
