@@ -49,6 +49,7 @@
     "eslint-config-seneca": "3.x.x",
     "eslint-plugin-hapi": "4.x.x",
     "eslint-plugin-standard": "2.x.x",
+    "express": "^4.14.0",
     "hapi": "15.x.x",
     "lab": "11.0.x",
     "seneca": "plugin",

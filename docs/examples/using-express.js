@@ -8,7 +8,7 @@ var plugin = require('./common/plugin')
 
 var seneca = Seneca()
 
-seneca.use(Web, {server: {name: 'hapi'}})
+seneca.use(Web, {server: {name: 'express'}})
       .use(plugin)
 
 seneca.ready(() => {
