@@ -38,23 +38,23 @@
     "lib"
   ],
   "dependencies": {
-    "eraro": "0.4.1",
-    "lodash": "4.15.0",
-    "methods": "1.1.2"
+    "eraro": "^0.4.1",
+    "lodash": "^4.15.0",
+    "connect": "^3.4.1",
+    "express": "^4.14.0",
+    "hapi": "^15.0.3"
   },
   "devDependencies": {
-    "code": "3.0.x",
-    "coveralls": "2.11.x",
-    "docco": "0.7.x",
-    "eslint-config-seneca": "3.x.x",
-    "eslint-plugin-hapi": "4.x.x",
-    "eslint-plugin-standard": "2.x.x",
-    "express": "^4.14.0",
-    "hapi": "15.x.x",
-    "lab": "11.0.x",
+    "code": "^3.0.2",
+    "coveralls": "^2.11.12",
+    "docco": "^0.7.0",
+    "eslint-config-seneca": "^3.0.0",
+    "eslint-plugin-hapi": "^4.0.0",
+    "eslint-plugin-standard": "^2.0.0",
+    "lab": "^11.0.1",
     "seneca": "plugin",
-    "success": "0.1.x",
-    "supertest": "2.0.0"
+    "success": "^0.1.x",
+    "supertest": "^2.0.0"
   },
   "repository": {
     "type": "git",

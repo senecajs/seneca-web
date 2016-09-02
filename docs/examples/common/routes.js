@@ -5,14 +5,11 @@ module.exports = [
     prefix: '/todo',
     pin: 'role:todo,cmd:*',
     map: {
-      new: true,
+      list: true,
       edit: {
         autoreply: false,
         GET: true,
         POST: true
-      },
-      delete: {
-        DELETE: true
       }
     }
   },

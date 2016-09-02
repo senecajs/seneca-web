@@ -6,11 +6,9 @@ var Web = require('../../')
 var routes = require('./common/routes')
 var plugin = require('./common/plugin')
 
-var seneca = Seneca()
-
-seneca.use(Web, {server: {name: 'log'}})
-      .use(plugin)
-
-seneca.ready(() => {
-  seneca.act('role:web', {spec: routes})
-})
+var server = Seneca()
+  .use(Web, {server: {name: 'log'}})
+  .use(plugin)
+  .ready(() => {
+    server.act('role:web', {spec: routes})
+  })
