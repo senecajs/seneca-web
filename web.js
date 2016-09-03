@@ -28,24 +28,26 @@ module.exports = function web (options) {
 
   opts = extend(opts, options)
 
-  seneca.add('role:web,spec:*', specRoutes)
+  seneca.add('role:web,routes:*', routeMap)
   seneca.add('role:web,set:server', setServer)
   seneca.add('init:web', init)
 
   return {
     name: 'web',
     exportspec: {
+      getServer: () => {return opts.server},
       setServer: setServer.bind(seneca),
-      specRoutes: specRoutes.bind(seneca)
+      routeMap: routeMap.bind(seneca)
     }
   }
 }
 
-function specRoutes (msg, done) {
+
+function routeMap (msg, done) {
   var seneca = this
   var context = opts.server.context
   var adapter = opts.server.adapter
-  var routes = MapRoutes(msg.spec)
+  var routes = MapRoutes(msg.routes)
 
   adapter.call(seneca, context, routes, done)
 }
@@ -55,17 +57,16 @@ function setServer (msg, done) {
   var name = msg.name || ''
   var adapter = msg.adapter || _.get(opts.adapters, name)
   var context = msg.context
-  var spec = msg.spec
+  var routes = msg.routes
 
-  seneca.log.debug('setting server')
   opts.server = {
     name: name,
     context: context,
     adapter: adapter
   }
 
-  if (spec) {
-    specRoutes.call(seneca, {spec: spec}, done)
+  if (routes) {
+    routeMap.call(seneca, routes, done)
     return
   }
 
@@ -77,7 +78,7 @@ function init (msg, done) {
     name: opts.server.name,
     context: opts.server.context,
     adapter: opts.server.adapter,
-    spec: opts.spec
+    routes: opts.routes
   }
 
   setServer.call(this, config, done)

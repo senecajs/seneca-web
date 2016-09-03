@@ -10,5 +10,5 @@ var server = Seneca()
   .use(Web, {server: {name: 'hapi'}})
   .use(plugin)
   .ready(() => {
-    server.act('role:web', {spec: routes})
+    server.act('role:web', {routes: routes})
   })

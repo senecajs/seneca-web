@@ -16,6 +16,6 @@ var proxyServer = Seneca()
       .use(plugin)
       .client({port: '4041', pin: 'role:todo,cmd:new'})
       .ready(() => {
-        server.act('role:web', {spec: routes})
+        server.act('role:web', {routes: routes})
       })
   })
