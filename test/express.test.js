@@ -27,6 +27,10 @@ lab.beforeEach((done) => {
   done()
 })
 
+lab.afterEach((done) => {
+  server.close()
+})
+
 lab.experiment('express', () => {
   
   lab.test('can autostart', (done) => {
@@ -43,7 +47,6 @@ lab.experiment('express', () => {
               expect(error).to.be.undefined
               expect(response.statusCode).to.equal(200)
               done()
-              server.close()
           })
         })
       })
