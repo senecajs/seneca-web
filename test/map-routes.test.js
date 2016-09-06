@@ -9,106 +9,123 @@ const lab = exports.lab = Lab.script()
 const describe = lab.describe
 const it = lab.it
 
-const noRoutes = []
-
-const singleRoute = {
-  prefix: '/api',
-  pin: 'role:test,cmd:*',
-  map: {
-    ping: true
-  }
-}
-
-const multipleRoutes = {
-  prefix: '/api',
-  pin: 'role:test,cmd:*',
-  map: {
-    ping: true,
-    pong: true
-  }
-}
-
-const multipleDiscreetRoutes = [{
-  prefix: '/api',
-  pin: 'role:test,cmd:*',
-  map: {
-    pong: true
-  },
-}, {
-  prefix: '/api',
-  pin: 'role:test,cmd:*',
-  map: {
-    pong: true
-  },
-}]
-
-const singleAutoReplyFalse = {
-  prefix: '/api',
-  pin: 'role:test,cmd:*',
-  map: {
-    ping: {
-      GET: true,
-      POST: false,
-      autoreply: false
-    }
-  }
-}
-
 describe('map-routes', () => {
-  it('keeps the specified methods', (done) => {
-    expect(MapRoutes(singleAutoReplyFalse)[0].methods).to.equal(['GET'])
-    done()
+  it('handles empty input', (done) => {
+    MapRoutes([], (result) => {
+      expect(result.ok).to.be.true()
+      expect(result.routes.length).to.be.equal(0)
+      done()
+    })
   })
 
-  it('does not fail if the routes array is empty', (done) => {
-    expect(MapRoutes(noRoutes)).to.equal([])
-    done()
+  it('Missing values are normalized', (done) => {
+    const route = {
+      pin: 'role:test,cmd:*',
+      map: {
+        ping: true
+      }
+    }
+
+    MapRoutes(route, (result) => {
+      result = result.routes[0]
+
+      expect(result.prefix).to.be.null()
+      expect(result.postfix).to.be.null()
+      expect(result.alias).to.be.null()
+      expect(result.autoreply).to.be.equal(true)
+      done()
+    })
   })
 
-  it('builds a single route from a single definition', (done) => {
-    expect(MapRoutes(singleRoute).length).to.equal(1)
-    done()
+  it('The value quick map keys is not considered', (done) => {
+    const route = {
+      pin: 'role:test,cmd:*',
+      map: {
+        ping: 0,
+        pong: 'string'
+      }
+    }
+
+    MapRoutes(route, (result) => {
+      expect(result.routes.length).to.be.equal(2)
+      expect(result.routes[0].methods).to.be.equal(['GET'])
+      expect(result.routes[1].methods).to.be.equal(['GET'])
+      done()
+    })
   })
 
-  it('defaults autoreply to true', (done) => {
-    expect(MapRoutes(singleRoute)[0].autoreply).to.equal(true)
-    done()
-  })
-
-  it('respects autoreply if set to false', (done) => {
-    expect(MapRoutes(singleAutoReplyFalse)[0].autoreply).to.equal(false)
-    done()
-  })
-
-  it('builds the correct path', (done) => {
-    expect(MapRoutes(singleRoute)[0].path).to.equal('/api/ping')
-    done()
-  })
-
-  it('handles multiple discreet routes', (done) => {
-    var result = MapRoutes(multipleDiscreetRoutes)
-
-    expect(result.length).to.equal(2)
-    expect(result[0].methods).to.equal(['GET'])
-    expect(result[1].methods).to.equal(['GET'])
-
-    done()
-  })
-
-  it('expands multiple routes', (done) => {
-    expect(MapRoutes(multipleRoutes).length).to.equal(2)
-    done()
-  })
-
-  if ('needs a pin', (done) => {
+  it('fails if no pin is provided', (done) => {
     const route = {
       map: {
         ping: true
       }
     }
 
-    var result = MapRoutes(route)
+    MapRoutes(route, (result) => {
+      expect(result.ok).to.be.false()
+      expect(result.why).to.be.equal('missing pin')
+      expect(result.routes).to.be.undefined()
+      done()
+    })
+  })
 
+  it('can handle custom pins', (done) => {
+    const route = {
+      pin: 'ns:api,handle:*',
+      map: {
+        ping: true
+      }
+    }
+
+    MapRoutes(route, (result) => {
+      result = result.routes[0]
+
+      expect(result.pin).to.be.equal('ns:api,handle:*')
+      expect(result.pattern).to.be.equal('ns:api,handle:ping')
+      expect(result.path).to.be.equal('/ping')
+
+      done()
+    })
+  })
+
+  it('can specify custom route alias', (done) => {
+    const route = {
+      pin: 'role:api,cmd:*',
+      map: {
+        ping: {
+          alias: 'foo/bar',
+          GET: 'true'
+        }
+      }
+    }
+
+    MapRoutes(route, (result) => {
+      result = result.routes[0]
+
+      expect(result.path).to.be.equal('/foo/bar')
+
+      done()
+    })
+  })
+
+  it('can specify custom auto reply', (done) => {
+    const route = {
+      pin: 'role:api,cmd:*',
+      map: {
+        ping: {
+          autoreply: false,
+          GET: 'true'
+        }
+      }
+    }
+
+    MapRoutes(route, (result) => {
+      result = result.routes[0]
+
+      expect(result.autoreply).to.be.equal(false)
+
+      done()
+    })
   })
 
   it('prefixes prefix, postfixes postfix', (done) => {
@@ -121,33 +138,33 @@ describe('map-routes', () => {
       }
     }
 
-    var result = MapRoutes(route)
-    expect(result.length).to.equal(1)
-    expect(result[0].methods).to.equal(['GET'])
-    expect(result[0].prefix).to.be.equal('api')
-    expect(result[0].postfix).to.be.equal('v1')
-    expect(result[0].path).to.equal('/api/ping/v1')
+    MapRoutes(route, (result) => {
+      result = result.routes[0]
 
-    done()
+      expect(result.prefix).to.be.equal('api')
+      expect(result.postfix).to.be.equal('v1')
+      expect(result.path).to.equal('/api/ping/v1')
+
+      done()
+    })
   })
 
   it('does not need a prefix or postfix', (done) => {
     const route = {
       pin: 'role:test,cmd:*',
       map: {
-        ping: true,
-        pong: true
+        ping: true
       }
     }
 
-    var result = MapRoutes(route)
-    expect(result.length).to.equal(2)
+    MapRoutes(route, (result) => {
+      result = result.routes[0]
 
-    var ping = result[0]
-    expect(ping.methods).to.equal(['GET'])
-    expect(ping.path).to.equal('/ping')
-    expect(ping.prefix).to.be.null()
+      expect(result.methods).to.equal(['GET'])
+      expect(result.path).to.equal('/ping')
+      expect(result.prefix).to.be.null()
 
-    done()
+      done()
+    })
   })
 })

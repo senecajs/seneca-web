@@ -47,12 +47,17 @@ module.exports = function web (options) {
 function routeMap (msg, done) {
   var adapter = msg.adapter || locals.adapter
   var context = msg.context || locals.context
-  var routes = MapRoutes(msg.routes)
   var seneca = this
 
-  // Call the adaptor with the mapped routes, context to apply them to
-  // and instance of seneca and the provided consumer callback.
-  adapter.call(seneca, context, routes, done)
+  MapRoutes(msg.routes, (result) => {
+    if (!result.ok) {
+      return done(null, result)
+    }
+
+    // Call the adaptor with the mapped routes, context to apply them to
+    // and instance of seneca and the provided consumer callback.
+    adapter.call(seneca, context, result.routes, done)
+  })
 }
 
 // Sets the 'default' server context. Any call to routeMap will use this server
