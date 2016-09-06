@@ -27,10 +27,6 @@ lab.beforeEach((done) => {
   done()
 })
 
-lab.afterEach((done) => {
-  server.close()
-})
-
 lab.experiment('express', () => {
   
   lab.test('can autostart', (done) => {
