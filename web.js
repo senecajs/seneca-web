@@ -35,7 +35,7 @@ module.exports = function web (options) {
   return {
     name: 'web',
     exportmap: {
-      context: () => {return locals.context},
+      context: () => { return locals.context },
       setServer: setServer.bind(seneca),
       routeMap: routeMap.bind(seneca)
     }
@@ -89,7 +89,6 @@ function setServer (msg, done) {
 }
 
 function init (msg, done) {
-  if (opts)
   var config = {
     context: opts.context,
     adapter: opts.adapter,

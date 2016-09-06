@@ -38,21 +38,21 @@ var seneca = Seneca()
   .ready(() => {
     seneca.act('role:web', {routes: defaultRoutes}, (err, reply) => {
       server.start((err) => {
-        console.log(server.table())
-        console.log('server started on: ' + server.info.uri)
+        //console.log(server.table())
+        //console.log('server started on: ' + server.info.uri)
       })
     })
   })
 
 
 lab.experiment('hapi', () => {
-  
+
   lab.test('can autostart', (done) => {
-  
+
     request('http://127.0.0.1:4000/api/ping', (error, response, body) => {
         expect(error).to.be.undefined
         done()
     })
-    
+
   })
 })

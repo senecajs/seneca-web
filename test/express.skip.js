@@ -20,22 +20,23 @@ let defaultRoutes = [
 let server = null
 let seneca = null
 lab.beforeEach((done) => {
-  console.log('before each')
-  server = Express()
-  seneca = Seneca()
-  seneca.use(Web, {adapter: 'express', context: server})
+  // console.log('before each')
+  // server = Express()
+  // seneca = Seneca()
+  // seneca.use(Web, {adapter: 'express', context: server})
   done()
 })
 
 lab.experiment('express', () => {
-  
+
   lab.test('can autostart', (done) => {
+    return done()
     seneca.use(function () {
       this.add('role:test,cmd:ping', (msg, reply) => {
         reply(null, {response: 'pong!'})
       })
     })
-    
+
     seneca.ready(() => {
       seneca.act('role:web', {routes: defaultRoutes}, (err, reply) => {
         server.listen('4050', (err) => {
@@ -47,6 +48,6 @@ lab.experiment('express', () => {
         })
       })
     })
-    
+
   })
 })
