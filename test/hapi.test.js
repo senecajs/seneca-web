@@ -1,58 +1,104 @@
 'use strict'
 
-let expect = require('code').expect
-let Lab = require('lab')
-let Hapi = require('hapi')
-let Seneca = require('seneca')
-let Web = require('../')
-let request = require('request')
+const Code = require('code')
+const Lab = require('lab')
+const request = require('request')
+const Seneca = require('seneca')
+const Web = require('../')
+const Hapi = require('hapi')
 
-let lab = exports.lab = Lab.script()
+const expect = Code.expect
+const lab = exports.lab = Lab.script()
+const describe = lab.describe
+const beforeEach = lab.beforeEach
+const it = lab.it
 
-let describe = lab.describe
-let it = lab.it
-let beforeEach = lab.beforeEach
-let afterEach = lab.afterEach
 
-let defaultRoutes = [
-  {
-    prefix: '/api',
-    pin: 'role:test,cmd:*',
-    map: {
-      ping: true
+describe('hapi', () => {
+  it('by default routes autoreply', (done) => {
+    var server = new Hapi.Server()
+    server.connection({port: 4000})
+
+    var config = {
+      routes: {
+        pin: 'role:test,cmd:*',
+        map: {
+          ping: true
+        }
+      }
     }
-  }
-]
 
+    var seneca = Seneca({log:'test'})
+      .use(Web, {adapter: 'hapi', context: server})
 
-var server = new Hapi.Server()
-server.connection({port: 4000})
+    seneca.act('role:web', config, (err, reply) => {
+      if (err) return done(err)
 
-var seneca = Seneca()
-  .use(function plugin () {
-    this.add('role:test,cmd:ping', (msg, reply) => {
-      reply(null, {response: 'pong!'})
-    })
-  })
-  .use(Web, {adapter: 'hapi', context: server})
-  .ready(() => {
-    seneca.act('role:web', {routes: defaultRoutes}, (err, reply) => {
+      seneca.add('role:test,cmd:ping', (msg, reply) => {
+        reply(null, {res: 'pong!'})
+      })
+
       server.start((err) => {
-        //console.log(server.table())
-        //console.log('server started on: ' + server.info.uri)
+        if (err) return done(err)
+
+        request('http://127.0.0.1:4000/ping', (err, res, body) => {
+          body = JSON.parse(body)
+
+          expect(err).to.be.null()
+          expect(body).to.be.equal({res: 'pong!'})
+          done()
+        })
       })
     })
   })
 
+  it('multiple routes supported', (done) => {
+    var server = new Hapi.Server()
+    server.connection({port: 4002})
 
-lab.experiment('hapi', () => {
+    var seneca = Seneca({log:'test'})
+      .use(Web, {adapter: 'hapi', context: server})
 
-  lab.test('can autostart', (done) => {
+    var config = {
+      routes: {
+        pin: 'role:test,cmd:*',
+        map: {
+          one: true,
+          two: true
+        }
+      }
+    }
 
-    request('http://127.0.0.1:4000/api/ping', (error, response, body) => {
-        expect(error).to.be.undefined
-        done()
+    seneca.act('role:web', config, (err, reply) => {
+      if (err) return done(err)
+
+      seneca.add('role:test,cmd:one', (msg, reply) => {
+        console.log('hi')
+        reply(null, {res: 'pong!'})
+      })
+
+      seneca.add('role:test,cmd:two', (msg, reply) => {
+        reply(null, {res: 'ping!'})
+      })
+
+      server.start((err) => {
+        if (err) return done(err)
+
+        request('http://127.0.0.1:4002/one', (err, res, body) => {
+          body = JSON.parse(body)
+
+          expect(err).to.be.null()
+          expect(body).to.be.equal({res: 'pong!'})
+
+          request('http://127.0.0.1:4002/two', (err, res, body) => {
+            body = JSON.parse(body)
+
+            expect(err).to.be.null()
+            expect(body).to.be.equal({res: 'ping!'})
+            done()
+          })
+        })
+      })
     })
-
   })
 })
