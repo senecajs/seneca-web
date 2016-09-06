@@ -21,7 +21,8 @@
     "Vito Tardia (https://github.com/vtardia)",
     "Michele Capra (https://github.com/piccoloaiutante)",
     "David Mark Clements (https://github.com/davidmarkclements)",
-    "Reto Inderbitzin (https://github.com/indr)"
+    "Reto Inderbitzin (https://github.com/indr)",
+    "David Gonzalez (http://github.com/dgonzalez)"
   ],
   "license": "MIT",
   "main": "web.js",
@@ -52,6 +53,7 @@
     "eslint-plugin-hapi": "^4.0.0",
     "eslint-plugin-standard": "^2.0.0",
     "lab": "^11.0.1",
+    "request": "^2.74.0",
     "seneca": "plugin",
     "success": "^0.1.x",
     "supertest": "^2.0.0"
