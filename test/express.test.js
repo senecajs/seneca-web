@@ -1,53 +1,102 @@
 'use strict'
 
-let Lab = require('lab')
+const Code = require('code')
+const Lab = require('lab')
+const request = require('request')
+const Seneca = require('seneca')
+const Web = require('../')
+const Express = require('express')
 
-let expect = require('code').expect
-let lab = exports.lab = Lab.script()
-let Seneca = require('seneca')
-let Express = require('express')
-let Web = require('../')
-let request = require('request')
+const expect = Code.expect
+const lab = exports.lab = Lab.script()
+const describe = lab.describe
+const beforeEach = lab.beforeEach
+const it = lab.it
 
-let defaultRoutes = [
-  {
-    prefix: '/api',
-    pin: 'role:test,cmd:*',
-    map: {
-      ping: true
+
+describe.skip('express', () => {
+  it('by default routes autoreply', (done) => {
+    var server = Express()
+
+    var config = {
+      routes: {
+        pin: 'role:test,cmd:*',
+        map: {
+          ping: true
+        }
+      }
     }
-  }]
-let server = null
-let seneca = null
-lab.beforeEach((done) => {
-  // console.log('before each')
-  // server = Express()
-  // seneca = Seneca()
-  // seneca.use(Web, {adapter: 'express', context: server})
-  done()
-})
 
-lab.experiment('express', () => {
+    var seneca = Seneca({log:'test'})
+      .use(Web, {adapter: 'express', context: server})
 
-  lab.test('can autostart', (done) => {
-    return done()
-    seneca.use(function () {
-      this.add('role:test,cmd:ping', (msg, reply) => {
-        reply(null, {response: 'pong!'})
+    seneca.act('role:web', config, (err, reply) => {
+      if (err) return done(err)
+
+      seneca.add('role:test,cmd:ping', (msg, reply) => {
+        reply(null, {res: 'pong!'})
+      })
+
+      server.listen('5000', (err) => {
+        if (err) return done(err)
+
+        request('http://127.0.0.1:5000/ping', (err, res, body) => {
+          body = JSON.parse(body)
+
+          expect(err).to.be.null()
+          expect(body).to.be.equal({res: 'pong!'})
+          done()
+        })
       })
     })
+  })
 
-    seneca.ready(() => {
-      seneca.act('role:web', {routes: defaultRoutes}, (err, reply) => {
-        server.listen('4050', (err) => {
-          request('http://localhost:4050/api/ping', function (error, response, body) {
-              expect(error).to.be.undefined
-              expect(response.statusCode).to.equal(200)
-              done()
+  it('multiple routes supported', (done) => {
+    var server = Express()
+
+    var seneca = Seneca({log:'test'})
+      .use(Web, {adapter: 'express', context: server})
+
+    var config = {
+      routes: {
+        pin: 'role:test,cmd:*',
+        map: {
+          one: true,
+          two: true
+        }
+      }
+    }
+
+    seneca.act('role:web', config, (err, reply) => {
+      if (err) return done(err)
+
+      seneca.add('role:test,cmd:one', (msg, reply) => {
+        console.log('hi')
+        reply(null, {res: 'pong!'})
+      })
+
+      seneca.add('role:test,cmd:two', (msg, reply) => {
+        reply(null, {res: 'ping!'})
+      })
+
+      server.listen('5001', (err) => {
+        if (err) return done(err)
+
+        request('http://127.0.0.1:5001/one', (err, res, body) => {
+          body = JSON.parse(body)
+
+          expect(err).to.be.null()
+          expect(body).to.be.equal({res: 'pong!'})
+
+          request('http://127.0.0.1:5001/two', (err, res, body) => {
+            body = JSON.parse(body)
+
+            expect(err).to.be.null()
+            expect(body).to.be.equal({res: 'ping!'})
+            done()
           })
         })
       })
     })
-
   })
 })
