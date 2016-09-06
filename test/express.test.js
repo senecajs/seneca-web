@@ -1,32 +1,53 @@
 'use strict'
 
-var Assert = require('assert')
-var Lab = require('lab')
-var Common = require('../lib/common')
+let Lab = require('lab')
 
-var lab = exports.lab = Lab.script()
-var describe = lab.describe
-var it = lab.it
-var assert = Assert
+let expect = require('code').expect
+let lab = exports.lab = Lab.script()
+let Seneca = require('seneca')
+let Express = require('express')
+let Web = require('../')
+let request = require('request')
 
-describe('express adapter', () => {
-  it('can autostart' (done) => {
-    done()
+let defaultRoutes = [
+  {
+    prefix: '/api',
+    pin: 'role:test,cmd:*',
+    map: {
+      ping: true
+    }
+  }]
+let server = null
+let seneca = null
+lab.beforeEach((done) => {
+  console.log('before each')
+  server = Express()
+  seneca = Seneca()
+  seneca.use(Web, {adapter: 'express', context: server})
+  done()
+})
+
+lab.experiment('express', () => {
+  
+  lab.test('can autostart', (done) => {
+    seneca.use(function () {
+      this.add('role:test,cmd:ping', (msg, reply) => {
+        reply(null, {response: 'pong!'})
+      })
+    })
+    
+    seneca.ready(() => {
+      seneca.act('role:web', {routes: defaultRoutes}, (err, reply) => {
+        server.listen('4050', (err) => {
+          request('http://localhost:4050/api/ping', function (error, response, body) {
+              expect(error).to.be.undefined
+              expect(response.statusCode).to.equal(200)
+              done()
+              server.close()
+          })
+        })
+      })
+    })
+    
   })
-
-  it('can accept a premade instance', (done) => {
-    done()
-  })
-
-  it('exports correctly', (done) => {
-    done()
-  })
-
-  it('passes settings correctly', (done) => {
-    done()
-  })
-
-  it('populates msg.args correctly', (done) => {
-
-  }
 })
