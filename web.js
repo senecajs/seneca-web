@@ -3,6 +3,7 @@
 var ExpressAdapter = require('./lib/adapters/express')
 var HapiAdapter = require('./lib/adapters/hapi')
 var LogAdapter = require('./lib/adapters/log')
+var ConnectAdapter = require('./lib/adapters/connect')
 var MapRoutes = require('./lib/map-routes')
 var _ = require('lodash')
 
@@ -13,7 +14,8 @@ var opts = {
   adapters: {
     hapi: HapiAdapter,
     express: ExpressAdapter,
-    log: LogAdapter
+    log: LogAdapter,
+    connect: ConnectAdapter
   }
 }
 
