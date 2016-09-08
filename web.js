@@ -28,7 +28,9 @@ module.exports = function web (options) {
   var seneca = this
   var extend = seneca.util.deepextend
 
-  opts = extend(opts, options)
+  opts = extend(opts, _.omit(options, ['context']))
+  // avoid deepextending context as it is a server:
+  opts.context = options.context
 
   seneca.add('role:web,routes:*', routeMap)
   seneca.add('role:web,set:server', setServer)

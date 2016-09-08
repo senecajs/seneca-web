@@ -14,10 +14,9 @@ const beforeEach = lab.beforeEach
 const it = lab.it
 
 
-describe.skip('express', () => {
+describe('express', () => {
   it('by default routes autoreply', (done) => {
     var server = Express()
-
     var config = {
       routes: {
         pin: 'role:test,cmd:*',
