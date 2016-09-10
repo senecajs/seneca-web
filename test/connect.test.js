@@ -69,7 +69,6 @@ describe('connect', () => {
       if (err) return done(err)
 
       seneca.add('role:test,cmd:one', (msg, reply) => {
-        console.log('hi')
         reply(null, {res: 'pong!'})
       })
 

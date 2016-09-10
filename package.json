@@ -27,9 +27,9 @@
   "license": "MIT",
   "main": "web.js",
   "scripts": {
-    "test": "lab -v -L -t 75 -m 5000",
-    "coveralls": "lab -s -P test -r lcov | coveralls",
-    "coverage": "lab -v -P test -L -t 75 -r html > docs/coverage.html",
+    "test": "lab -v -L -t 85 -m 5000",
+    "coveralls": "lab -s -r lcov | coveralls",
+    "coverage": "lab -v -L -r html > docs/coverage.html",
     "annotate": "docco web.js -o docs/annotated"
   },
   "files": [
@@ -40,23 +40,21 @@
   ],
   "dependencies": {
     "eraro": "^0.4.1",
-    "lodash": "^4.15.0",
-    "connect": "^3.4.1",
-    "express": "^4.14.0",
-    "hapi": "^15.0.3"
+    "lodash": "^4.15.0"
   },
   "devDependencies": {
+    "connect": "^3.5.0",
     "code": "^3.0.2",
     "coveralls": "^2.11.12",
     "docco": "^0.7.0",
     "eslint-config-seneca": "^3.0.0",
     "eslint-plugin-hapi": "^4.0.0",
     "eslint-plugin-standard": "^2.0.0",
+    "express": "^4.14.0",
+    "hapi": "^15.0.3",
     "lab": "^11.0.1",
     "request": "^2.74.0",
-    "seneca": "plugin",
-    "success": "^0.1.x",
-    "supertest": "^2.0.0"
+    "seneca": "plugin"
   },
   "repository": {
     "type": "git",
