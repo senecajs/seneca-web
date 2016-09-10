@@ -24,7 +24,8 @@ module.exports = function plugin () {
         info: res.info,
         headers: res.headers
       })
-    } else {
+    }
+    else {
       rep(null, {
         params: res.params,
         info: res.info,

@@ -3,20 +3,26 @@
 var Hapi = require('hapi')
 var Seneca = require('seneca')
 var Web = require('../../')
+var Routes = require('./common/routes')
+var Plugin = require('./common/plugin')
 
-var routes = require('./common/routes')
-var plugin = require('./common/plugin')
-
-var server = new Hapi.Server()
-server.connection({port: 4000})
+var config = {
+  routes: Routes,
+  adapter: 'hapi',
+  context: (() => {
+    var server = new Hapi.Server()
+    server.connection({port: 4000})
+    return server
+  })()
+}
 
 var seneca = Seneca()
-  .use(plugin)
-  .use(Web, {adapter: 'hapi', context: server})
+  .use(Plugin)
+  .use(Web, config)
   .ready(() => {
-    seneca.act('role:web', {routes: routes}, (err, reply) => {
-      server.start((err) => {
-        console.log('server started on: ' + server.info.uri)
-      })
+    var server = seneca.export('web/context')()
+
+    server.start(() => {
+      console.log('server started on: ' + server.info.uri)
     })
   })

@@ -28,8 +28,8 @@ module.exports = function web (options) {
   var seneca = this
   var extend = seneca.util.deepextend
 
+  // Avoid deepextending context as it is a server
   opts = extend(opts, _.omit(options, ['context']))
-  // avoid deepextending context as it is a server:
   opts.context = options.context
 
   seneca.add('role:web,routes:*', routeMap)
@@ -88,7 +88,7 @@ function setServer (msg, done) {
   // If we have routes in the msg map them and
   // let the matter handle the callback
   if (routes) {
-    routeMap.call(seneca, routes, done)
+    routeMap.call(seneca, {routes: routes}, done)
   }
   else {
     // no routes to process, let the

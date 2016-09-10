@@ -3,19 +3,22 @@
 var Express = require('express')
 var Seneca = require('seneca')
 var Web = require('../../')
+var Routes = require('./common/routes')
+var Plugin = require('./common/plugin')
 
-var routes = require('./common/routes')
-var plugin = require('./common/plugin')
-
-var server = Express()
+var config = {
+  routes: Routes,
+  adapter: 'express',
+  context: Express()
+}
 
 var seneca = Seneca()
-  .use(plugin)
-  .use(Web, {adapter: 'express', context: server})
+  .use(Plugin)
+  .use(Web, config)
   .ready(() => {
-    seneca.act('role:web', {routes: routes}, (err, reply) => {
-      server.listen('4050', (err) => {
-        console.log('server started on: 4050')
-      })
+    var server = seneca.export('web/context')()
+
+    server.listen('4050', (err) => {
+      console.log(err || 'server started on: 4050')
     })
   })

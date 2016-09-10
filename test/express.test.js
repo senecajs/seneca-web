@@ -2,7 +2,7 @@
 
 const Code = require('code')
 const Lab = require('lab')
-const request = require('request')
+const Request = require('request')
 const Seneca = require('seneca')
 const Web = require('../')
 const Express = require('express')
@@ -10,9 +10,7 @@ const Express = require('express')
 const expect = Code.expect
 const lab = exports.lab = Lab.script()
 const describe = lab.describe
-const beforeEach = lab.beforeEach
 const it = lab.it
-
 
 describe('express', () => {
   it('by default routes autoreply', (done) => {
@@ -26,7 +24,7 @@ describe('express', () => {
       }
     }
 
-    var seneca = Seneca({log:'test'})
+    var seneca = Seneca({log: 'test'})
       .use(Web, {adapter: 'express', context: server})
 
     seneca.act('role:web', config, (err, reply) => {
@@ -39,10 +37,11 @@ describe('express', () => {
       server.listen('5000', (err) => {
         if (err) return done(err)
 
-        request('http://127.0.0.1:5000/ping', (err, res, body) => {
+        Request('http://127.0.0.1:5000/ping', (err, res, body) => {
+          if (err) return done(err)
+
           body = JSON.parse(body)
 
-          expect(err).to.be.null()
           expect(body).to.be.equal({res: 'pong!'})
           done()
         })
@@ -53,7 +52,7 @@ describe('express', () => {
   it('multiple routes supported', (done) => {
     var server = Express()
 
-    var seneca = Seneca({log:'test'})
+    var seneca = Seneca({log: 'test'})
       .use(Web, {adapter: 'express', context: server})
 
     var config = {
@@ -81,16 +80,16 @@ describe('express', () => {
       server.listen('5001', (err) => {
         if (err) return done(err)
 
-        request('http://127.0.0.1:5001/one', (err, res, body) => {
-          body = JSON.parse(body)
+        Request('http://127.0.0.1:5001/one', (err, res, body) => {
+          if (err) return done(err)
 
-          expect(err).to.be.null()
+          body = JSON.parse(body)
           expect(body).to.be.equal({res: 'pong!'})
 
-          request('http://127.0.0.1:5001/two', (err, res, body) => {
-            body = JSON.parse(body)
+          Request('http://127.0.0.1:5001/two', (err, res, body) => {
+            if (err) return done(err)
 
-            expect(err).to.be.null()
+            body = JSON.parse(body)
             expect(body).to.be.equal({res: 'ping!'})
             done()
           })

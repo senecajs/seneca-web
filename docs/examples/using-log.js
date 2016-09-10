@@ -2,13 +2,14 @@
 
 var Seneca = require('seneca')
 var Web = require('../../')
+var Routes = require('./common/routes')
+var Plugin = require('./common/plugin')
 
-var routes = require('./common/routes')
-var plugin = require('./common/plugin')
+var config = {
+  routes: Routes,
+  adapter: 'log'
+}
 
-var server = Seneca()
-  .use(Web, {adapter: 'log'})
-  .use(plugin)
-  .ready(() => {
-    server.act('role:web', {routes: routes})
-  })
+Seneca()
+  .use(Plugin)
+  .use(Web, config)
