@@ -1,7 +1,7 @@
 {
   "name": "seneca-web",
   "description": "Http route mapping for Seneca microservices.",
-  "version": "0.8.0",
+  "version": "1.0.0",
   "keywords": [
     "seneca",
     "web",
@@ -10,6 +10,7 @@
   "author": "Richard Rodger (https://github.com/rjrodger)",
   "contributors": [
     "Mircea Alexandru (http://alexandrumircea.ro)",
+    "Dean McDonnell (http://github.com/mcdonnelldean)",
     "Mihai Dima (https://github.com/mihaidma)",
     "Michael Robinson (https://github.com/faceleg)",
     "Wyatt Preul (https://github.com/geek)",
