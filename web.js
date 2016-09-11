@@ -4,7 +4,7 @@ var ExpressAdapter = require('./lib/adapters/express')
 var HapiAdapter = require('./lib/adapters/hapi')
 var LogAdapter = require('./lib/adapters/log')
 var ConnectAdapter = require('./lib/adapters/connect')
-var MapRoutes = require('./lib/map-routes')
+var Mapper = require('./lib/mapper')
 var _ = require('lodash')
 
 var opts = {
@@ -37,7 +37,7 @@ module.exports = function web (options) {
   opts.context = options.context || null
   opts.auth = options.auth || null
 
-  seneca.add('role:web,routes:*', routeMap)
+  seneca.add('role:web,routes:*', mapRoutes)
   seneca.add('role:web,set:server', setServer)
   seneca.add('init:web', init)
 
@@ -45,7 +45,7 @@ module.exports = function web (options) {
   // via seneca.export('web/key').
   var exported = {
     setServer: setServer.bind(seneca),
-    routeMap: routeMap.bind(seneca),
+    mapRoutes: mapRoutes.bind(seneca),
     context: () => {
       return locals.context
     }
@@ -59,12 +59,12 @@ module.exports = function web (options) {
 
 // Creates a route-map and passes it to a given adapter. The msg can
 // optionally contain a custom adapter or context for once off routing.
-function routeMap (msg, done) {
+function mapRoutes (msg, done) {
   var seneca = this
   var adapter = msg.adapter || locals.adapter
   var context = msg.context || locals.context
   var options = msg.options || locals.options
-  var routes = MapRoutes(msg.routes)
+  var routes = Mapper(msg.routes)
   var auth = msg.auth || locals.auth
 
   // Call the adaptor with the mapped routes, context to apply them to
@@ -72,7 +72,7 @@ function routeMap (msg, done) {
   adapter.call(seneca, options, context, auth, routes, done)
 }
 
-// Sets the 'default' server context. Any call to routeMap will use this server
+// Sets the 'default' server context. Any call to mapRoutes will use this server
 // as it's context if none is provided. This is the server returned by getServer.
 function setServer (msg, done) {
   var seneca = this
@@ -89,7 +89,7 @@ function setServer (msg, done) {
   }
 
   // either replaced or the same. Regardless
-  // this sets what is called by routeMap.
+  // this sets what is called by mapRoutes.
   locals = {
     context: context,
     adapter: adapter,
@@ -100,7 +100,7 @@ function setServer (msg, done) {
   // If we have routes in the msg map them and
   // let the matter handle the callback
   if (routes) {
-    routeMap.call(seneca, {routes: routes}, done)
+    mapRoutes.call(seneca, {routes: routes}, done)
   }
   else {
     // no routes to process, let the

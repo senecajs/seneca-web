@@ -2,7 +2,7 @@
 
 const Lab = require('lab')
 const Code = require('code')
-const MapRoutes = require('../lib/map-routes')
+const Mapper = require('../lib/mapper')
 
 const expect = Code.expect
 const lab = exports.lab = Lab.script()
@@ -11,7 +11,7 @@ const it = lab.it
 
 describe('map-routes', () => {
   it('handles empty input', (done) => {
-    var result = MapRoutes([])
+    var result = Mapper([])
     expect(result.length).to.be.equal(0)
 
     done()
@@ -25,7 +25,7 @@ describe('map-routes', () => {
       }
     }
 
-    var result = MapRoutes(route)[0]
+    var result = Mapper(route)[0]
     expect(result.methods).to.be.equal(['GET'])
     expect(result.prefix).to.be.false()
     expect(result.postfix).to.be.false()
@@ -47,7 +47,7 @@ describe('map-routes', () => {
       }
     }
 
-    var result = MapRoutes(route)
+    var result = Mapper(route)
     expect(result.length).to.be.equal(2)
     expect(result[0].methods).to.be.equal(['GET'])
     expect(result[1].methods).to.be.equal(['GET'])
@@ -62,7 +62,7 @@ describe('map-routes', () => {
       }
     }
 
-    var result = MapRoutes(route)
+    var result = Mapper(route)
     expect(result.length).to.be.equal(0)
 
     done()
@@ -76,7 +76,7 @@ describe('map-routes', () => {
       }
     }
 
-    var result = MapRoutes(route)[0]
+    var result = Mapper(route)[0]
     expect(result.pin).to.be.equal('ns:api,handle:*')
     expect(result.pattern).to.be.equal('ns:api,handle:ping')
     expect(result.path).to.be.equal('/ping')
@@ -95,7 +95,7 @@ describe('map-routes', () => {
       }
     }
 
-    var result = MapRoutes(route)[0]
+    var result = Mapper(route)[0]
     expect(result.path).to.be.equal('/foo/bar')
     done()
   })
@@ -111,7 +111,7 @@ describe('map-routes', () => {
       }
     }
 
-    var result = MapRoutes(route)[0]
+    var result = Mapper(route)[0]
     expect(result.autoreply).to.be.equal(false)
 
     done()
@@ -127,7 +127,7 @@ describe('map-routes', () => {
       }
     }
 
-    var result = MapRoutes(route)[0]
+    var result = Mapper(route)[0]
     expect(result.prefix).to.be.equal('api')
     expect(result.postfix).to.be.equal('v1')
     expect(result.path).to.equal('/api/ping/v1')
@@ -143,7 +143,7 @@ describe('map-routes', () => {
       }
     }
 
-    var result = MapRoutes(route)[0]
+    var result = Mapper(route)[0]
     expect(result.methods).to.equal(['GET'])
     expect(result.path).to.equal('/ping')
 
