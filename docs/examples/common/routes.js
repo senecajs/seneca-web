@@ -4,10 +4,6 @@ module.exports = [
   {
     prefix: '/todo',
     pin: 'role:todo,cmd:*',
-    auth: {
-      strategy: 'local',
-      fail: '/login'
-    },
     map: {
       list: true,
       edit: {
@@ -21,10 +17,7 @@ module.exports = [
     map: {
       validate: {
         POST: true,
-        alias: '/login',
-        auth: {
-          strategy: 'local'
-        }
+        alias: '/manage'
       }
     }
   }

@@ -12,7 +12,7 @@
 - __Seneca:__ 1.x - 3.x
 
 
-This plugin allows http methods to be mapped to seneca actions. Http actions handled
+This plugin allows http requests to be mapped to seneca actions. Http actions handled
 locally can access the raw `request` and `response` objects. Actions handled over
 transport can access a reduced set of request data including payloads and headers.
 
@@ -28,7 +28,7 @@ everything from tutorials to sample apps to help get you up and running quickly.
 
 ## Install
 ```
-npm install seneca
+npm install seneca-web
 ```
 
 ## Test
@@ -45,25 +45,274 @@ npm run coverage; open docs/coverage.html
 ```
 
 ## Quick example
+__Route map__
+```js
+var Routes = [{
+  pin: 'role:admin,cmd:*',
+  prefix: '/v1',
+  postfix: '/?param=true'
+  map: {
+    home: {
+      GET: true,
+      POST: true,
+      alias: '/home'
+    },
+    logout: {
+      GET: true,
+      redirect: '/'
+    },
+    profile: {
+      GET: true,
+      autoreply: false
+    },
+    login: {
+      POST: true,
+      auth: {
+        strategy: 'local',
+        pass: '/profile',
+        fail: '/'
+      }
+    }
+  }
+}]
+```
 
+__Hapi__
+```js
+'use strict'
 
+var Hapi = require('hapi')
+var Seneca = require('seneca')
+var Web = require('../../')
+var Routes = require('./common/routes')
+var Plugin = require('./common/plugin')
 
+var config = {
+  routes: Routes,
+  adapter: 'hapi',
+  context: (() => {
+    var server = new Hapi.Server()
+    server.connection({port: 4000})
+    return server
+  })()
+}
+
+var seneca = Seneca()
+  .use(Plugin)
+  .use(Web, config)
+  .ready(() => {
+    var server = seneca.export('web/context')()
+
+    server.start(() => {
+      console.log('server started on: ' + server.info.uri)
+    })
+  })
+```
+
+__Express__
+```js
+'use strict'
+
+var Seneca = require('seneca')
+var Express = require('Express')
+var Web = require('../../')
+var Routes = require('./common/routes')
+var Plugin = require('./common/plugin')
+
+var config = {
+  routes: Routes,
+  adapter: 'express',
+  context: Express()
+}
+
+var seneca = Seneca()
+  .use(Plugin)
+  .use(Web, config)
+  .ready(() => {
+    var server = seneca.export('web/context')()
+
+    server.listen('4000', () => {
+      console.log('server started on: 4000')
+    })
+  })
+
+```
+
+__Connect__
+```js
+'use strict'
+
+var Seneca = require('seneca')
+var Connect = require('connect')
+var Http = require('http')
+var Web = require('../../')
+var Routes = require('./common/routes')
+var Plugin = require('./common/plugin')
+
+var config = {
+  routes: Routes,
+  adapter: 'connect',
+  context: Connect()
+}
+
+var seneca = Seneca()
+  .use(Plugin)
+  .use(Web, config)
+  .ready(() => {
+    var connect = seneca.export('web/context')()
+    var http = Http.createServer(connect)
+
+    http.listen(4060, () => {
+      console.log('server started on: 4060')
+    })
+  })
+
+```
 
 ## Action Patterns
 
-### `role:web`
-
+### role:web,route:*
 Define a web service as a mapping from URL routes to action patterns.
 
-_Parameters_
-
-   * `use`: mapping object, or middleware function
-
+```js
+seneca.act('role:web', {routes: Routes}, (err, reply) => {
+  console.log(err || reply.routes)
+})
+```
 
 ## Exported Methods
 
+### context
+Provides the current context so it can be used to start the server or
+add custom logic, strategies, or middleware.
 
+```js
+var seneca = Seneca()
+  .use(Plugin)
+  .use(Web, config)
+  .ready(() => {
 
+    // This will be whatever server is being used.
+    // seneca-web doesn't autostart the server, it
+    // must first be exported and then started.
+    var context = seneca.export('web/context')()
+  })
+```
+
+### mapRoutes
+Allows routes to be mapped outside of using seneca directly. Provides the
+same functionality as `role:web,route:*`.
+
+```js
+var seneca = Seneca()
+  .use(Plugin)
+  .use(Web, config)
+  .ready(() => {
+
+    // Provides the same functionality as seneca.act('role:web', {routes ...})
+    // can be used to add more routes at runtime without needing seneca.
+    seneca.export('web/mapRoutes')(Routes, (err, reply) => {
+      ...
+    })
+  })
+```
+
+### setServer
+Allows the server and adapter to be swapped out after runtime.
+
+```js
+var seneca = Seneca()
+  .use(Plugin)
+  .use(Web, config)
+  .ready(() => {
+
+    var config = {
+      context: Express(),
+      adapter: 'express',
+      routes: Routes
+    }
+
+    // Provides the same functionality as seneca.act('role:web', {routes ...})
+    // can be used to add more routes at runtime without needing seneca.
+    seneca.export('web/setServer')(config, (err, reply) => {
+      ...
+    })
+  })
+```
+
+## Auth
+Both Hapi and Express support secure routing. Hapi support is via it's built in
+auth mechanism and allows Bell and custom strategies. Express auth is provided
+via passport, which supports 100s of strategies.
+
+__Secure Express routes__
+```js
+map: {
+  home: {
+    GET: true,
+    POST: true,
+    alias: '/'
+  },
+  logout: {
+    GET: true,
+    redirect: '/'
+  },
+  profile: {
+    GET: true,
+    secure: {
+      fail: '/'
+    }
+  },
+  login: {
+    POST: true,
+    auth: {
+      strategy: 'local',
+      pass: '/profile',
+      fail: '/'
+    }
+  }
+```
+
+Express routes use `auth` for `passport.authorize` and `secure` for checking the
+existence of `request.user`. Both secure and auth guards support fail redirects. Auth
+also supports pass routing.
+
+__Secure Hapi routes__
+```js
+map: {
+  home: {
+    GET: true,
+    POST: true,
+    alias: '/'
+  },
+  profile: {
+    GET: true,
+    auth: {
+      strategy: 'simple',
+      fail: '/'
+    }
+  },
+  admin: {
+    GET: true,
+    auth: {
+      strategy: 'simple',
+      pass: '/profile',
+      fail: '/'
+    }
+  }
+}
+```
+Hapi routes do not use the `secure` option. All routes are secured using `auth`. Both
+pass and fail redirects are supported.
+
+## Examples
+A number of examples showing basic and secure usage for hapi and express as well as
+showing connect and log usage are provided in [./docs/examples](). Examples include,
+
+- Logging routes when building maps (via log adapter).
+- Basic expres, hapi, and connect usage.
+- Securing Express and Hapi routes.
+- Proxying some routes over to transport
 
 ## Contributing
 The [Senecajs org][] encourage open participation. If you feel you can help in any way,

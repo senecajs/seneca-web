@@ -1,26 +1,24 @@
 'use strict'
 
 var Seneca = require('seneca')
-var Connect = require('connect')
-var Http = require('http')
+var Express = require('Express')
 var Web = require('../../')
 var Routes = require('./common/routes')
 var Plugin = require('./common/plugin')
 
 var config = {
   routes: Routes,
-  adapter: 'connect',
-  context: Connect()
+  adapter: 'express',
+  context: Express()
 }
 
 var seneca = Seneca()
   .use(Plugin)
   .use(Web, config)
   .ready(() => {
-    var connect = seneca.export('web/context')()
-    var http = Http.createServer(connect)
+    var server = seneca.export('web/context')()
 
-    http.listen(4060, () => {
-      console.log('server started on: 4060')
+    server.listen('4000', () => {
+      console.log('server started on: 4000')
     })
   })
