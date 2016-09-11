@@ -12,6 +12,7 @@ var opts = {
   context: null,
   adapter: 'log',
   auth: null,
+  options: {},
   adapters: {
     hapi: HapiAdapter,
     express: ExpressAdapter,
@@ -22,7 +23,8 @@ var opts = {
 
 var locals = {
   context: null,
-  adapter: null
+  adapter: null,
+  options: null
 }
 
 module.exports = function web (options) {
@@ -61,12 +63,13 @@ function routeMap (msg, done) {
   var seneca = this
   var adapter = msg.adapter || locals.adapter
   var context = msg.context || locals.context
+  var options = msg.options || locals.options
   var routes = MapRoutes(msg.routes)
   var auth = msg.auth || locals.auth
 
   // Call the adaptor with the mapped routes, context to apply them to
   // and instance of seneca and the provided consumer callback.
-  adapter.call(seneca, context, auth, routes, done)
+  adapter.call(seneca, options, context, auth, routes, done)
 }
 
 // Sets the 'default' server context. Any call to routeMap will use this server
@@ -75,6 +78,7 @@ function setServer (msg, done) {
   var seneca = this
   var context = msg.context || locals.context
   var adapter = msg.adapter || locals.adapter
+  var options = msg.options || locals.options
   var auth = msg.auth || locals.auth
   var routes = msg.routes
 
@@ -89,7 +93,8 @@ function setServer (msg, done) {
   locals = {
     context: context,
     adapter: adapter,
-    auth: auth
+    auth: auth,
+    options: options
   }
 
   // If we have routes in the msg map them and
@@ -112,7 +117,8 @@ function init (msg, done) {
     context: opts.context,
     adapter: opts.adapter,
     routes: opts.routes,
-    auth: opts.auth
+    auth: opts.auth,
+    options: opts.options
   }
 
   setServer.call(this, config, done)
