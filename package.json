@@ -1,6 +1,6 @@
 {
   "name": "seneca-web",
-  "description": "A plugin that provides HTTP functionality for the Seneca framework.",
+  "description": "Http route mapping for Seneca microservices.",
   "version": "0.8.0",
   "keywords": [
     "seneca",
