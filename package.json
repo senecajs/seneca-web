@@ -27,7 +27,7 @@
   "license": "MIT",
   "main": "web.js",
   "scripts": {
-    "test": "lab -v -L -t 85 -m 5000",
+    "test": "lab -v -L -t 80 -m 5000",
     "coveralls": "lab -s -r lcov | coveralls",
     "coverage": "lab -v -L -r html > docs/coverage.html",
     "annotate": "docco web.js -o docs/annotated"
@@ -43,16 +43,21 @@
     "lodash": "^4.15.0"
   },
   "devDependencies": {
-    "connect": "^3.5.0",
+    "body-parser": "^1.15.2",
     "code": "^3.0.2",
+    "connect": "^3.5.0",
+    "cookie-parser": "^1.4.3",
     "coveralls": "^2.11.12",
     "docco": "^0.7.0",
     "eslint-config-seneca": "^3.0.0",
     "eslint-plugin-hapi": "^4.0.0",
     "eslint-plugin-standard": "^2.0.0",
     "express": "^4.14.0",
+    "express-session": "^1.14.1",
     "hapi": "^15.0.3",
     "lab": "^11.0.1",
+    "passport": "^0.3.2",
+    "passport-local": "^1.0.0",
     "request": "^2.74.0",
     "seneca": "plugin"
   },

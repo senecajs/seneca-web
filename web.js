@@ -11,6 +11,7 @@ var opts = {
   routes: null,
   context: null,
   adapter: 'log',
+  auth: null,
   adapters: {
     hapi: HapiAdapter,
     express: ExpressAdapter,
@@ -28,40 +29,44 @@ module.exports = function web (options) {
   var seneca = this
   var extend = seneca.util.deepextend
 
-  // Avoid deepextending context as it is a server
-  opts = extend(opts, _.omit(options, ['context']))
-  opts.context = options.context
+  // Avoid deepextending context and auth,
+  // they aren't stringify friendly
+  opts = extend(opts, _.omit(options, ['context', 'auth']))
+  opts.context = options.context || null
+  opts.auth = options.auth || null
 
   seneca.add('role:web,routes:*', routeMap)
   seneca.add('role:web,set:server', setServer)
   seneca.add('init:web', init)
 
+  // exported functions, they can be called
+  // via seneca.export('web/key').
+  var exported = {
+    setServer: setServer.bind(seneca),
+    routeMap: routeMap.bind(seneca),
+    context: () => {
+      return locals.context
+    }
+  }
+
   return {
     name: 'web',
-    exportmap: {
-      context: () => { return locals.context },
-      setServer: setServer.bind(seneca),
-      routeMap: routeMap.bind(seneca)
-    }
+    exportmap: exported
   }
 }
 
 // Creates a route-map and passes it to a given adapter. The msg can
 // optionally contain a custom adapter or context for once off routing.
 function routeMap (msg, done) {
+  var seneca = this
   var adapter = msg.adapter || locals.adapter
   var context = msg.context || locals.context
-  var seneca = this
+  var routes = MapRoutes(msg.routes)
+  var auth = msg.auth || locals.auth
 
-  MapRoutes(msg.routes, (result) => {
-    if (!result.ok) {
-      return done(null, result)
-    }
-
-    // Call the adaptor with the mapped routes, context to apply them to
-    // and instance of seneca and the provided consumer callback.
-    adapter.call(seneca, context, result.routes, done)
-  })
+  // Call the adaptor with the mapped routes, context to apply them to
+  // and instance of seneca and the provided consumer callback.
+  adapter.call(seneca, context, auth, routes, done)
 }
 
 // Sets the 'default' server context. Any call to routeMap will use this server
@@ -70,6 +75,7 @@ function setServer (msg, done) {
   var seneca = this
   var context = msg.context || locals.context
   var adapter = msg.adapter || locals.adapter
+  var auth = msg.auth || locals.auth
   var routes = msg.routes
 
   // If the adapter is a string, we look up the
@@ -82,7 +88,8 @@ function setServer (msg, done) {
   // this sets what is called by routeMap.
   locals = {
     context: context,
-    adapter: adapter
+    adapter: adapter,
+    auth: auth
   }
 
   // If we have routes in the msg map them and
@@ -97,11 +104,15 @@ function setServer (msg, done) {
   }
 }
 
+// This is called as soon as the plugin is loaded (when it
+// returns). Any routes or customisations passed via options
+// will be processed now via a call to setServer.
 function init (msg, done) {
   var config = {
     context: opts.context,
     adapter: opts.adapter,
-    routes: opts.routes
+    routes: opts.routes,
+    auth: opts.auth
   }
 
   setServer.call(this, config, done)

@@ -11,11 +11,10 @@ const it = lab.it
 
 describe('map-routes', () => {
   it('handles empty input', (done) => {
-    MapRoutes([], (result) => {
-      expect(result.ok).to.be.true()
-      expect(result.routes.length).to.be.equal(0)
-      done()
-    })
+    var result = MapRoutes([])
+    expect(result.length).to.be.equal(0)
+
+    done()
   })
 
   it('Missing values are normalized', (done) => {
@@ -26,18 +25,20 @@ describe('map-routes', () => {
       }
     }
 
-    MapRoutes(route, (result) => {
-      result = result.routes[0]
+    var result = MapRoutes(route)[0]
+    expect(result.methods).to.be.equal(['GET'])
+    expect(result.prefix).to.be.false()
+    expect(result.postfix).to.be.false()
+    expect(result.alias).to.be.false()
+    expect(result.autoreply).to.be.true()
+    expect(result.redirect).to.be.false()
+    expect(result.auth).to.be.false()
+    expect(result.secure).to.be.false()
 
-      expect(result.prefix).to.be.null()
-      expect(result.postfix).to.be.null()
-      expect(result.alias).to.be.null()
-      expect(result.autoreply).to.be.equal(true)
-      done()
-    })
+    done()
   })
 
-  it('The value quick map keys is not considered', (done) => {
+  it('The value of quick maps are not considered', (done) => {
     const route = {
       pin: 'role:test,cmd:*',
       map: {
@@ -46,12 +47,12 @@ describe('map-routes', () => {
       }
     }
 
-    MapRoutes(route, (result) => {
-      expect(result.routes.length).to.be.equal(2)
-      expect(result.routes[0].methods).to.be.equal(['GET'])
-      expect(result.routes[1].methods).to.be.equal(['GET'])
-      done()
-    })
+    var result = MapRoutes(route)
+    expect(result.length).to.be.equal(2)
+    expect(result[0].methods).to.be.equal(['GET'])
+    expect(result[1].methods).to.be.equal(['GET'])
+
+    done()
   })
 
   it('fails if no pin is provided', (done) => {
@@ -61,12 +62,10 @@ describe('map-routes', () => {
       }
     }
 
-    MapRoutes(route, (result) => {
-      expect(result.ok).to.be.false()
-      expect(result.why).to.be.equal('missing pin')
-      expect(result.routes).to.be.undefined()
-      done()
-    })
+    var result = MapRoutes(route)
+    expect(result.length).to.be.equal(0)
+
+    done()
   })
 
   it('can handle custom pins', (done) => {
@@ -77,15 +76,12 @@ describe('map-routes', () => {
       }
     }
 
-    MapRoutes(route, (result) => {
-      result = result.routes[0]
+    var result = MapRoutes(route)[0]
+    expect(result.pin).to.be.equal('ns:api,handle:*')
+    expect(result.pattern).to.be.equal('ns:api,handle:ping')
+    expect(result.path).to.be.equal('/ping')
 
-      expect(result.pin).to.be.equal('ns:api,handle:*')
-      expect(result.pattern).to.be.equal('ns:api,handle:ping')
-      expect(result.path).to.be.equal('/ping')
-
-      done()
-    })
+    done()
   })
 
   it('can specify custom route alias', (done) => {
@@ -99,13 +95,9 @@ describe('map-routes', () => {
       }
     }
 
-    MapRoutes(route, (result) => {
-      result = result.routes[0]
-
-      expect(result.path).to.be.equal('/foo/bar')
-
-      done()
-    })
+    var result = MapRoutes(route)[0]
+    expect(result.path).to.be.equal('/foo/bar')
+    done()
   })
 
   it('can specify custom auto reply', (done) => {
@@ -119,13 +111,10 @@ describe('map-routes', () => {
       }
     }
 
-    MapRoutes(route, (result) => {
-      result = result.routes[0]
+    var result = MapRoutes(route)[0]
+    expect(result.autoreply).to.be.equal(false)
 
-      expect(result.autoreply).to.be.equal(false)
-
-      done()
-    })
+    done()
   })
 
   it('prefixes prefix, postfixes postfix', (done) => {
@@ -138,15 +127,12 @@ describe('map-routes', () => {
       }
     }
 
-    MapRoutes(route, (result) => {
-      result = result.routes[0]
+    var result = MapRoutes(route)[0]
+    expect(result.prefix).to.be.equal('api')
+    expect(result.postfix).to.be.equal('v1')
+    expect(result.path).to.equal('/api/ping/v1')
 
-      expect(result.prefix).to.be.equal('api')
-      expect(result.postfix).to.be.equal('v1')
-      expect(result.path).to.equal('/api/ping/v1')
-
-      done()
-    })
+    done()
   })
 
   it('does not need a prefix or postfix', (done) => {
@@ -157,14 +143,10 @@ describe('map-routes', () => {
       }
     }
 
-    MapRoutes(route, (result) => {
-      result = result.routes[0]
+    var result = MapRoutes(route)[0]
+    expect(result.methods).to.equal(['GET'])
+    expect(result.path).to.equal('/ping')
 
-      expect(result.methods).to.equal(['GET'])
-      expect(result.path).to.equal('/ping')
-      expect(result.prefix).to.be.null()
-
-      done()
-    })
+    done()
   })
 })

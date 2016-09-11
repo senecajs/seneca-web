@@ -1,15 +1,40 @@
 'use strict'
 
-var Seneca = require('seneca')
+var Seneca = require('seneca')()
 var Web = require('../../')
-var Routes = require('./common/routes')
-var Plugin = require('./common/plugin')
 
-var config = {
-  routes: Routes,
-  adapter: 'log'
-}
+// The 'log' adapter switch logs mapped input to the console window in
+// pretty format. The log switch can be turned used in debug scenario's
+// to check the routes that have been generated.
 
-Seneca()
-  .use(Plugin)
-  .use(Web, config)
+Seneca.use(Web, {
+  adapter: 'log',
+  routes: {
+    pin: 'role:admin,cmd:*',
+    map: {
+      home: {
+        GET: true,
+        POST: true,
+        alias: '/'
+      },
+      logout: {
+        GET: true,
+        redirect: '/'
+      },
+      profile: {
+        GET: true,
+        secure: {
+          fail: '/'
+        }
+      },
+      login: {
+        POST: true,
+        auth: {
+          strategy: 'local',
+          pass: '/profile',
+          fail: '/'
+        }
+      }
+    }
+  }
+})

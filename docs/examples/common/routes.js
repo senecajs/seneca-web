@@ -11,9 +11,7 @@ module.exports = [
     map: {
       list: true,
       edit: {
-        autoreply: false,
-        GET: true,
-        POST: true
+        GET: true
       }
     }
   },
@@ -22,12 +20,10 @@ module.exports = [
     pin: 'role:admin,cmd:*',
     map: {
       validate: {
-        GET: true,
+        POST: true,
         alias: '/login',
         auth: {
-          strategy: 'local',
-          pass: '/',
-          fail: '/login'
+          strategy: 'local'
         }
       }
     }
