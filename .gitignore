@@ -1,23 +1,9 @@
-lib-cov
-*.seed
-*.log
-*.csv
-*.dat
-*.out
-*.pid
-*.gz
-
-pids
-logs
-results
-
-node_modules
-npm-debug.log
-
-README.html
 
 .DS_Store
-*~
 
+*~
+*.log
+coverage.html
+
+node_modules
 docs/annotated
-docs/coverage.html

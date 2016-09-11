@@ -1,21 +1,16 @@
 {
   "name": "seneca-web",
-  "description": "A plugin that provides HTTP functionality for the Seneca framework.",
+  "description": "Http route mapping for Seneca microservices.",
   "version": "0.8.0",
   "keywords": [
     "seneca",
     "web",
     "plugin"
   ],
-  "author": {
-    "name": "Richard Rodger",
-    "email": "richard.rodger@nearform.com",
-    "url": "http://richardrodger.com/"
-  },
+  "author": "Richard Rodger (https://github.com/rjrodger)",
   "contributors": [
-    "Richard Rodger <richard.rodger@nearform.com> (http://richardrodger.com/)",
-    "Mircea Alexandru <mircea.alexandru@gmail.com> (http://alexandrumircea.ro)",
-    "Mihai Dima <mihaizn@gmail.com> (https://github.com/mihaidma)",
+    "Mircea Alexandru (http://alexandrumircea.ro)",
+    "Mihai Dima (https://github.com/mihaidma)",
     "Michael Robinson (https://github.com/faceleg)",
     "Wyatt Preul (https://github.com/geek)",
     "Cristian Kiss (https://github.com/ckiss)",
@@ -26,56 +21,47 @@
     "Vito Tardia (https://github.com/vtardia)",
     "Michele Capra (https://github.com/piccoloaiutante)",
     "David Mark Clements (https://github.com/davidmarkclements)",
-    "Reto Inderbitzin (https://github.com/indr)"
+    "Reto Inderbitzin (https://github.com/indr)",
+    "David Gonzalez (http://github.com/dgonzalez)"
   ],
   "license": "MIT",
   "main": "web.js",
   "scripts": {
-    "test": "lab test/*.test.js -r console -v -L -m 3000 -c -t 75",
-    "lint": "lab -dL",
-    "coveralls": "lab -s -P test -r lcov | coveralls",
-    "coverage": "lab -v -P test -L -t 75 -r html > docs/coverage.html",
-    "build": "docco web.js -o doc; cp -r doc/* ../gh-pages/seneca-web/doc",
+    "test": "lab -v -L -t 80 -m 5000",
+    "coveralls": "lab -s -r lcov | coveralls",
+    "coverage": "lab -v -L -r html > docs/coverage.html",
     "annotate": "docco web.js -o docs/annotated"
   },
   "files": [
     "LICENSE",
     "README.md",
     "web.js",
-    "http-router.js",
-    "web"
+    "lib"
   ],
   "dependencies": {
-    "async": "2.0.x",
-    "connect": "3.4.1",
-    "eraro": "0.4.1",
-    "json-stringify-safe": "5.0.1",
-    "lodash": "4.15.0",
-    "methods": "1.1.2",
-    "mstring": "0.1.2",
-    "nid": "0.3.2",
-    "norma": "0.3.0",
-    "parambulator": "1.5.1",
-    "rolling-stats": "0.1.1",
-    "serve-static": "1.10.2"
+    "eraro": "^0.4.1",
+    "lodash": "^4.15.0"
   },
   "devDependencies": {
-    "assert": "^1.3.0",
-    "body-parser": "^1.13.3",
-    "chairo": "2.x.x",
-    "code": "3.0.x",
-    "cookie-parser": "^1.3.5",
-    "coveralls": "2.11.x",
-    "docco": "0.7.0",
-    "eslint-config-seneca": "3.x.x",
-    "eslint-plugin-standard": "2.x.x",
-    "express": "^4.13.3",
-    "hapi": "13.x.x",
-    "lab": "11.0.x",
+    "body-parser": "^1.15.2",
+    "code": "^3.0.2",
+    "connect": "^3.5.0",
+    "cookie-parser": "^1.4.3",
+    "coveralls": "^2.11.12",
+    "docco": "^0.7.0",
+    "eslint-config-seneca": "^3.0.0",
+    "eslint-plugin-hapi": "^4.0.0",
+    "eslint-plugin-standard": "^2.0.0",
+    "express": "^4.14.0",
+    "express-session": "^1.14.1",
+    "hapi": "^15.0.3",
+    "hapi-auth-basic": "^4.2.0",
+    "lab": "^11.0.1",
+    "passport": "^0.3.2",
+    "passport-local": "^1.0.0",
     "pre-commit": "^1.1.3",
-    "seneca": "plugin",
-    "success": "0.1.0",
-    "supertest": "^1.0.1"
+    "request": "^2.74.0",
+    "seneca": "plugin"
   },
   "repository": {
     "type": "git",
