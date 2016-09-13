@@ -14,5 +14,5 @@ before_script:
   - npm uninstall seneca
   - npm install seneca$SENECA_VER
 
-after_script:
+after_success:
   npm run coveralls
