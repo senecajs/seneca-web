@@ -305,6 +305,12 @@ map: {
 Hapi routes do not use the `secure` option. All routes are secured using `auth`. Both
 pass and fail redirects are supported.
 
+## Body Parser
+
+If a body parser has not been provided using express or connect, seneca-web will attempt
+to parse the body. This will not work if a body-parser has already been defined for the app.
+To disable this behavior, pass `{options: {parseBody: false}}` to the plugin options.
+
 ## Examples
 A number of examples showing basic and secure usage for hapi and express as well as
 showing connect and log usage are provided in [./docs/examples](). Examples include,

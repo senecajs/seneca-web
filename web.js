@@ -12,7 +12,9 @@ var opts = {
   context: null,
   adapter: 'log',
   auth: null,
-  options: {},
+  options: {
+    parseBody: true
+  },
   adapters: {
     hapi: HapiAdapter,
     express: ExpressAdapter,

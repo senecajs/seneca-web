@@ -6,6 +6,7 @@ const Request = require('request')
 const Seneca = require('seneca')
 const Web = require('../')
 const Connect = require('connect')
+const BodyParser = require('body-parser')
 
 const expect = Code.expect
 const lab = exports.lab = Lab.script()
@@ -94,6 +95,80 @@ describe('connect', () => {
             expect(body).to.be.equal({res: 'ping!'})
             done()
           })
+        })
+      })
+    })
+  })
+
+  it('post without body parser defined', (done) => {
+    var server = Connect()
+    var config = {
+      routes: {
+        pin: 'role:test,cmd:*',
+        map: {
+          echo: {
+            POST: true
+          }
+        }
+      }
+    }
+
+    var seneca = Seneca({log: 'test'})
+      .use(Web, {adapter: 'connect', context: server})
+
+    seneca.act('role:web', config, (err, reply) => {
+      if (err) return done(err)
+
+      seneca.add('role:test,cmd:echo', (msg, reply) => {
+        reply(null, {value: msg.args.body})
+      })
+
+      server.listen('6003', (err) => {
+        if (err) return done(err)
+
+        Request.post('http://127.0.0.1:6003/echo', {json: {foo: 'bar'}}, (err, res, body) => {
+          if (err) return done(err)
+          expect(body.value).to.be.equal('{"foo":"bar"}')
+          done()
+        })
+      })
+    })
+  })
+
+  it('post with body parser defined', (done) => {
+    var server = Connect()
+    server.use(BodyParser.json())
+    var config = {
+      options: {
+        parseBody: false
+      },
+      routes: {
+        pin: 'role:test,cmd:*',
+        map: {
+          echo: {
+            POST: true
+          }
+        }
+      }
+    }
+
+    var seneca = Seneca({log: 'error'})
+      .use(Web, {adapter: 'connect', context: server})
+
+    seneca.act('role:web', config, (err, reply) => {
+      if (err) return done(err)
+
+      seneca.add('role:test,cmd:echo', (msg, reply) => {
+        reply(null, msg.args.body)
+      })
+
+      server.listen('6004', (err) => {
+        if (err) return done(err)
+
+        Request.post('http://127.0.0.1:6004/echo', {json: {foo: 'bar'}}, (err, res, body) => {
+          if (err) return done(err)
+          expect(body).to.be.equal({foo: 'bar'})
+          done()
         })
       })
     })
