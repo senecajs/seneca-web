@@ -29,6 +29,7 @@ describe('map-routes', () => {
     expect(result.methods).to.be.equal(['GET'])
     expect(result.prefix).to.be.false()
     expect(result.postfix).to.be.false()
+    expect(result.suffix).to.be.false()
     expect(result.alias).to.be.false()
     expect(result.autoreply).to.be.true()
     expect(result.redirect).to.be.false()
@@ -117,20 +118,24 @@ describe('map-routes', () => {
     done()
   })
 
-  it('prefixes prefix, postfixes postfix', (done) => {
+  it('prefixes prefix, postfixes postfix, suffixes suffix', (done) => {
     const route = {
       pin: 'role:test,cmd:*',
       prefix: 'api',
       postfix: 'v1',
       map: {
-        ping: true
+        ping: {
+          GET: true,
+          suffix: '/:param'
+        }
       }
     }
 
     var result = Mapper(route)[0]
     expect(result.prefix).to.be.equal('api')
     expect(result.postfix).to.be.equal('v1')
-    expect(result.path).to.equal('/api/ping/v1')
+    expect(result.suffix).to.be.equal('/:param')
+    expect(result.path).to.equal('/api/ping/v1/:param')
 
     done()
   })
