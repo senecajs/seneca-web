@@ -1,16 +1,17 @@
 'use strict'
 
-var ExpressAdapter = require('./lib/adapters/express')
-var HapiAdapter = require('./lib/adapters/hapi')
-var LogAdapter = require('./lib/adapters/log')
-var ConnectAdapter = require('./lib/adapters/connect')
+const Util = require('util')
+const ExpressAdapter = require('seneca-web-adapter-express')
+const HapiAdapter = require('seneca-web-adapter-hapi')
+const LogAdapter = require('./lib/adapters/log')
+const ConnectAdapter = require('seneca-web-adapter-connect')
 var Mapper = require('./lib/mapper')
 var _ = require('lodash')
 
 var opts = {
   routes: null,
   context: null,
-  adapter: 'log',
+  adapter: LogAdapter,
   auth: null,
   options: {
     parseBody: true
@@ -87,7 +88,8 @@ function setServer (msg, done) {
   // If the adapter is a string, we look up the
   // adapters collection in opts.adapters.
   if (_.isString(adapter)) {
-    adapter = _.get(opts.adapters, adapter, null)
+    adapter = Util.deprecate(() => _.get(opts.adapters, adapter, null),
+      'passing adapter as string is deprecated. require the module instead')()
   }
 
   // either replaced or the same. Regardless

@@ -13,7 +13,6 @@ const it = lab.it
 describe('log adapter', () => {
   it('logs routes to a sink', (done) => {
     var config = {
-      adapter: 'log',
       options: {
         sink: (routes) => {
           expect(routes.length).to.be.equal(1)
@@ -34,7 +33,6 @@ describe('log adapter', () => {
 
   it('logs routes to console by default', (done) => {
     var config = {
-      adapter: 'log',
       options: {
         sink: null
       },

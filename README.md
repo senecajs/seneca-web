@@ -89,7 +89,7 @@ var Plugin = require('./common/plugin')
 
 var config = {
   routes: Routes,
-  adapter: 'hapi',
+  adapter: require('seneca-web-adapter-hapi'),
   context: (() => {
     var server = new Hapi.Server()
     server.connection({port: 4000})
@@ -121,7 +121,7 @@ var Plugin = require('./common/plugin')
 
 var config = {
   routes: Routes,
-  adapter: 'express',
+  adapter: require('seneca-web-adapter-express'),
   context: Express()
 }
 
@@ -151,7 +151,7 @@ var Plugin = require('./common/plugin')
 
 var config = {
   routes: Routes,
-  adapter: 'connect',
+  adapter: require('seneca-web-adapter-connect'),
   context: Connect()
 }
 
@@ -228,7 +228,7 @@ var seneca = Seneca()
 
     var config = {
       context: Express(),
-      adapter: 'express',
+      adapter: require('seneca-web-adapter-express'),
       routes: Routes
     }
 

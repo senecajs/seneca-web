@@ -42,7 +42,10 @@
   ],
   "dependencies": {
     "eraro": "^0.4.1",
-    "lodash": "^4.15.0"
+    "lodash": "^4.15.0",
+    "seneca-web-adapter-connect": "^1.0.1",
+    "seneca-web-adapter-express": "^1.0.0",
+    "seneca-web-adapter-hapi": "^1.0.0"
   },
   "devDependencies": {
     "body-parser": "^1.15.2",
