@@ -154,4 +154,21 @@ describe('map-routes', () => {
 
     done()
   })
+
+  it('allows overwriting of the key', done => {
+    const route = {
+      pin: 'role:user,cmd:*',
+      map: {
+        a: {GET: true, name: 'w'},
+        b: {GET: true, name: 'x'},
+        c: {GET: true, name: 'y'},
+        d: {GET: true, name: 'z'}
+      }
+    }
+
+    var results = Mapper(route)
+
+    expect(results.map(result => result.path)).to.equal(['/w', '/x', '/y', '/z'])
+    done()
+  })
 })
