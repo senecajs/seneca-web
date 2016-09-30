@@ -1,15 +1,16 @@
-## 1.0.1
+## 2.0.0 30/09/2016
 
  - Fix to path generation under windows (#85)
  - Provide option to disable body parser when using express/connect (#93)
  - Suffix handling in route map (#95)
  - Adds support for overwriting route name (#97)
- - Passing string as adapter is deprecated (#100). To disable deprecation warnings, pass `--no-deprecate` to node. Resolution:  Require the module instead:
+ - Passing string as adapter has been removed (#100). Resolution: Require the module instead,
   - seneca-web-adapter-connect
   - seneca-web-adapter-express
   - seneca-web-adapter-hapi
   - seneca-web-adapter-koa1
   - seneca-web-adapter-koa2
+ - Log adapter is now the only default included adapter and runs when no adapter is specified.
 
 ## 1.0.0 11/09/2016
 
