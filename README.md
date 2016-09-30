@@ -77,6 +77,18 @@ var Routes = [{
 }]
 ```
 
+## Adapters
+
+An adapter that maps the routes to routes in a web framework must be provided via the `adapter` parameter
+
+The following adapters are provided:
+
+* [seneca-web-adapter-connect](https://github.com/senecajs/seneca-web-adapter-connect)
+* [seneca-web-adapter-express](https://github.com/senecajs/seneca-web-adapter-express)
+* [seneca-web-adapter-hapi](https://github.com/senecajs/seneca-web-adapter-hapi)
+* [seneca-web-adapter-koa1](https://github.com/senecajs/seneca-web-adapter-koa1)
+* [seneca-web-adapter-koa2](https://github.com/senecajs/seneca-web-adapter-koa2)
+
 __Hapi__
 ```js
 'use strict'
