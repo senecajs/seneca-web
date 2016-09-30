@@ -1,25 +1,16 @@
 'use strict'
 
-var ExpressAdapter = require('./lib/adapters/express')
-var HapiAdapter = require('./lib/adapters/hapi')
-var LogAdapter = require('./lib/adapters/log')
-var ConnectAdapter = require('./lib/adapters/connect')
+const LogAdapter = require('./lib/adapters/log')
 var Mapper = require('./lib/mapper')
 var _ = require('lodash')
 
 var opts = {
   routes: null,
   context: null,
-  adapter: 'log',
+  adapter: LogAdapter,
   auth: null,
   options: {
     parseBody: true
-  },
-  adapters: {
-    hapi: HapiAdapter,
-    express: ExpressAdapter,
-    log: LogAdapter,
-    connect: ConnectAdapter
   }
 }
 
@@ -86,8 +77,8 @@ function setServer (msg, done) {
 
   // If the adapter is a string, we look up the
   // adapters collection in opts.adapters.
-  if (_.isString(adapter)) {
-    adapter = _.get(opts.adapters, adapter, null)
+  if (!_.isFunction(adapter)) {
+    return done(new Error('Provide a function as adapter'))
   }
 
   // either replaced or the same. Regardless
