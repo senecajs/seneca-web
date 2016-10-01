@@ -29,7 +29,7 @@
   "license": "MIT",
   "main": "web.js",
   "scripts": {
-    "test": "lab -v -L -t 80 -m 5000",
+    "test": "lab -v -L -t 85 -m 5000",
     "coveralls": "lab -s -r lcov | coveralls",
     "coverage": "lab -v -L -r html > docs/coverage.html",
     "annotate": "docco web.js -o docs/annotated"
@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "body-parser": "^1.15.2",
-    "code": "^3.0.2",
+    "code": "^4.0.0",
     "connect": "^3.5.0",
     "cookie-parser": "^1.4.3",
     "coveralls": "^2.11.12",
