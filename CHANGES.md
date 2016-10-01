@@ -1,4 +1,4 @@
-## 2.0.0 30/09/2016
+## 2.0.0 01/10/2016
 
  - Fix to path generation under windows (#85)
  - Provide option to disable body parser when using express/connect (#93)
