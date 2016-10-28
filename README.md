@@ -44,38 +44,6 @@ To obtain a coverage report,
 npm run coverage; open docs/coverage.html
 ```
 
-## Quick example
-__Route map__
-```js
-var Routes = [{
-  pin: 'role:admin,cmd:*',
-  prefix: '/v1',
-  postfix: '/?param=true'
-  map: {
-    home: {
-      GET: true,
-      POST: true,
-      alias: '/home'
-    },
-    logout: {
-      GET: true,
-      redirect: '/'
-    },
-    profile: {
-      GET: true,
-      autoreply: false
-    },
-    login: {
-      POST: true,
-      auth: {
-        strategy: 'local',
-        pass: '/profile',
-        fail: '/'
-      }
-    }
-  }
-}]
-```
 
 ## Adapters
 
@@ -192,6 +160,8 @@ seneca.act('role:web', {routes: Routes}, (err, reply) => {
 })
 ```
 
+**For the definition expected for Routes, see [Providing Routes][providing-routes]**
+
 ## Exported Methods
 
 ### context
@@ -228,6 +198,8 @@ var seneca = Seneca()
     })
   })
 ```
+
+**For the definition expected for Routes, see [Providing Routes][providing-routes]**
 
 ### setServer
 Allows the server and adapter to be swapped out after runtime.
@@ -361,3 +333,4 @@ Licensed under [MIT][].
 [senecajs.org]: http://senecajs.org/
 [github issue]: https://github.com/senecajs/seneca-web/issues
 [@senecajs]: http://twitter.com/senecajs
+[providing-routes]: https://github.com/senecajs/seneca-web/blob/master/docs/providing-routes.md
