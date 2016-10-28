@@ -325,7 +325,9 @@ To disable this behavior, pass `{options: {parseBody: false}}` to the plugin opt
 
 ## Examples
 A number of examples showing basic and secure usage for hapi and express as well as
-showing connect and log usage are provided in [./docs/examples](). Examples include,
+showing connect and log usage are provided in [./docs/examples](/senecajs/seneca-web/tree/master/docs/examples).
+
+Examples include:
 
 - Logging routes when building maps (via log adapter).
 - Basic expres, hapi, and connect usage.
