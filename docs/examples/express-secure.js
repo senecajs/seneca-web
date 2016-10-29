@@ -102,7 +102,7 @@ app.use(Passport.session())
 
 // The config we will pass to seneca-web
 var config = {
-  adapter: 'express',
+  adapter: require('seneca-web-adapter-express'),
   context: app,
   routes: Routes,
   auth: Passport
