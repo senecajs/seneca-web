@@ -9,7 +9,7 @@ var Plugin = require('./common/plugin')
 
 var config = {
   routes: Routes,
-  adapter: 'connect',
+  adapter: require('seneca-web-adapter-connect'),
   context: Connect()
 }
 

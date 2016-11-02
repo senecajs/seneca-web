@@ -73,7 +73,7 @@ app.register(Basic, (err) => {
 
   // The config we will pass to seneca-web
   var config = {
-    adapter: 'hapi',
+    adapter: require('seneca-web-adapter-hapi'),
     context: app,
     routes: Routes
   }
