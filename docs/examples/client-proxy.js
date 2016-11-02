@@ -16,7 +16,7 @@ Seneca()
 
     var seneca = Seneca()
       .use(Plugin)
-      .use(Web, {adapter: 'express', context: Express()})
+      .use(Web, {adapter: require('seneca-web-adapter-express'), context: Express()})
       .client({port: '4041', pin: 'role:todo,cmd:new'})
       .ready(() => {
         seneca.act('role:web', {routes: Routes}, (err, reply) => {
