@@ -50,7 +50,7 @@ __Route map__
 var Routes = [{
   pin: 'role:admin,cmd:*',
   prefix: '/v1',
-  postfix: '/?param=true'
+  postfix: '/?param=true',
   map: {
     home: {
       GET: true,
