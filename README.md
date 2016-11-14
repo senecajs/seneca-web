@@ -183,6 +183,31 @@ var seneca = Seneca()
 
 ```
 
+## Plugin Configuration
+
+* `context` - optional. Routes are mapped to the context. You can provide this later by acting upon [role:web,context:*](#rolewebcontext) or calling either the [context](#context), or [setServer](#setServer) exported method.
+
+* `routes` - optional. An object identifying the routes to map.  See [Providing Routes](./docs/providing-routes.md) for more details.  You can add to this later acting upon [role:web,route:*](#rolewebroute) or calling the [mapRoutes](#mapRoutes) or [setServer](#setServer)  exported method.
+
+* `adapter` - optional. the adapter to use.  See [Adapters](#Adapters) above for a list of supported web frameworks. You can add this later by calling the [setServer](#setServer) exported method.
+
+* `auth` - optional.  Authentication provider (express only).  See [Authentication](./docs/auth.md) for more details
+
+* `options` - optional.  Additional options
+
+  * `parseBody` - boolean. default: true. If a body parser has not been provided using `express` or `connect`, `seneca-web` will attempt to parse the body. This will not work if `body-parser` has already been used on the app. To disable this behavior, pass `{options: {parseBody: false}}` to the plugin options.
+
+```js
+.use(SenecaWeb, {
+        routes: Routes,
+        context: express,
+        adapter: require('seneca-web-adapter-express'),
+        auth: Passport,
+        options: {parseBody: false}
+    })
+```
+
+
 ## Action Patterns
 
 ### role:web,route:*
@@ -322,21 +347,6 @@ map: {
 ```
 Hapi routes do not use the `secure` option. All routes are secured using `auth`. Both
 pass and fail redirects are supported.
-
-## Body Parser
-
-If a body parser has not been provided using express or connect, seneca-web will attempt
-to parse the body. This will not work if a body-parser has already been defined for the app.
-To disable this behavior, pass `{options: {parseBody: false}}` to the plugin options.
-
-```js
-.use(SenecaWeb, {
-        routes: Routes,
-        context: express,
-        adapter: require('seneca-web-adapter-express'),
-        options: {parseBody: false}
-    })
-```
 
 ## Examples
 A number of examples showing basic and secure usage for hapi and express as well as
