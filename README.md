@@ -329,6 +329,15 @@ If a body parser has not been provided using express or connect, seneca-web will
 to parse the body. This will not work if a body-parser has already been defined for the app.
 To disable this behavior, pass `{options: {parseBody: false}}` to the plugin options.
 
+```js
+.use(SenecaWeb, {
+        routes: Routes,
+        context: express,
+        adapter: require('seneca-web-adapter-express'),
+        options: {parseBody: false}
+    })
+```
+
 ## Examples
 A number of examples showing basic and secure usage for hapi and express as well as
 showing connect and log usage are provided in [./docs/examples](/senecajs/seneca-web/tree/master/docs/examples).
