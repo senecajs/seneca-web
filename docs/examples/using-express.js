@@ -1,14 +1,14 @@
 'use strict'
 
 var Seneca = require('seneca')
-var Express = require('Express')
+var Express = require('express')
 var Web = require('../../')
 var Routes = require('./common/routes')
 var Plugin = require('./common/plugin')
 
 var config = {
   routes: Routes,
-  adapter: 'express',
+  adapter: require('seneca-web-adapter-express'),
   context: Express()
 }
 

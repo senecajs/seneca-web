@@ -8,7 +8,7 @@ var Plugin = require('./common/plugin')
 
 var config = {
   routes: Routes,
-  adapter: 'hapi',
+  adapter: require('seneca-web-adapter-hapi'),
   context: (() => {
     var server = new Hapi.Server()
     server.connection({port: 4000})
