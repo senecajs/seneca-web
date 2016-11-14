@@ -185,11 +185,11 @@ var seneca = Seneca()
 
 ## Plugin Configuration
 
-* `context` - optional. Routes are mapped to the context. You can provide this later by acting upon [role:web,context:*](#rolewebcontext) or calling either the [context](#context), or [setServer](#setServer) exported method.
+* `context` - optional. Routes are mapped to the context. You can provide this later by acting upon [role:web,context:*](#rolewebcontext) or calling either the [context](#context), or [setServer](#setserver) exported method.
 
-* `routes` - optional. An object identifying the routes to map.  See [Providing Routes](./docs/providing-routes.md) for more details.  You can add to this later acting upon [role:web,route:*](#rolewebroute) or calling the [mapRoutes](#mapRoutes) or [setServer](#setServer)  exported method.
+* `routes` - optional. An object identifying the routes to map.  See [Providing Routes](./docs/providing-routes.md) for more details.  You can add to this later acting upon [role:web,route:*](#rolewebroute) or calling the [mapRoutes](#maproutes) or [setServer](#setserver)  exported method.
 
-* `adapter` - optional. the adapter to use.  See [Adapters](#Adapters) above for a list of supported web frameworks. You can add this later by calling the [setServer](#setServer) exported method.
+* `adapter` - optional. the adapter to use.  See [Adapters](#adapters) above for a list of supported web frameworks. You can add this later by calling the [setServer](#setserver) exported method.
 
 * `auth` - optional.  Authentication provider (express only).  See [Authentication](./docs/auth.md) for more details
 
