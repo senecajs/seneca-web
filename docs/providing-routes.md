@@ -32,7 +32,7 @@ If an object is passed, the following properties are recognized:
 
 * `alias` - if provided, `prefix`, `postfix` and the `name` are ignored this string will be used for the path; no frills, no gimmicks. (default: false)
 
-* `auth` - if provided, this will be passed to the framework's auth setup.  This is highly dependent on framework, for more details see [auth](./Auth.md)
+* `auth` - if provided, this will be passed to the framework's auth setup.  This is highly dependent on framework, for more details see [auth](./auth.md)
 
 * `autotreply` - if false, seneca-web will not respond to the request. The seneca action must use the framework's response action to generate the response.  (default: true)
 
@@ -40,7 +40,7 @@ If an object is passed, the following properties are recognized:
 
 * `redirect` - if provided, instead of returning the response of the seneca action, the user will be redirected here instead.  (default: false)
 
-* `secure` - this is used in conjunction with `auth`.   For more details see [auth](./Auth.md)
+* `secure` - this is used in conjunction with `auth`.   For more details see [auth](./auth.md)
 
 * `suffix` - if provided, this will be appended to the path. (default: false)
 
