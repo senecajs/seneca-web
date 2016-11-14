@@ -219,6 +219,22 @@ seneca.act('role:web', {routes: Routes}, (err, reply) => {
 })
 ```
 
+### role:web,set:server
+
+Change any of the [plugin configuration options](#plugin-onfiguration). Note that only plain objects are transported across microservices. In practice, this can only really be used on the same microservice node, or to set `options` and `routes`.
+
+```js
+seneca.act('role:web,set:server', {
+  routes: Routes,
+  context: context,
+  adapter: require('seneca-web-adapter-express'),
+  auth: Passport,
+  options: {parseBody: false}
+}, (err, reply) => {
+  console.log(err || reply.ok)
+})
+```
+
 **For the definition expected for Routes, see [Providing Routes][providing-routes]**
 
 ## Exported Methods
