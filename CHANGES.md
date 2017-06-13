@@ -1,3 +1,8 @@
+## 2.1.0 13/06/2017
+
+- Minor fixes
+- Tagging as per https://senecajs-dev.tumblr.com/post/161775321262/plugin-github-tags-20170613
+
 ## 2.0.0 01/10/2016
 
  - Fix to path generation under windows (#85)
