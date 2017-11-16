@@ -159,16 +159,33 @@ describe('map-routes', () => {
     const route = {
       pin: 'role:user,cmd:*',
       map: {
-        a: {GET: true, name: 'w'},
-        b: {GET: true, name: 'x'},
-        c: {GET: true, name: 'y'},
-        d: {GET: true, name: 'z'}
+        a: { GET: true, name: 'w' },
+        b: { GET: true, name: 'x' },
+        c: { GET: true, name: 'y' },
+        d: { GET: true, name: 'z' }
       }
     }
 
     var results = Mapper(route)
 
     expect(results.map(result => result.path)).to.equal(['/w', '/x', '/y', '/z'])
+    done()
+  })
+
+
+  it('can specify middleware per route', (done) => {
+    const route = {
+      pin: 'role:api,cmd:*',
+      map: {
+        ping: {
+          GET: 'true',
+          middleware: (req, res, next) => { next() }
+        }
+      }
+    }
+
+    var result = Mapper(route)[0]
+    expect(result.middleware).to.exist
     done()
   })
 })
