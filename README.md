@@ -45,6 +45,7 @@ npm run coverage; open docs/coverage.html
 ```
 
 ## Quick example
+
 __Route map__
 ```js
 var Routes = [{
@@ -76,6 +77,7 @@ var Routes = [{
   }
 }]
 ```
+
 
 ## Adapters
 
@@ -181,6 +183,31 @@ var seneca = Seneca()
 
 ```
 
+## Plugin Configuration
+
+* `context` - optional. Routes are mapped to the context. You can provide this later by acting upon [role:web,context:*](#rolewebcontext) or calling either the [context](#context), or [setServer](#setserver) exported method.
+
+* `routes` - optional. An object identifying the routes to map.  See [Providing Routes](./docs/providing-routes.md) for more details.  You can add to this later acting upon [role:web,route:*](#rolewebroute) or calling the [mapRoutes](#maproutes) or [setServer](#setserver)  exported method.
+
+* `adapter` - optional. the adapter to use.  See [Adapters](#adapters) above for a list of supported web frameworks. You can add this later by calling the [setServer](#setserver) exported method.
+
+* `auth` - optional.  Authentication provider (express only).  See [Authentication](./docs/auth.md) for more details
+
+* `options` - optional.  Additional options
+
+  * `parseBody` - boolean. default: true. If a body parser has not been provided using `express` or `connect`, `seneca-web` will attempt to parse the body. This will not work if `body-parser` has already been used on the app. To disable this behavior, pass `{options: {parseBody: false}}` to the plugin options.
+
+```js
+.use(SenecaWeb, {
+        routes: Routes,
+        context: express,
+        adapter: require('seneca-web-adapter-express'),
+        auth: Passport,
+        options: {parseBody: false}
+    })
+```
+
+
 ## Action Patterns
 
 ### role:web,route:*
@@ -191,6 +218,24 @@ seneca.act('role:web', {routes: Routes}, (err, reply) => {
   console.log(err || reply.routes)
 })
 ```
+
+### role:web,set:server
+
+Change any of the [plugin configuration options](#plugin-onfiguration). Note that only plain objects are transported across microservices. In practice, this can only really be used on the same microservice node, or to set `options` and `routes`.
+
+```js
+seneca.act('role:web,set:server', {
+  routes: Routes,
+  context: context,
+  adapter: require('seneca-web-adapter-express'),
+  auth: Passport,
+  options: {parseBody: false}
+}, (err, reply) => {
+  console.log(err || reply.ok)
+})
+```
+
+**For the definition expected for Routes, see [Providing Routes][providing-routes]**
 
 ## Exported Methods
 
@@ -228,6 +273,8 @@ var seneca = Seneca()
     })
   })
 ```
+
+**For the definition expected for Routes, see [Providing Routes][providing-routes]**
 
 ### setServer
 Allows the server and adapter to be swapped out after runtime.
@@ -317,24 +364,11 @@ map: {
 Hapi routes do not use the `secure` option. All routes are secured using `auth`. Both
 pass and fail redirects are supported.
 
-## Body Parser
-
-If a body parser has not been provided using express or connect, seneca-web will attempt
-to parse the body. This will not work if a body-parser has already been defined for the app.
-To disable this behavior, pass `{options: {parseBody: false}}` to the plugin options.
-
-```js
-.use(SenecaWeb, {
-        routes: Routes,
-        context: express,
-        adapter: require('seneca-web-adapter-express'),
-        options: {parseBody: false}
-    })
-```
-
 ## Examples
 A number of examples showing basic and secure usage for hapi and express as well as
-showing connect and log usage are provided in [./docs/examples](). Examples include,
+showing connect and log usage are provided in [./docs/examples](/senecajs/seneca-web/tree/master/docs/examples).
+
+Examples include:
 
 - Logging routes when building maps (via log adapter).
 - Basic expres, hapi, and connect usage.
@@ -368,3 +402,4 @@ Licensed under [MIT][].
 [senecajs.org]: http://senecajs.org/
 [github issue]: https://github.com/senecajs/seneca-web/issues
 [@senecajs]: http://twitter.com/senecajs
+[providing-routes]: https://github.com/senecajs/seneca-web/blob/master/docs/providing-routes.md
