@@ -179,7 +179,7 @@ describe('map-routes', () => {
       map: {
         ping: {
           GET: 'true',
-          middleware: (req, res, next) => { next() }
+          middleware: ['middleware']
         }
       }
     }
