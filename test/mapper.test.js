@@ -159,10 +159,10 @@ describe('map-routes', () => {
     const route = {
       pin: 'role:user,cmd:*',
       map: {
-        a: { GET: true, name: 'w' },
-        b: { GET: true, name: 'x' },
-        c: { GET: true, name: 'y' },
-        d: { GET: true, name: 'z' }
+        a: {GET: true, name: 'w'},
+        b: {GET: true, name: 'x'},
+        c: {GET: true, name: 'y'},
+        d: {GET: true, name: 'z'}
       }
     }
 
@@ -185,7 +185,7 @@ describe('map-routes', () => {
     }
 
     var result = Mapper(route)[0]
-    expect(result.middleware).to.exist
+    expect(result.middleware).to.not.be.empty
     done()
   })
 })
