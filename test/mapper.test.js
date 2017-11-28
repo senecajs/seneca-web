@@ -171,4 +171,21 @@ describe('map-routes', () => {
     expect(results.map(result => result.path)).to.equal(['/w', '/x', '/y', '/z'])
     done()
   })
+
+
+  it('can specify middleware per route', (done) => {
+    const route = {
+      pin: 'role:api,cmd:*',
+      map: {
+        ping: {
+          GET: 'true',
+          middleware: ['middleware']
+        }
+      }
+    }
+
+    var result = Mapper(route)[0]
+    expect(result.middleware).to.not.be.empty
+    done()
+  })
 })
