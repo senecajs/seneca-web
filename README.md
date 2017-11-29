@@ -195,6 +195,8 @@ var seneca = Seneca()
 
 * `options` - optional.  Additional options
 
+  * `middleware` - object. default: null.  Provide middleware functions that can be called prior the request handler.
+
   * `parseBody` - boolean. default: true. If a body parser has not been provided using `express` or `connect`, `seneca-web` will attempt to parse the body. This will not work if `body-parser` has already been used on the app. To disable this behavior, pass `{options: {parseBody: false}}` to the plugin options.
 
 ```js
@@ -203,7 +205,14 @@ var seneca = Seneca()
         context: express,
         adapter: require('seneca-web-adapter-express'),
         auth: Passport,
-        options: {parseBody: false}
+        options: {
+          parseBody: false,
+          middleware: {
+            'some-middleware': (req, res, next) => {
+              next()
+            }
+          }
+        }
     })
 ```
 
