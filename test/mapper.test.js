@@ -8,6 +8,7 @@ const expect = Code.expect
 const lab = exports.lab = Lab.script()
 const describe = lab.describe
 const it = lab.it
+const beforeEach = lab.beforeEach
 
 describe('map-routes', () => {
   it('handles empty input', (done) => {
@@ -172,20 +173,55 @@ describe('map-routes', () => {
     done()
   })
 
+  describe('specifying middleware', () => {
+    let route = null
 
-  it('can specify middleware per route', (done) => {
-    const route = {
-      pin: 'role:api,cmd:*',
-      map: {
-        ping: {
-          GET: 'true',
-          middleware: ['middleware']
+    beforeEach(done => {
+      route = {
+        pin: 'role:api,cmd:*',
+        map: {
+          ping: {
+            GET: 'true'
+          }
         }
       }
-    }
+      done()
+    })
 
-    var result = Mapper(route)[0]
-    expect(result.middleware).to.not.be.empty
-    done()
+    it('at root, string', (done) => {
+      route.middleware = 'middleware'
+      const result = Mapper(route)
+      expect(result[0].middleware).to.equal(['middleware'])
+      done()
+    })
+
+    it('at root, array', (done) => {
+      route.middleware = ['middleware']
+      const result = Mapper(route)
+      expect(result[0].middleware).to.equal(['middleware'])
+      done()
+    })
+
+    it('per route, string', (done) => {
+      route.map.ping.middleware = 'middleware'
+      const result = Mapper(route)
+      expect(result[0].middleware).to.equal(['middleware'])
+      done()
+    })
+
+    it('per route, array', (done) => {
+      route.map.ping.middleware = ['middleware']
+      const result = Mapper(route)
+      expect(result[0].middleware).to.equal(['middleware'])
+      done()
+    })
+
+    it('value overwrites root', (done) => {
+      route.middleware = ['by our powers']
+      route.map.ping.middleware = ['combined!']
+      const result = Mapper(route)
+      expect(result[0].middleware).to.equal(['by our powers', 'combined!'])
+      done()
+    })
   })
 })
