@@ -18,6 +18,8 @@ routes is an array of objects that define how a seneca pin is to be turned into 
 
 * `map` - an object or boolean defining all commands to map (see below)
 
+* `middleware` - middleware to be applied to these routes. This can be either a string or a function. If string, the middleware must be defined in the `seneca-web` options, `options.middleware`. See [Custom middleware](./providing-routes.md)
+
 ### map
 
 `map` is an object with each key assumed to be an action available under the `pin` specified at the root of `routes`
@@ -29,6 +31,8 @@ Each value can be either:
 * `object` an object can be passed to customize the path and behavior of the route.
 
 If an object is passed, the following properties are recognized:
+
+* `middleware` - if provided, this middleware will be applied to the request prior to the requst handler.  This can be either a string or a function. If string, the middleware must be defined in the `seneca-web` options, `options.middleware`. See [Custom middleware](./providing-routes.md)
 
 * `alias` - if provided, `prefix`, `postfix` and the `name` are ignored this string will be used for the path; no frills, no gimmicks. (default: false)
 

@@ -7,3 +7,4 @@ coverage.html
 
 node_modules
 docs/annotated
+.vscode

@@ -29,6 +29,9 @@ module.exports = function web (options) {
   opts = extend(opts, _.omit(options, ['context', 'auth']))
   opts.context = options.context || null
   opts.auth = options.auth || null
+  if (options.middleware) {
+    opts.options.middleware = options.middleware
+  }
 
   seneca.add('role:web,routes:*', mapRoutes)
   seneca.add('role:web,set:server', setServer)
