@@ -1,3 +1,7 @@
+## 2.2.0 03/12/2017
+
+- Adds support for providing middleware.
+
 ## 2.1.0 13/06/2017
 
 - Minor fixes
