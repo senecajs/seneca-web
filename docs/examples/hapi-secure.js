@@ -64,7 +64,7 @@ function validate (request, username, password, done) {
       done(null, true, user)
     }
   })
-};
+}
 
 app.register(Basic, (err) => {
   if (err) throw err

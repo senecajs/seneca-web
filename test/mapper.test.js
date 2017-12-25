@@ -5,20 +5,20 @@ const Code = require('code')
 const Mapper = require('../lib/mapper')
 
 const expect = Code.expect
-const lab = exports.lab = Lab.script()
+const lab = (exports.lab = Lab.script())
 const describe = lab.describe
 const it = lab.it
 const beforeEach = lab.beforeEach
 
 describe('map-routes', () => {
-  it('handles empty input', (done) => {
+  it('handles empty input', done => {
     var result = Mapper([])
     expect(result.length).to.be.equal(0)
 
     done()
   })
 
-  it('Missing values are normalized', (done) => {
+  it('Missing values are normalized', done => {
     const route = {
       pin: 'role:test,cmd:*',
       map: {
@@ -40,7 +40,7 @@ describe('map-routes', () => {
     done()
   })
 
-  it('The value of quick maps are not considered', (done) => {
+  it('The value of quick maps are not considered', done => {
     const route = {
       pin: 'role:test,cmd:*',
       map: {
@@ -57,7 +57,7 @@ describe('map-routes', () => {
     done()
   })
 
-  it('fails if no pin is provided', (done) => {
+  it('fails if no pin is provided', done => {
     const route = {
       map: {
         ping: true
@@ -70,7 +70,7 @@ describe('map-routes', () => {
     done()
   })
 
-  it('can handle custom pins', (done) => {
+  it('can handle custom pins', done => {
     const route = {
       pin: 'ns:api,handle:*',
       map: {
@@ -86,7 +86,7 @@ describe('map-routes', () => {
     done()
   })
 
-  it('can specify custom route alias', (done) => {
+  it('can specify custom route alias', done => {
     const route = {
       pin: 'role:api,cmd:*',
       map: {
@@ -102,7 +102,7 @@ describe('map-routes', () => {
     done()
   })
 
-  it('can specify custom auto reply', (done) => {
+  it('can specify custom auto reply', done => {
     const route = {
       pin: 'role:api,cmd:*',
       map: {
@@ -119,7 +119,7 @@ describe('map-routes', () => {
     done()
   })
 
-  it('prefixes prefix, postfixes postfix, suffixes suffix', (done) => {
+  it('prefixes prefix, postfixes postfix, suffixes suffix', done => {
     const route = {
       pin: 'role:test,cmd:*',
       prefix: 'api',
@@ -141,7 +141,7 @@ describe('map-routes', () => {
     done()
   })
 
-  it('does not need a prefix or postfix', (done) => {
+  it('does not need a prefix or postfix', done => {
     const route = {
       pin: 'role:test,cmd:*',
       map: {
@@ -160,16 +160,21 @@ describe('map-routes', () => {
     const route = {
       pin: 'role:user,cmd:*',
       map: {
-        a: {GET: true, name: 'w'},
-        b: {GET: true, name: 'x'},
-        c: {GET: true, name: 'y'},
-        d: {GET: true, name: 'z'}
+        a: { GET: true, name: 'w' },
+        b: { GET: true, name: 'x' },
+        c: { GET: true, name: 'y' },
+        d: { GET: true, name: 'z' }
       }
     }
 
     var results = Mapper(route)
 
-    expect(results.map(result => result.path)).to.equal(['/w', '/x', '/y', '/z'])
+    expect(results.map(result => result.path)).to.equal([
+      '/w',
+      '/x',
+      '/y',
+      '/z'
+    ])
     done()
   })
 
@@ -188,35 +193,35 @@ describe('map-routes', () => {
       done()
     })
 
-    it('at root, string', (done) => {
+    it('at root, string', done => {
       route.middleware = 'middleware'
       const result = Mapper(route)
       expect(result[0].middleware).to.equal(['middleware'])
       done()
     })
 
-    it('at root, array', (done) => {
+    it('at root, array', done => {
       route.middleware = ['middleware']
       const result = Mapper(route)
       expect(result[0].middleware).to.equal(['middleware'])
       done()
     })
 
-    it('per route, string', (done) => {
+    it('per route, string', done => {
       route.map.ping.middleware = 'middleware'
       const result = Mapper(route)
       expect(result[0].middleware).to.equal(['middleware'])
       done()
     })
 
-    it('per route, array', (done) => {
+    it('per route, array', done => {
       route.map.ping.middleware = ['middleware']
       const result = Mapper(route)
       expect(result[0].middleware).to.equal(['middleware'])
       done()
     })
 
-    it('value overwrites root', (done) => {
+    it('value overwrites root', done => {
       route.middleware = ['by our powers']
       route.map.ping.middleware = ['combined!']
       const result = Mapper(route)
