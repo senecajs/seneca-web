@@ -20,7 +20,7 @@ var locals = {
   options: null
 }
 
-module.exports = function web (options) {
+module.exports = function web(options) {
   var seneca = this
   var extend = seneca.util.deepextend
 
@@ -55,7 +55,7 @@ module.exports = function web (options) {
 
 // Creates a route-map and passes it to a given adapter. The msg can
 // optionally contain a custom adapter or context for once off routing.
-function mapRoutes (msg, done) {
+function mapRoutes(msg, done) {
   var seneca = this
   var adapter = msg.adapter || locals.adapter
   var context = msg.context || locals.context
@@ -70,7 +70,7 @@ function mapRoutes (msg, done) {
 
 // Sets the 'default' server context. Any call to mapRoutes will use this server
 // as it's context if none is provided. This is the server returned by getServer.
-function setServer (msg, done) {
+function setServer(msg, done) {
   var seneca = this
   var context = msg.context || locals.context
   var adapter = msg.adapter || locals.adapter
@@ -96,19 +96,18 @@ function setServer (msg, done) {
   // If we have routes in the msg map them and
   // let the matter handle the callback
   if (routes) {
-    mapRoutes.call(seneca, {routes: routes}, done)
-  }
-  else {
+    mapRoutes.call(seneca, { routes: routes }, done)
+  } else {
     // no routes to process, let the
     // caller know everything went ok.
-    done(null, {ok: true})
+    done(null, { ok: true })
   }
 }
 
 // This is called as soon as the plugin is loaded (when it
 // returns). Any routes or customisations passed via options
 // will be processed now via a call to setServer.
-function init (msg, done) {
+function init(msg, done) {
   var config = {
     context: opts.context,
     adapter: opts.adapter,

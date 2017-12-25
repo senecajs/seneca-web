@@ -6,15 +6,15 @@ const Seneca = require('seneca')
 const Web = require('../')
 
 const expect = Code.expect
-const lab = exports.lab = Lab.script()
+const lab = (exports.lab = Lab.script())
 const describe = lab.describe
 const it = lab.it
 
 describe('log adapter', () => {
-  it('logs routes to a sink', (done) => {
+  it('logs routes to a sink', done => {
     var config = {
       options: {
-        sink: (routes) => {
+        sink: routes => {
           expect(routes.length).to.be.equal(1)
           done()
         }
@@ -27,11 +27,10 @@ describe('log adapter', () => {
       }
     }
 
-    Seneca({log: 'test'})
-      .use(Web, config)
+    Seneca({ log: 'test' }).use(Web, config)
   })
 
-  it('logs routes to console by default', (done) => {
+  it('logs routes to console by default', done => {
     var config = {
       options: {
         sink: null
@@ -48,12 +47,12 @@ describe('log adapter', () => {
     var payload = null
 
     var log = console.log
-    console.log = (raw) => {
+    console.log = raw => {
       called = true
       payload = JSON.parse(raw).routes
     }
 
-    Seneca({log: 'test'})
+    Seneca({ log: 'test' })
       .use(Web, config)
       .ready(() => {
         expect(called).to.be.true()

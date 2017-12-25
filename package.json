@@ -33,7 +33,8 @@
     "test": "lab -v -L -t 80 -m 5000",
     "coveralls": "lab -s -r lcov | coveralls",
     "coverage": "lab -v -L -r html > docs/coverage.html",
-    "annotate": "docco web.js -o docs/annotated"
+    "annotate": "docco web.js -o docs/annotated",
+    "prettier": "prettier --write --no-semi --single-quote web.js test/*.js lib/*.js"
   },
   "files": [
     "LICENSE",
@@ -63,8 +64,9 @@
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
     "pre-commit": "^1.1.3",
+    "prettier": "^1.9.2",
     "request": "^2.74.0",
-    "seneca": "plugin"
+    "seneca": "^3.4.3"
   },
   "repository": {
     "type": "git",
