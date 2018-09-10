@@ -30,11 +30,13 @@
   "license": "MIT",
   "main": "web.js",
   "scripts": {
-    "test": "lab -v -L -t 80 -m 5000",
-    "coveralls": "lab -s -r lcov | coveralls",
-    "coverage": "lab -v -L -r html > docs/coverage.html",
-    "annotate": "docco web.js -o docs/annotated",
-    "prettier": "prettier --write --no-semi --single-quote web.js test/*.js lib/*.js"
+    "pretest": "eslint .",
+    "test": "mocha",
+    "test-debug": "node --inspect-brk node_modules/mocha/bin/mocha --no-timeouts",
+    "coveralls": "nyc --reporter=text-lcov npm test | coveralls",
+    "coverage": "nyc --reporter=html --report-dir=docs/coverage npm test",
+    "annotate": "docco seneca-web-adapter-express.js -o docs/annotated",
+    "prettier": "prettier --write --no-semi --single-quote web.js test/*.js"
   },
   "files": [
     "LICENSE",
@@ -43,29 +45,17 @@
     "lib"
   ],
   "dependencies": {
-    "eraro": "^0.4.1",
-    "lodash": "^4.17.4"
+    "lodash": "^4.17.10"
   },
   "devDependencies": {
-    "body-parser": "^1.15.2",
-    "code": "^4.1.0",
-    "connect": "^3.5.0",
-    "cookie-parser": "^1.4.3",
-    "coveralls": "^2.11.12",
-    "docco": "^0.7.0",
-    "eslint-config-seneca": "^3.0.0",
-    "eslint-plugin-hapi": "^4.0.0",
-    "eslint-plugin-standard": "^2.0.0",
-    "express": "^4.14.0",
-    "express-session": "^1.14.1",
-    "hapi": "^15.0.3",
-    "hapi-auth-basic": "^4.2.0",
-    "lab": "^13.1.0",
-    "passport": "^0.3.2",
-    "passport-local": "^1.0.0",
+    "coveralls": "^3.0.2",
+    "docco": "^0.8.0",
+    "eslint": "^5.5.0",
+    "mocha": "^5.2.0",
+    "nyc": "^13.0.1",
     "prettier": "^1.9.2",
-    "request": "^2.74.0",
-    "seneca": "^3.4.3"
+    "request": "^2.88.0",
+    "seneca": "^3.7.0"
   },
   "repository": {
     "type": "git",

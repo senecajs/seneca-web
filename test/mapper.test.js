@@ -1,19 +1,12 @@
 'use strict'
 
-const Lab = require('lab')
-const Code = require('code')
+const assert = require('assert')
 const Mapper = require('../lib/mapper')
-
-const expect = Code.expect
-const lab = (exports.lab = Lab.script())
-const describe = lab.describe
-const it = lab.it
-const beforeEach = lab.beforeEach
 
 describe('map-routes', () => {
   it('handles empty input', done => {
     var result = Mapper([])
-    expect(result.length).to.be.equal(0)
+    assert.equal(result.length, 0)
 
     done()
   })
@@ -27,15 +20,15 @@ describe('map-routes', () => {
     }
 
     var result = Mapper(route)[0]
-    expect(result.methods).to.be.equal(['GET'])
-    expect(result.prefix).to.be.false()
-    expect(result.postfix).to.be.false()
-    expect(result.suffix).to.be.false()
-    expect(result.alias).to.be.false()
-    expect(result.autoreply).to.be.true()
-    expect(result.redirect).to.be.false()
-    expect(result.auth).to.be.false()
-    expect(result.secure).to.be.false()
+    assert.deepEqual(result.methods, ['GET'])
+    assert.equal(result.prefix, false)
+    assert.equal(result.postfix, false)
+    assert.equal(result.suffix, false)
+    assert.equal(result.alias, false)
+    assert.equal(result.autoreply, true)
+    assert.equal(result.redirect, false)
+    assert.equal(result.auth, false)
+    assert.equal(result.secure, false)
 
     done()
   })
@@ -50,9 +43,9 @@ describe('map-routes', () => {
     }
 
     var result = Mapper(route)
-    expect(result.length).to.be.equal(2)
-    expect(result[0].methods).to.be.equal(['GET'])
-    expect(result[1].methods).to.be.equal(['GET'])
+    assert.equal(result.length, 2)
+    assert.deepEqual(result[0].methods, ['GET'])
+    assert.deepEqual(result[1].methods, ['GET'])
 
     done()
   })
@@ -65,7 +58,7 @@ describe('map-routes', () => {
     }
 
     var result = Mapper(route)
-    expect(result.length).to.be.equal(0)
+    assert.equal(result.length, 0)
 
     done()
   })
@@ -79,9 +72,9 @@ describe('map-routes', () => {
     }
 
     var result = Mapper(route)[0]
-    expect(result.pin).to.be.equal('ns:api,handle:*')
-    expect(result.pattern).to.be.equal('ns:api,handle:ping')
-    expect(result.path).to.be.equal('/ping')
+    assert.equal(result.pin, 'ns:api,handle:*')
+    assert.equal(result.pattern, 'ns:api,handle:ping')
+    assert.equal(result.path, '/ping')
 
     done()
   })
@@ -98,7 +91,7 @@ describe('map-routes', () => {
     }
 
     var result = Mapper(route)[0]
-    expect(result.path).to.be.equal('/foo/bar')
+    assert.equal(result.path, '/foo/bar')
     done()
   })
 
@@ -114,7 +107,7 @@ describe('map-routes', () => {
     }
 
     var result = Mapper(route)[0]
-    expect(result.autoreply).to.be.equal(false)
+    assert.equal(result.autoreply, false)
 
     done()
   })
@@ -133,10 +126,10 @@ describe('map-routes', () => {
     }
 
     var result = Mapper(route)[0]
-    expect(result.prefix).to.be.equal('api')
-    expect(result.postfix).to.be.equal('v1')
-    expect(result.suffix).to.be.equal('/:param')
-    expect(result.path).to.equal('/api/ping/v1/:param')
+    assert.equal(result.prefix, 'api')
+    assert.equal(result.postfix, 'v1')
+    assert.equal(result.suffix, '/:param')
+    assert.equal(result.path, '/api/ping/v1/:param')
 
     done()
   })
@@ -150,8 +143,8 @@ describe('map-routes', () => {
     }
 
     var result = Mapper(route)[0]
-    expect(result.methods).to.equal(['GET'])
-    expect(result.path).to.equal('/ping')
+    assert.deepEqual(result.methods, ['GET'])
+    assert.equal(result.path, '/ping')
 
     done()
   })
@@ -169,7 +162,7 @@ describe('map-routes', () => {
 
     var results = Mapper(route)
 
-    expect(results.map(result => result.path)).to.equal([
+    assert.deepEqual(results.map(result => result.path), [
       '/w',
       '/x',
       '/y',
@@ -196,28 +189,28 @@ describe('map-routes', () => {
     it('at root, string', done => {
       route.middleware = 'middleware'
       const result = Mapper(route)
-      expect(result[0].middleware).to.equal(['middleware'])
+      assert.deepEqual(result[0].middleware, ['middleware'])
       done()
     })
 
     it('at root, array', done => {
       route.middleware = ['middleware']
       const result = Mapper(route)
-      expect(result[0].middleware).to.equal(['middleware'])
+      assert.deepEqual(result[0].middleware, ['middleware'])
       done()
     })
 
     it('per route, string', done => {
       route.map.ping.middleware = 'middleware'
       const result = Mapper(route)
-      expect(result[0].middleware).to.equal(['middleware'])
+      assert.deepEqual(result[0].middleware, ['middleware'])
       done()
     })
 
     it('per route, array', done => {
       route.map.ping.middleware = ['middleware']
       const result = Mapper(route)
-      expect(result[0].middleware).to.equal(['middleware'])
+      assert.deepEqual(result[0].middleware, ['middleware'])
       done()
     })
 
@@ -225,7 +218,7 @@ describe('map-routes', () => {
       route.middleware = ['by our powers']
       route.map.ping.middleware = ['combined!']
       const result = Mapper(route)
-      expect(result[0].middleware).to.equal(['by our powers', 'combined!'])
+      assert.deepEqual(result[0].middleware, ['by our powers', 'combined!'])
       done()
     })
   })

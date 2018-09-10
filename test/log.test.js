@@ -1,21 +1,15 @@
 'use strict'
 
-const Code = require('code')
-const Lab = require('lab')
+const assert = require('assert')
 const Seneca = require('seneca')
 const Web = require('../')
-
-const expect = Code.expect
-const lab = (exports.lab = Lab.script())
-const describe = lab.describe
-const it = lab.it
 
 describe('log adapter', () => {
   it('logs routes to a sink', done => {
     var config = {
       options: {
         sink: routes => {
-          expect(routes.length).to.be.equal(1)
+          assert.equal(routes.length, 1)
           done()
         }
       },
@@ -55,9 +49,9 @@ describe('log adapter', () => {
     Seneca({ log: 'test' })
       .use(Web, config)
       .ready(() => {
-        expect(called).to.be.true()
-        expect(payload).to.exist()
-        expect(payload.length).to.be.equal(1)
+        assert.equal(called, true)
+        assert(payload)
+        assert.equal(payload.length, 1)
 
         console.log = log
         done()
