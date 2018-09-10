@@ -1,3 +1,7 @@
+## 2.2.1 09/09/2018
+
+- Bump dependencies.
+
 ## 2.2.0 03/12/2017
 
 - Adds support for providing middleware.
