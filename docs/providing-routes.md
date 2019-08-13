@@ -38,7 +38,7 @@ If an object is passed, the following properties are recognized:
 
 * `auth` - if provided, this will be passed to the framework's auth setup.  This is highly dependent on framework, for more details see [auth](./auth.md)
 
-* `autotreply` - if false, seneca-web will not respond to the request. The seneca action must use the framework's response action to generate the response.  (default: true)
+* `autoreply` - if false, seneca-web will not respond to the request. The seneca action must use the framework's response action to generate the response.  (default: true)
 
 * `name` - if provided, this will allow you to override the name of the action (default: the key of the object)
 
