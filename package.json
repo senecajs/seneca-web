@@ -35,7 +35,6 @@
     "test-debug": "node --inspect-brk node_modules/mocha/bin/mocha --no-timeouts",
     "coveralls": "nyc --reporter=text-lcov npm test | coveralls",
     "coverage": "nyc --reporter=html --report-dir=docs/coverage npm test",
-    "annotate": "docco seneca-web-adapter-express.js -o docs/annotated",
     "prettier": "prettier --write --no-semi --single-quote web.js test/*.js"
   },
   "files": [
@@ -45,17 +44,16 @@
     "lib"
   ],
   "dependencies": {
-    "lodash": "^4.17.10"
+    "lodash": "^4.17.15"
   },
   "devDependencies": {
-    "coveralls": "^3.0.2",
-    "docco": "^0.8.0",
-    "eslint": "^5.5.0",
-    "mocha": "^5.2.0",
-    "nyc": "^13.0.1",
-    "prettier": "^1.9.2",
+    "coveralls": "^3.0.7",
+    "eslint": "^6.6.0",
+    "mocha": "^6.2.2",
+    "nyc": "^14.1.1",
+    "prettier": "^1.18.2",
     "request": "^2.88.0",
-    "seneca": "^3.7.0"
+    "seneca": "^3.17.0"
   },
   "repository": {
     "type": "git",
