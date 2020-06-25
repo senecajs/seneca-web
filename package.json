@@ -5,7 +5,8 @@
   "keywords": [
     "seneca",
     "web",
-    "plugin"
+    "plugin",
+    "test"
   ],
   "author": "Richard Rodger (http://richardrodger.com)",
   "license": "MIT",
@@ -30,7 +31,7 @@
     "nid": "~0.3.2",
     "parambulator": "~1.5.0",
     "rolling-stats": "~0.1.1",
-    "serve-static": "~1.13.2",
+    "serve-static": "~1.8.0",
     "success": "~0.1.0"
   },
   "devDependencies": {
@@ -40,6 +41,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/rjrodger/test/seneca-web.git"
+    "url": "https://github.com/rjrodger/seneca-web.git"
   }
 }
