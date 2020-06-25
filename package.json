@@ -30,7 +30,6 @@
     "nid": "~0.3.2",
     "parambulator": "~1.5.0",
     "rolling-stats": "~0.1.1",
-    "serve-static": "~1.13.2",
     "success": "~0.1.0"
   },
   "devDependencies": {
