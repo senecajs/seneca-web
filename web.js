@@ -12,7 +12,6 @@ var parambulator        = require('parambulator')
 var mstring             = require('mstring')
 var nid                 = require('nid')
 var connect             = require('connect')
-var serve_static        = require('serve-static')
 var json_stringify_safe = require('json-stringify-safe')
 var stats               = require('rolling-stats')
 var error               = require('eraro')({package:'seneca',msgmap:ERRMSGMAP()})
@@ -430,7 +429,6 @@ module.exports = function( options ) {
   // TODO is connect the best option here?
 
   var app = connect()
-  app.use(serve_static(__dirname+'/web'))
 
   var use = function(req,res,next){
     if( 0 === req.url.indexOf(options.contentprefix) ) {
