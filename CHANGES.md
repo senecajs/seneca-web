@@ -1,3 +1,7 @@
+## 2.2.2 04/12/2022
+
+- Bump dependencies.
+
 ## 2.2.1 09/09/2018
 
 - Bump dependencies.
