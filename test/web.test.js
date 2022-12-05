@@ -1,7 +1,7 @@
 'use strict'
 
 describe('web', () => {
-  it('n/a', done => {
+  it('n/a', (done) => {
     done()
   })
 })

@@ -4,19 +4,19 @@ const assert = require('assert')
 const Mapper = require('../lib/mapper')
 
 describe('map-routes', () => {
-  it('handles empty input', done => {
+  it('handles empty input', (done) => {
     var result = Mapper([])
     assert.equal(result.length, 0)
 
     done()
   })
 
-  it('Missing values are normalized', done => {
+  it('Missing values are normalized', (done) => {
     const route = {
       pin: 'role:test,cmd:*',
       map: {
-        ping: true
-      }
+        ping: true,
+      },
     }
 
     var result = Mapper(route)[0]
@@ -33,13 +33,13 @@ describe('map-routes', () => {
     done()
   })
 
-  it('The value of quick maps are not considered', done => {
+  it('The value of quick maps are not considered', (done) => {
     const route = {
       pin: 'role:test,cmd:*',
       map: {
         ping: 0,
-        pong: 'string'
-      }
+        pong: 'string',
+      },
     }
 
     var result = Mapper(route)
@@ -50,11 +50,11 @@ describe('map-routes', () => {
     done()
   })
 
-  it('fails if no pin is provided', done => {
+  it('fails if no pin is provided', (done) => {
     const route = {
       map: {
-        ping: true
-      }
+        ping: true,
+      },
     }
 
     var result = Mapper(route)
@@ -63,12 +63,12 @@ describe('map-routes', () => {
     done()
   })
 
-  it('can handle custom pins', done => {
+  it('can handle custom pins', (done) => {
     const route = {
       pin: 'ns:api,handle:*',
       map: {
-        ping: true
-      }
+        ping: true,
+      },
     }
 
     var result = Mapper(route)[0]
@@ -79,15 +79,15 @@ describe('map-routes', () => {
     done()
   })
 
-  it('can specify custom route alias', done => {
+  it('can specify custom route alias', (done) => {
     const route = {
       pin: 'role:api,cmd:*',
       map: {
         ping: {
           alias: 'foo/bar',
-          GET: 'true'
-        }
-      }
+          GET: 'true',
+        },
+      },
     }
 
     var result = Mapper(route)[0]
@@ -95,15 +95,15 @@ describe('map-routes', () => {
     done()
   })
 
-  it('can specify custom auto reply', done => {
+  it('can specify custom auto reply', (done) => {
     const route = {
       pin: 'role:api,cmd:*',
       map: {
         ping: {
           autoreply: false,
-          GET: 'true'
-        }
-      }
+          GET: 'true',
+        },
+      },
     }
 
     var result = Mapper(route)[0]
@@ -112,7 +112,7 @@ describe('map-routes', () => {
     done()
   })
 
-  it('prefixes prefix, postfixes postfix, suffixes suffix', done => {
+  it('prefixes prefix, postfixes postfix, suffixes suffix', (done) => {
     const route = {
       pin: 'role:test,cmd:*',
       prefix: 'api',
@@ -120,9 +120,9 @@ describe('map-routes', () => {
       map: {
         ping: {
           GET: true,
-          suffix: '/:param'
-        }
-      }
+          suffix: '/:param',
+        },
+      },
     }
 
     var result = Mapper(route)[0]
@@ -134,12 +134,12 @@ describe('map-routes', () => {
     done()
   })
 
-  it('does not need a prefix or postfix', done => {
+  it('does not need a prefix or postfix', (done) => {
     const route = {
       pin: 'role:test,cmd:*',
       map: {
-        ping: true
-      }
+        ping: true,
+      },
     }
 
     var result = Mapper(route)[0]
@@ -149,72 +149,70 @@ describe('map-routes', () => {
     done()
   })
 
-  it('allows overwriting of the key', done => {
+  it('allows overwriting of the key', (done) => {
     const route = {
       pin: 'role:user,cmd:*',
       map: {
         a: { GET: true, name: 'w' },
         b: { GET: true, name: 'x' },
         c: { GET: true, name: 'y' },
-        d: { GET: true, name: 'z' }
-      }
+        d: { GET: true, name: 'z' },
+      },
     }
 
     var results = Mapper(route)
 
-    assert.deepEqual(results.map(result => result.path), [
-      '/w',
-      '/x',
-      '/y',
-      '/z'
-    ])
+    assert.deepEqual(
+      results.map((result) => result.path),
+      ['/w', '/x', '/y', '/z']
+    )
     done()
   })
 
   describe('specifying middleware', () => {
     let route = null
 
-    beforeEach(done => {
+    beforeEach((done) => {
       route = {
         pin: 'role:api,cmd:*',
         map: {
           ping: {
-            GET: 'true'
-          }
-        }
+            GET: 'true',
+          },
+        },
       }
       done()
     })
 
-    it('at root, string', done => {
+    it('at root, string', (done) => {
       route.middleware = 'middleware'
       const result = Mapper(route)
       assert.deepEqual(result[0].middleware, ['middleware'])
       done()
     })
 
-    it('at root, array', done => {
+    it('at root, array', (done) => {
       route.middleware = ['middleware']
       const result = Mapper(route)
       assert.deepEqual(result[0].middleware, ['middleware'])
       done()
     })
 
-    it('per route, string', done => {
+    it('per route, string', (done) => {
       route.map.ping.middleware = 'middleware'
       const result = Mapper(route)
       assert.deepEqual(result[0].middleware, ['middleware'])
       done()
     })
 
-    it('per route, array', done => {
+    it('per route, array', (done) => {
       route.map.ping.middleware = ['middleware']
       const result = Mapper(route)
       assert.deepEqual(result[0].middleware, ['middleware'])
       done()
     })
 
-    it('value overwrites root', done => {
+    it('value overwrites root', (done) => {
       route.middleware = ['by our powers']
       route.map.ping.middleware = ['combined!']
       const result = Mapper(route)

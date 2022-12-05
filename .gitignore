@@ -7,4 +7,6 @@ coverage.html
 
 node_modules
 docs/annotated
+docs/coverage
 .vscode
+.nyc_output
