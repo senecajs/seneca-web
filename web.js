@@ -10,14 +10,14 @@ var opts = {
   adapter: LogAdapter,
   auth: null,
   options: {
-    parseBody: true
-  }
+    parseBody: true,
+  },
 }
 
 var locals = {
   context: null,
   adapter: null,
-  options: null
+  options: null,
 }
 
 module.exports = function web(options) {
@@ -44,12 +44,12 @@ module.exports = function web(options) {
     mapRoutes: mapRoutes.bind(seneca),
     context: () => {
       return locals.context
-    }
+    },
   }
 
   return {
     name: 'web',
-    exportmap: exported
+    exportmap: exported,
   }
 }
 
@@ -90,7 +90,7 @@ function setServer(msg, done) {
     context: context,
     adapter: adapter,
     auth: auth,
-    options: options
+    options: options,
   }
 
   // If we have routes in the msg map them and
@@ -113,7 +113,7 @@ function init(msg, done) {
     adapter: opts.adapter,
     routes: opts.routes,
     auth: opts.auth,
-    options: opts.options
+    options: opts.options,
   }
 
   setServer.call(this, config, done)
