@@ -10,3 +10,4 @@ docs/annotated
 docs/coverage
 .vscode
 .nyc_output
+package-lock.json
