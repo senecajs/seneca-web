@@ -1,5 +1,5 @@
 {
-  "name": "seneca-web",
+  "name": "@seneca/web",
   "description": "Http route mapping for Seneca microservices.",
   "version": "2.2.2",
   "keywords": [

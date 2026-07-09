@@ -1,50 +1,18 @@
-![Seneca][Logo]
+![Seneca](http://senecajs.org/files/assets/seneca-logo.png)
+> A [Seneca.js][] plugin
 
-# seneca-web
-[![npm version][npm-badge]][npm-url]
-[![Build Status][travis-badge]][travis-url]
-[![Coverage Status][coveralls-badge]][coveralls-url]
-[![Dependency Status][david-badge]][david-url]
-[![Gitter chat][gitter-badge]][gitter-url]
+# @seneca/web
 
-- __Sponsor:__ [nearForm][Sponsor]
-- __Node:__ 4.x, 6.x
-- __Seneca:__ 1.x - 3.x
-
-
-This plugin allows http requests to be mapped to seneca actions. Http actions handled
-locally can access the raw `request` and `response` objects. Actions handled over
-transport can access a reduced set of request data including payloads and headers.
-
-If you're using this module, and need help, you can:
-
-- Post a [github issue][],
-- Tweet to [@senecajs][],
-- Ask on the [Gitter][gitter-url].
-
-If you are new to Seneca in general, please take a look at [senecajs.org][]. We have
-everything from tutorials to sample apps to help get you up and running quickly.
-
+| ![Voxgig](https://www.voxgig.com/res/img/vgt01r.png) | This open source module is sponsored and supported by [Voxgig](https://www.voxgig.com). |
+|---|---|
 
 ## Install
-```
+
+```sh
 npm install seneca-web
 ```
 
-## Test
-To run tests locally,
-
-```
-npm run test
-```
-
-To obtain a coverage report,
-
-```
-npm run coverage; open docs/coverage.html
-```
-
-## Quick example
+## Quick Example
 
 __Route map__
 ```js
@@ -78,321 +46,58 @@ var Routes = [{
 }]
 ```
 
+## More Examples
 
-## Adapters
+See [test/](test/) for usage examples.
 
-An adapter that maps the routes to routes in a web framework must be provided via the `adapter` parameter
+## Motivation
 
-The following adapters are provided:
+This plugin allows HTTP requests to be mapped to Seneca actions. HTTP actions handled locally can access the raw request and response objects.
 
-* [seneca-web-adapter-connect](https://github.com/senecajs/seneca-web-adapter-connect)
-* [seneca-web-adapter-express](https://github.com/senecajs/seneca-web-adapter-express)
-* [seneca-web-adapter-hapi](https://github.com/senecajs/seneca-web-adapter-hapi)
-* [seneca-web-adapter-koa1](https://github.com/senecajs/seneca-web-adapter-koa1)
-* [seneca-web-adapter-koa2](https://github.com/senecajs/seneca-web-adapter-koa2)
+## Support
 
-__Hapi__
-```js
-'use strict'
+If you're using this module and need help, you can:
 
-var Hapi = require('hapi')
-var Seneca = require('seneca')
-var Web = require('../../')
-var Routes = require('./common/routes')
-var Plugin = require('./common/plugin')
+- Post a [github issue][]
+- Tweet to [@senecajs][]
+- Ask on the [Gitter][gitter-url]
 
-var config = {
-  routes: Routes,
-  adapter: require('seneca-web-adapter-hapi'),
-  context: (() => {
-    var server = new Hapi.Server()
-    server.connection({port: 4000})
-    return server
-  })()
-}
+## API
 
-var seneca = Seneca()
-  .use(Plugin)
-  .use(Web, config)
-  .ready(() => {
-    var server = seneca.export('web/context')()
+### Action Patterns
 
-    server.start(() => {
-      console.log('server started on: ' + server.info.uri)
-    })
-  })
-```
-
-__Express__
-```js
-'use strict'
-
-var Seneca = require('seneca')
-var Express = require('Express')
-var Web = require('../../')
-var Routes = require('./common/routes')
-var Plugin = require('./common/plugin')
-
-var config = {
-  routes: Routes,
-  adapter: require('seneca-web-adapter-express'),
-  context: Express()
-}
-
-var seneca = Seneca()
-  .use(Plugin)
-  .use(Web, config)
-  .ready(() => {
-    var server = seneca.export('web/context')()
-
-    server.listen('4000', () => {
-      console.log('server started on: 4000')
-    })
-  })
-
-```
-
-__Connect__
-```js
-'use strict'
-
-var Seneca = require('seneca')
-var Connect = require('connect')
-var Http = require('http')
-var Web = require('../../')
-var Routes = require('./common/routes')
-var Plugin = require('./common/plugin')
-
-var config = {
-  routes: Routes,
-  adapter: require('seneca-web-adapter-connect'),
-  context: Connect()
-}
-
-var seneca = Seneca()
-  .use(Plugin)
-  .use(Web, config)
-  .ready(() => {
-    var connect = seneca.export('web/context')()
-    var http = Http.createServer(connect)
-
-    http.listen(4060, () => {
-      console.log('server started on: 4060')
-    })
-  })
-
-```
-
-## Plugin Configuration
-
-* `context` - optional. Routes are mapped to the context. You can provide this later by acting upon [role:web,context:*](#rolewebcontext) or calling either the [context](#context), or [setServer](#setserver) exported method.
-
-* `routes` - optional. An object identifying the routes to map.  See [Providing Routes](./docs/providing-routes.md) for more details.  You can add to this later acting upon [role:web,route:*](#rolewebroute) or calling the [mapRoutes](#maproutes) or [setServer](#setserver)  exported method.
-
-* `adapter` - optional. the adapter to use.  See [Adapters](#adapters) above for a list of supported web frameworks. You can add this later by calling the [setServer](#setserver) exported method.
-
-* `auth` - optional.  Authentication provider (express only).  See [Authentication](./docs/auth.md) for more details
-
-* `options` - optional.  Additional options
-
-  * `middleware` - object. default: null.  Provide middleware functions that can be called prior the request handler.
-
-  * `parseBody` - boolean. default: true. If a body parser has not been provided using `express` or `connect`, `seneca-web` will attempt to parse the body. This will not work if `body-parser` has already been used on the app. To disable this behavior, pass `{options: {parseBody: false}}` to the plugin options.
-
-```js
-.use(SenecaWeb, {
-        routes: Routes,
-        context: express,
-        adapter: require('seneca-web-adapter-express'),
-        auth: Passport,
-        options: {
-          parseBody: false,
-          middleware: {
-            'some-middleware': (req, res, next) => {
-              next()
-            }
-          }
-        }
-    })
-```
-
-
-## Action Patterns
-
-### role:web,route:*
+#### role:web,route:*
 Define a web service as a mapping from URL routes to action patterns.
 
-```js
-seneca.act('role:web', {routes: Routes}, (err, reply) => {
-  console.log(err || reply.routes)
-})
-```
+#### role:web,set:server
+Change plugin configuration options.
 
-### role:web,set:server
+### Adapters
 
-Change any of the [plugin configuration options](#plugin-onfiguration). Note that only plain objects are transported across microservices. In practice, this can only really be used on the same microservice node, or to set `options` and `routes`.
-
-```js
-seneca.act('role:web,set:server', {
-  routes: Routes,
-  context: context,
-  adapter: require('seneca-web-adapter-express'),
-  auth: Passport,
-  options: {parseBody: false}
-}, (err, reply) => {
-  console.log(err || reply.ok)
-})
-```
-
-**For the definition expected for Routes, see [Providing Routes][providing-routes]**
-
-## Exported Methods
-
-### context
-Provides the current context so it can be used to start the server or
-add custom logic, strategies, or middleware.
-
-```js
-var seneca = Seneca()
-  .use(Plugin)
-  .use(Web, config)
-  .ready(() => {
-
-    // This will be whatever server is being used.
-    // seneca-web doesn't autostart the server, it
-    // must first be exported and then started.
-    var context = seneca.export('web/context')()
-  })
-```
-
-### mapRoutes
-Allows routes to be mapped outside of using seneca directly. Provides the
-same functionality as `role:web,route:*`.
-
-```js
-var seneca = Seneca()
-  .use(Plugin)
-  .use(Web, config)
-  .ready(() => {
-
-    // Provides the same functionality as seneca.act('role:web', {routes ...})
-    // can be used to add more routes at runtime without needing seneca.
-    seneca.export('web/mapRoutes')(Routes, (err, reply) => {
-      ...
-    })
-  })
-```
-
-**For the definition expected for Routes, see [Providing Routes][providing-routes]**
-
-### setServer
-Allows the server and adapter to be swapped out after runtime.
-
-```js
-var seneca = Seneca()
-  .use(Plugin)
-  .use(Web, config)
-  .ready(() => {
-
-    var config = {
-      context: Express(),
-      adapter: require('seneca-web-adapter-express'),
-      routes: Routes
-    }
-
-    // Provides the same functionality as seneca.act('role:web', {routes ...})
-    // can be used to add more routes at runtime without needing seneca.
-    seneca.export('web/setServer')(config, (err, reply) => {
-      ...
-    })
-  })
-```
-
-## Auth
-Both Hapi and Express support secure routing. Hapi support is via it's built in
-auth mechanism and allows Bell and custom strategies. Express auth is provided
-via passport, which supports 100s of strategies.
-
-__Secure Express routes__
-```js
-map: {
-  home: {
-    GET: true,
-    POST: true,
-    alias: '/'
-  },
-  logout: {
-    GET: true,
-    redirect: '/'
-  },
-  profile: {
-    GET: true,
-    secure: {
-      fail: '/'
-    }
-  },
-  login: {
-    POST: true,
-    auth: {
-      strategy: 'local',
-      pass: '/profile',
-      fail: '/'
-    }
-  }
-```
-
-Express routes use `auth` for `passport.authorize` and `secure` for checking the
-existence of `request.user`. Both secure and auth guards support fail redirects. Auth
-also supports pass routing.
-
-__Secure Hapi routes__
-```js
-map: {
-  home: {
-    GET: true,
-    POST: true,
-    alias: '/'
-  },
-  profile: {
-    GET: true,
-    auth: {
-      strategy: 'simple',
-      fail: '/'
-    }
-  },
-  admin: {
-    GET: true,
-    auth: {
-      strategy: 'simple',
-      pass: '/profile',
-      fail: '/'
-    }
-  }
-}
-```
-Hapi routes do not use the `secure` option. All routes are secured using `auth`. Both
-pass and fail redirects are supported.
-
-## Examples
-A number of examples showing basic and secure usage for hapi and express as well as
-showing connect and log usage are provided in [./docs/examples](/senecajs/seneca-web/tree/master/docs/examples).
-
-Examples include:
-
-- Logging routes when building maps (via log adapter).
-- Basic expres, hapi, and connect usage.
-- Securing Express and Hapi routes.
-- Proxying some routes over to transport
+- [seneca-web-adapter-express](https://github.com/senecajs/seneca-web-adapter-express)
+- [seneca-web-adapter-hapi](https://github.com/senecajs/seneca-web-adapter-hapi)
+- [seneca-web-adapter-koa1](https://github.com/senecajs/seneca-web-adapter-koa1)
+- [seneca-web-adapter-koa2](https://github.com/senecajs/seneca-web-adapter-koa2)
 
 ## Contributing
-The [Senecajs org][] encourage open participation. If you feel you can help in any way,
-be it with documentation, examples, extra testing, or new features please get in touch.
 
+The [Senecajs org][] encourages open participation. If you feel you can help in any way, be it with documentation, examples, extra testing, or new features please get in touch.
 
-## License
-Copyright (c) 2013 - 2016, Richard Rodger and other contributors.
-Licensed under [MIT][].
+### Running tests
 
+```sh
+npm run test
+```
+
+## Background
+
+Sponsored originally by [nearForm](http://nearform.com). See [docs/examples](./docs/examples) for usage examples.
+
+[![npm version][npm-badge]][npm-url]
+[![Build Status][travis-badge]][travis-url]
+[![Coverage Status][coveralls-badge]][coveralls-url]
+[![Dependency Status][david-badge]][david-url]
+[![Gitter chat][gitter-badge]][gitter-url]
 [Sponsor]: http://nearform.com
 [Logo]: http://senecajs.org/files/assets/seneca-logo.png
 [npm-badge]: https://badge.fury.io/js/seneca-web.svg
