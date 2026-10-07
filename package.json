@@ -33,7 +33,7 @@
     "pretest": "eslint .",
     "test": "mocha",
     "test-debug": "mocha --inspect-brk --no-timeouts",
-    "coverage": "c8 --reporter=html --reporter=text --report-dir=docs/coverage npm test",
+    "coverage": "c8 --reporter=html --reporter=text --report-dir=coverage npm test",
     "prettier": "prettier --write --no-semi --single-quote web.js lib/**/*.js test/*.js docs/examples/*.js"
   },
   "c8": {
