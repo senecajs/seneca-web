@@ -150,7 +150,7 @@ npm test
 The tests run against the Seneca version in `devDependencies`
 (`^4.0.0-rc5`). To test against another Seneca, install it without
 saving: `npm install --no-save seneca@3` and `npm test`. `npm run
-coverage` writes a coverage report to `docs/coverage`. The examples in
+coverage` writes a coverage report to `coverage/`. The examples in
 `docs/examples` run with `node docs/examples/<name>.js` and exit on
 their own.
 
