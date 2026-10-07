@@ -6,7 +6,7 @@
 
 const Seneca = require('seneca')
 const Express = require('express')
-const SenecaWeb = require('../../') // in your own project: require('seneca-web')
+const SenecaWeb = require('../../') // in your own project: require('@seneca/web')
 
 function api(options) {
   this.add('role:api,cmd:ping', function (msg, reply) {

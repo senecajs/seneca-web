@@ -6,7 +6,7 @@
 // Run with: node docs/examples/log-adapter.js
 
 const Seneca = require('seneca')
-const SenecaWeb = require('../../') // in your own project: require('seneca-web')
+const SenecaWeb = require('../../') // in your own project: require('@seneca/web')
 
 const routes = [
   {

@@ -12,7 +12,7 @@ seneca-web needs Node.js 18 or later (24 is recommended) and Seneca 3 or
 
 ```sh
 npm init -y
-npm install seneca@^4.0.0-rc5 seneca-web seneca-web-adapter-express express
+npm install seneca@^4.0.0-rc5 @seneca/web seneca-web-adapter-express express
 ```
 
 Until Seneca 4.0.0 is published, `seneca@^4.0.0-rc5` installs the
@@ -27,7 +27,7 @@ Create `getting-started.js`:
 
 const Seneca = require('seneca')
 const Express = require('express')
-const SenecaWeb = require('seneca-web')
+const SenecaWeb = require('@seneca/web')
 
 // A plugin with two actions. Web requests arrive as messages whose
 // `args` property carries the body, query and route parameters.

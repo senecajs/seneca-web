@@ -6,7 +6,7 @@
 
 const Seneca = require('seneca')
 const Express = require('express')
-const SenecaWeb = require('../../') // in your own project: require('seneca-web')
+const SenecaWeb = require('../../') // in your own project: require('@seneca/web')
 
 function todo(options) {
   const items = { 1: { id: 1, text: 'write docs' } }

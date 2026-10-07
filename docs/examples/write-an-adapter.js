@@ -8,7 +8,7 @@
 
 const Http = require('http')
 const Seneca = require('seneca')
-const SenecaWeb = require('../../') // in your own project: require('seneca-web')
+const SenecaWeb = require('../../') // in your own project: require('@seneca/web')
 
 // The adapter. `this` is the Seneca instance; `context` is whatever the
 // application passed as the context option, here a lookup table.

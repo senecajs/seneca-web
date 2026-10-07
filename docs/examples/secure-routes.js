@@ -9,7 +9,7 @@
 
 const Seneca = require('seneca')
 const Express = require('express')
-const SenecaWeb = require('../../') // in your own project: require('seneca-web')
+const SenecaWeb = require('../../') // in your own project: require('@seneca/web')
 
 // Something that looks like Passport: authenticate(strategy, options)
 // returns middleware. Here the "credential" is the x-user header.

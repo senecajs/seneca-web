@@ -6,7 +6,7 @@
 
 const Seneca = require('seneca')
 const Express = require('express')
-const SenecaWeb = require('../../') // in your own project: require('seneca-web')
+const SenecaWeb = require('../../') // in your own project: require('@seneca/web')
 
 function shop(options) {
   this.add('role:shop,cmd:item', function (msg, reply) {

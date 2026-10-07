@@ -19,8 +19,11 @@ and 22.
 ## Install
 
 ```sh
-npm install seneca-web seneca-web-adapter-express express
+npm install @seneca/web seneca-web-adapter-express express
 ```
+
+Versions up to 2.2.2 were published as `seneca-web`; from 2.3.0 the
+package is `@seneca/web`. The adapters keep their published names.
 
 Pick the adapter for your framework: [seneca-web-adapter-express][],
 [seneca-web-adapter-hapi][], [seneca-web-adapter-koa2][],
@@ -32,7 +35,7 @@ the mapped routes, which is useful to check a route plan.
 ```js
 const Seneca = require('seneca')
 const Express = require('express')
-const SenecaWeb = require('seneca-web')
+const SenecaWeb = require('@seneca/web')
 
 const app = Express()
 
@@ -161,21 +164,22 @@ files needs a GitHub token with the `workflow` scope; apply it with
 
 ## Background
 
-seneca-web started in 2014 as part of the Seneca project, was rebuilt
+@seneca/web (published as `seneca-web` up to 2.2.2) started in 2014 as
+part of the Seneca project, was rebuilt
 in 2016 (version 1.0.0) around the route mapper and separate adapter
 packages, and was sponsored originally by [nearForm](http://nearform.com).
 Version 2.3.0 adds Seneca 4 support. The change log is in
 [CHANGES.md](CHANGES.md).
 
-| seneca-web | Seneca | Node.js |
+| @seneca/web | Seneca | Node.js |
 | ---------- | ------ | ------- |
 | 2.3.x | 3.x and 4.x (from 4.0.0-rc5) | 18 and later; tested on 24 and 22 |
 | 2.2.x | 3.x | 8 and later |
 
 Licensed under [MIT][].
 
-[npm-badge]: https://badge.fury.io/js/seneca-web.svg
-[npm-url]: https://badge.fury.io/js/seneca-web
+[npm-badge]: https://badge.fury.io/js/%40seneca%2Fweb.svg
+[npm-url]: https://www.npmjs.com/package/@seneca/web
 [build-badge]: https://github.com/senecajs/seneca-web/actions/workflows/build.yml/badge.svg
 [build-url]: https://github.com/senecajs/seneca-web/actions/workflows/build.yml
 [MIT]: ./LICENSE

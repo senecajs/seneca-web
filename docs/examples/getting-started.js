@@ -6,7 +6,7 @@
 
 const Seneca = require('seneca')
 const Express = require('express')
-const SenecaWeb = require('../../') // in your own project: require('seneca-web')
+const SenecaWeb = require('../../') // in your own project: require('@seneca/web')
 
 // A plugin with two actions. Web requests arrive as messages whose
 // `args` property carries the body, query and route parameters.
