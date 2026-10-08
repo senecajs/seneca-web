@@ -10,7 +10,7 @@ describe('log adapter', () => {
       options: {
         sink: (routes) => {
           assert.equal(routes.length, 1)
-          done()
+          seneca.close(done)
         },
       },
       routes: {
@@ -21,7 +21,7 @@ describe('log adapter', () => {
       },
     }
 
-    Seneca({ log: 'test' }).use(Web, config)
+    var seneca = Seneca({ log: 'test' }).use(Web, config)
   })
 
   it('logs routes to console by default', (done) => {
@@ -46,15 +46,15 @@ describe('log adapter', () => {
       payload = JSON.parse(raw).routes
     }
 
-    Seneca({ log: 'test' })
+    var seneca = Seneca({ log: 'test' })
       .use(Web, config)
       .ready(() => {
+        console.log = log
         assert.equal(called, true)
         assert(payload)
         assert.equal(payload.length, 1)
 
-        console.log = log
-        done()
+        seneca.close(done)
       })
   })
 })

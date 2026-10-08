@@ -1,3 +1,33 @@
+## 2.3.0 07/10/2026
+
+- Seneca 4 support: tested against the Seneca 4 prerelease (4.0.0-rc5)
+  and the unreleased 4.0.0, on Node.js 24 and 22; Seneca 3 remains
+  supported. Adds `peerDependencies: { seneca: ">=3 || >=4.0.0-rc5" }`.
+- Fix: messages sent by adapters for web requests are no longer fatal.
+  Routes given in the plugin options were mapped with the delegate of
+  the plugin init action, which Seneca marks `fatal$`, so an action
+  error during a web request closed the instance and exited the
+  process (on Seneca 3 and 4). Adapters are now called with a delegate
+  of the root instance with no fixed arguments: request messages are
+  not fatal, each one starts its own transaction, and route actions run
+  in their own plugin context, so their error message templates apply.
+- Fix: a `role:web,set:server` message that also carries `routes` now
+  stores the new server before mapping the routes. It used to be
+  dispatched to `role:web,routes:*`, so the server was used once but not
+  stored. The plugin adds the pattern `role:web,set:server,routes:*`.
+- Route paths are built with `path.posix.join` instead of the
+  deprecated `url.parse`, which printed a deprecation warning on
+  Node.js 24. Paths are no longer percent encoded (for example a space
+  stays a space); route parameters and framework path syntax are
+  unchanged.
+- Tests: Mocha 12, ESLint 10 with a flat config (`eslint.config.js`),
+  new tests for the plugin messages and exports, every test closes its
+  Seneca instance. `c8` replaces `nyc` for `npm run coverage`.
+- Removed the Travis CI configuration and the `coveralls` script; the
+  GitHub Actions workflow is provided as a patch in `.patches/`.
+- Documentation reorganized (tutorial, how-to guides, reference,
+  explanation) under `docs/`, with runnable examples in `docs/examples`.
+
 ## 2.2.2 04/12/2022
 
 - Bump dependencies.

@@ -33,15 +33,41 @@ module.exports = function web(options) {
     opts.options.middleware = options.middleware
   }
 
-  seneca.add('role:web,routes:*', mapRoutes)
-  seneca.add('role:web,set:server', setServer)
-  seneca.add('init:web', init)
+  // Adapters send a message for every web request using the Seneca
+  // instance they are called with. Messages sent through a plugin
+  // delegate, or through the delegate of the plugin init action, carry
+  // fatal$:true, which would make any action error during a web request
+  // fatal. A delegate of the root instance does not, so the adapter is
+  // always called with this one. It has no fixed arguments: a fixed
+  // plugin$ would replace the plugin context of the route actions, which
+  // would then lose their own error message templates.
+  var web_seneca = seneca.root.delegate()
+
+  seneca.add('role:web,routes:*', function (msg, done) {
+    mapRoutes.call(web_seneca, msg, done)
+  })
+
+  seneca.add('role:web,set:server', function (msg, done) {
+    setServer.call(web_seneca, msg, done)
+  })
+
+  // A set:server message that also carries routes would otherwise be
+  // matched by role:web,routes:* (pattern properties are compared in
+  // alphabetical order and routes sorts before set), so the new server
+  // would be used once but never stored. This more specific pattern wins.
+  seneca.add('role:web,set:server,routes:*', function (msg, done) {
+    setServer.call(web_seneca, msg, done)
+  })
+
+  seneca.add('init:web', function (msg, done) {
+    init.call(web_seneca, msg, done)
+  })
 
   // exported functions, they can be called
   // via seneca.export('web/key').
   var exported = {
-    setServer: setServer.bind(seneca),
-    mapRoutes: mapRoutes.bind(seneca),
+    setServer: setServer.bind(web_seneca),
+    mapRoutes: mapRoutes.bind(web_seneca),
     context: () => {
       return locals.context
     },
