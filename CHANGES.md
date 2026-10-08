@@ -8,8 +8,9 @@
   the plugin init action, which Seneca marks `fatal$`, so an action
   error during a web request closed the instance and exited the
   process (on Seneca 3 and 4). Adapters are now called with a delegate
-  of the root instance; request messages are not fatal and each one
-  starts its own transaction.
+  of the root instance with no fixed arguments: request messages are
+  not fatal, each one starts its own transaction, and route actions run
+  in their own plugin context, so their error message templates apply.
 - Fix: a `role:web,set:server` message that also carries `routes` now
   stores the new server before mapping the routes. It used to be
   dispatched to `role:web,routes:*`, so the server was used once but not

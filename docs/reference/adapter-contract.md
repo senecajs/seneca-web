@@ -24,7 +24,7 @@ routes, done)`:
 
 | Argument | Content |
 | -------- | ------- |
-| `this` | A Seneca instance to send messages with: a delegate of the root instance with `plugin$: { name: 'web' }` fixed. Messages sent with it are not fatal and each starts a new transaction. Keep a reference for the request handlers. |
+| `this` | A Seneca instance to send messages with: a delegate of the root instance with no fixed arguments. Messages sent with it are not fatal, each starts a new transaction, and the route actions run in their own plugin context (so their error message templates apply). Keep a reference for the request handlers. |
 | `options` | The adapter options: the plugin's `options` option deep merged over `{ parseBody: true }`, plus `middleware` (the named middleware map) when the `middleware` option was given. A `role:web,routes:*` message may replace it for one call. |
 | `context` | The framework object to register routes on (the `context` option or the one set with `set:server`, or a once off value from the message). May be `null`; the published adapters reply with the error `no context provided` then. |
 | `auth` | The auth provider (the `auth` option), or `null`. Its meaning is up to the adapter. |

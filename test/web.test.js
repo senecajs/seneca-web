@@ -244,6 +244,38 @@ describe('web', () => {
     })
   })
 
+  it("keeps the route action's plugin context, so its error templates apply", (done) => {
+    const calls = []
+
+    function shop() {
+      this.add('role:shop,cmd:get', function (msg, reply) {
+        reply(this.error('missing_item', { id: msg.id }))
+      })
+    }
+    shop.errors = { missing_item: 'Item <%=id%> is missing.' }
+
+    const seneca = Seneca({ log: 'silent', system: { exit: () => {} } })
+      .use(shop)
+      .use(Web, {
+        adapter: makeAdapter(calls),
+        routes: { pin: 'role:shop,cmd:*', map: { get: true } },
+      })
+
+    seneca.ready(() => {
+      calls[0].seneca.act('role:shop,cmd:get', { id: 'i0' }, (err) => {
+        // Seneca catches errors thrown in callbacks, so report them.
+        try {
+          assert.ok(err)
+          assert.equal(err.code, 'missing_item')
+          assert.ok(/Item i0 is missing/.test(err.message), err.message)
+        } catch (failure) {
+          return seneca.close(() => done(failure))
+        }
+        seneca.close(done)
+      })
+    })
+  })
+
   it('makes named middleware available to the adapter as options.middleware', (done) => {
     const calls = []
     const middleware = { first: () => {}, second: () => {} }

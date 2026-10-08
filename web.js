@@ -38,8 +38,10 @@ module.exports = function web(options) {
   // delegate, or through the delegate of the plugin init action, carry
   // fatal$:true, which would make any action error during a web request
   // fatal. A delegate of the root instance does not, so the adapter is
-  // always called with this one.
-  var web_seneca = seneca.root.delegate({ plugin$: { name: 'web' } })
+  // always called with this one. It has no fixed arguments: a fixed
+  // plugin$ would replace the plugin context of the route actions, which
+  // would then lose their own error message templates.
+  var web_seneca = seneca.root.delegate()
 
   seneca.add('role:web,routes:*', function (msg, done) {
     mapRoutes.call(web_seneca, msg, done)

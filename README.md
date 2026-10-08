@@ -23,7 +23,9 @@ npm install @seneca/web seneca-web-adapter-express express
 ```
 
 Versions up to 2.2.2 were published as `seneca-web`; from 2.3.0 the
-package is `@seneca/web`. The adapters keep their published names.
+package is `@seneca/web`. The examples install the adapters under their
+published names; from 1.3.0 the Express and Koa adapters are published
+as `@seneca/web-adapter-express` and `@seneca/web-adapter-koa2`.
 
 Pick the adapter for your framework: [seneca-web-adapter-express][],
 [seneca-web-adapter-hapi][], [seneca-web-adapter-koa2][],
