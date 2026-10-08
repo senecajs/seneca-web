@@ -5,7 +5,7 @@ const globals = require('globals')
 
 module.exports = [
   {
-    ignores: ['node_modules/', 'docs/coverage/', 'docs/annotated/', '.nyc_output/'],
+    ignores: ['node_modules/', 'coverage/', 'docs/annotated/', '.nyc_output/'],
   },
   js.configs.recommended,
   {

@@ -13,7 +13,7 @@ Seneca 4 needs Node.js 22 or later. Install the Seneca 4 prerelease
 until 4.0.0 is published:
 
 ```sh
-npm install seneca@^4.0.0-rc5 seneca-web@^2.3.0
+npm install seneca@^4.0.0-rc5 @seneca/web@^2.3.0
 ```
 
 seneca-web 2.3.0 declares `peerDependencies: { seneca: ">=3 || >=4.0.0-rc5" }`;
