@@ -86,9 +86,9 @@ seneca.act(route.pattern, msg, function (err, out) {
 })
 ```
 
-On Seneca 3 the error is wrapped and the action's error is `err.orig`;
-adapters that support both use `(err.orig || err)`. Do not expect
-`err.orig` on Seneca 4.
+On Seneca 4 `err` is the action's error itself. Seneca 3 wrapped it and
+put the action's error in `err.orig`; do not expect `err.orig` on
+Seneca 4.
 
 ## 4. Honour the rest of the route
 

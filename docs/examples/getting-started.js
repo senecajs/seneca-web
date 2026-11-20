@@ -43,7 +43,7 @@ app.use(Express.json())
 const seneca = Seneca({ log: 'warn' })
   .use(greeting)
   .use(SenecaWeb, {
-    adapter: require('seneca-web-adapter-express'),
+    adapter: require('@seneca/web-adapter-express'),
     context: app,
     routes: routes,
     // Express parses the body above, so the adapter must not read it again.

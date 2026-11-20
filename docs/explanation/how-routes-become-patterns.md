@@ -48,7 +48,7 @@ message with `role:web` and a `routes` property; this is why the short
 form `seneca.act('role:web', { routes })` works. `role:web,set:server`
 changes the stored adapter, context, auth and options.
 
-The two interact in a way that took until version 2.3.0 to get right.
+The two interact in a way that took until version 3.0.0 to get right.
 Seneca compares pattern properties in alphabetical order, and `routes`
 sorts before `set`, so a `set:server` message that also carries
 `routes` used to be dispatched to `role:web,routes:*`: the routes were
@@ -67,10 +67,10 @@ they were called with. Seneca marks everything a plugin does during
 definition and initialization as fatal (`fatal$`), so that a plugin
 that fails to load stops the process rather than leaving a half
 working service. That is right for initialization, but the adapter
-keeps the instance for the lifetime of the server. Until 2.3.0 the
+keeps the instance for the lifetime of the server. Before 3.0.0 the
 plugin passed its own delegate along, with the consequence that an
 action error during a request was treated as fatal: Seneca logged a
-fatal report, closed the instance and exited. Since 2.3.0 adapters are
+fatal report, closed the instance and exited. Since 3.0.0 adapters are
 called with a delegate of the root instance, which carries no `fatal$`
 and no transaction id, so every request message is an ordinary message
 in its own transaction. See

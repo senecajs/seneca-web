@@ -61,7 +61,7 @@ const seneca = Seneca({ log: 'warn' })
   .use(todo)
   .use(admin)
   .use(SenecaWeb, {
-    adapter: require('seneca-web-adapter-express'),
+    adapter: require('@seneca/web-adapter-express'),
     context: app,
     routes: routes,
     options: { parseBody: false },

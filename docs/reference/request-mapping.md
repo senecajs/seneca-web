@@ -86,19 +86,17 @@ completes.
 On Seneca 4 the error given to the adapter's callback is the error
 object the action replied with (or threw): `err.message` and `err.code`
 are the action's. Seneca attaches its own description as `err.meta$`.
-On Seneca 3 (with the default `legacy.error: true`) the error is a
-wrapper whose message is `seneca: Action <pattern> failed: <message>.`,
-with the action's error as `err.orig` and its message also in
-`err.details.message`. Code that must run on both reads
-`(err.orig || err).message`. See
+Seneca 3 (with the default `legacy.error: true`) passed a wrapper
+instead, whose message was `seneca: Action <pattern> failed: <message>.`,
+with the action's error as `err.orig`. See
 [Handle errors and status codes](../how-to/handle-errors-and-status-codes.md).
 
 ## Which Seneca instance sends the message
 
 The adapter sends the message with the Seneca instance it was called
-with. Since version 2.3.0 that is a delegate of the root instance, so
+with. Since version 3.0.0 that is a delegate of the root instance, so
 request messages are not fatal and each request starts its own
-transaction (`meta.tx`). Before 2.3.0, routes given in the plugin
+transaction (`meta.tx`). Before 3.0.0, routes given in the plugin
 options were mapped with the delegate of the plugin init action, which
 Seneca marks `fatal$`; every request message inherited the flag and an
 action error ended the process.

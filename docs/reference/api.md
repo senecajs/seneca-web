@@ -21,7 +21,7 @@ the routes.
 
 ```js
 const seneca = Seneca()
-  .use(SenecaWeb, { adapter: require('seneca-web-adapter-express'), context: Express() })
+  .use(SenecaWeb, { adapter: require('@seneca/web-adapter-express'), context: Express() })
 
 seneca.ready(function () {
   const app = seneca.export('web/context')()

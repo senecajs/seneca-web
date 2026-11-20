@@ -26,10 +26,9 @@ registering routes (Seneca turns an exception in the action into an
 error reply). The published adapters reply `no context provided` when
 there is no context; the Express and Connect adapters throw
 `expected valid middleware, got <value>` for a middleware name that is
-not defined in the `middleware` option. On Seneca 4 the callback
-receives the adapter's error object; on Seneca 3 it is wrapped
-(`err.orig` is the adapter's error). See
-[Seneca 3 and 4](../explanation/seneca-3-and-4.md).
+not defined in the `middleware` option. The callback receives the
+adapter's error object (Seneca 3 wrapped it, see
+[Seneca 3 and 4](../explanation/seneca-3-and-4.md)).
 
 The message values given here are used once and are not stored; use
 `role:web,set:server` to change them for later messages.
@@ -57,7 +56,7 @@ case. With `routes`, the adapter's errors as above.
 
 A `set:server` message that carries `routes` matches the pattern
 `role:web,set:server,routes:*`, which the plugin adds for this purpose
-(version 2.3.0 and later). Earlier versions dispatched such a message to
+(version 3.0.0 and later). Earlier versions dispatched such a message to
 `role:web,routes:*`, so the new server was used once but not stored.
 
 The context given with this message is not inspected by Seneca's plugin

@@ -6,9 +6,8 @@
 HTTP route mapping for [Seneca](https://senecajs.org) microservices: a
 route plan turns URLs into Seneca messages, and an adapter registers the
 routes with the web framework of your choice (Express, Hapi, Koa,
-Connect, or your own). Works with Seneca 3 and Seneca 4 (prerelease
-`4.0.0-rc5` and later) on Node.js 18 and later; tested on Node.js 24
-and 22.
+Connect, or your own). Version 3 works with Seneca 4 on Node.js 24 and
+later. Seneca 3 users stay on `seneca-web@2`.
 
 [![npm version][npm-badge]][npm-url]
 [![build][build-badge]][build-url]
@@ -19,13 +18,13 @@ and 22.
 ## Install
 
 ```sh
-npm install @seneca/web seneca-web-adapter-express express
+npm install seneca@^4 @seneca/web @seneca/web-adapter-express express
 ```
 
-Versions up to 2.2.2 were published as `seneca-web`; from 2.3.0 the
-package is `@seneca/web`. The examples install the adapters under their
-published names; from 1.3.0 the Express and Koa adapters are published
-as `@seneca/web-adapter-express` and `@seneca/web-adapter-koa2`.
+Versions up to 2.2.2 were published as `seneca-web`; from 3.0.0 the
+package is `@seneca/web`. From 2.0.0 the Express and Koa adapters are
+published as `@seneca/web-adapter-express` and
+`@seneca/web-adapter-koa2`.
 
 Pick the adapter for your framework: [seneca-web-adapter-express][],
 [seneca-web-adapter-hapi][], [seneca-web-adapter-koa2][],
@@ -46,7 +45,7 @@ const seneca = Seneca()
     reply({ hello: msg.args.query.name || 'world' })
   })
   .use(SenecaWeb, {
-    adapter: require('seneca-web-adapter-express'),
+    adapter: require('@seneca/web-adapter-express'),
     context: app,
     routes: {
       prefix: '/api',
@@ -145,7 +144,7 @@ The [Senecajs org][] encourages open participation. If you feel you can
 help in any way, be it with documentation, examples, extra testing, or
 new features please get in touch.
 
-To run the tests (ESLint, then Mocha) on Node.js 24 or 22:
+To run the tests (ESLint, then Mocha) on Node.js 24 or later:
 
 ```sh
 npm install
@@ -153,9 +152,8 @@ npm test
 ```
 
 The tests run against the Seneca version in `devDependencies`
-(`^4.0.0-rc5`). To test against another Seneca, install it without
-saving: `npm install --no-save seneca@3` and `npm test`. `npm run
-coverage` writes a coverage report to `coverage/`. The examples in
+(`^4.0.0`). `npm run coverage` writes a coverage report to
+`coverage/`. The examples in
 `docs/examples` run with `node docs/examples/<name>.js` and exit on
 their own.
 
@@ -170,13 +168,13 @@ files needs a GitHub token with the `workflow` scope; apply it with
 part of the Seneca project, was rebuilt
 in 2016 (version 1.0.0) around the route mapper and separate adapter
 packages, and was sponsored originally by [nearForm](http://nearform.com).
-Version 2.3.0 adds Seneca 4 support. The change log is in
-[CHANGES.md](CHANGES.md).
+Version 3.0.0 is the first release as `@seneca/web` and supports
+Seneca 4. The change log is in [CHANGES.md](CHANGES.md).
 
-| @seneca/web | Seneca | Node.js |
-| ---------- | ------ | ------- |
-| 2.3.x | 3.x and 4.x (from 4.0.0-rc5) | 18 and later; tested on 24 and 22 |
-| 2.2.x | 3.x | 8 and later |
+| Package | Seneca | Node.js |
+| ------- | ------ | ------- |
+| `@seneca/web` 3.x | 4.x | 24 and later |
+| `seneca-web` 2.2.x | 3.x | 8 and later |
 
 Licensed under [MIT][].
 

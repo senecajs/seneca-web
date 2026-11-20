@@ -7,16 +7,17 @@ program is [`docs/examples/getting-started.js`](../examples/getting-started.js).
 
 ## 1. Install
 
-seneca-web needs Node.js 18 or later (24 is recommended) and Seneca 3 or
-4. In a new directory:
+@seneca/web 3 needs Node.js 24 or later and Seneca 4. In a new
+directory:
 
 ```sh
 npm init -y
-npm install seneca@^4.0.0-rc5 @seneca/web seneca-web-adapter-express express
+npm install seneca@^4 @seneca/web @seneca/web-adapter-express express
 ```
 
-Until Seneca 4.0.0 is published, `seneca@^4.0.0-rc5` installs the
-prerelease; `npm install seneca` installs Seneca 3, which works too.
+Name the Seneca version: until Seneca 4 is the default on npm, a bare
+`npm install seneca` installs Seneca 3, which this version does not
+support. Seneca 3 users stay on `seneca-web@2`.
 
 ## 2. Write the program
 
@@ -64,7 +65,7 @@ app.use(Express.json())
 const seneca = Seneca({ log: 'warn' })
   .use(greeting)
   .use(SenecaWeb, {
-    adapter: require('seneca-web-adapter-express'),
+    adapter: require('@seneca/web-adapter-express'),
     context: app,
     routes: routes,
     // Express parses the body above, so the adapter must not read it again.
@@ -100,7 +101,7 @@ seneca.ready(function () {
 node getting-started.js
 ```
 
-Output (Node.js 24, Seneca 4.0.0-rc5, seneca-web 2.3.0):
+Output (Node.js 26, Seneca 4.0.0, @seneca/web 3.0.0):
 
 ```
 GET /api/hello?name=Seneca -> 200 { hello: 'Seneca' }

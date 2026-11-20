@@ -36,7 +36,7 @@ app.use(Passport.initialize())
 app.use(Passport.session())
 
 seneca.use(SenecaWeb, {
-  adapter: require('seneca-web-adapter-express'),
+  adapter: require('@seneca/web-adapter-express'),
   context: app,
   routes: routes,
   auth: Passport,
