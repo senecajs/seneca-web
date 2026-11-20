@@ -9,7 +9,8 @@ For maintainers: how to publish a new version of seneca-web to npm.
 3. On a clean checkout of `master`, run `npm install` and `npm test`
    on Node.js 24 or later. The tests run against the Seneca version in
    `devDependencies` (`^4.0.0`). The repository commits no lock file.
-4. Run the examples: `for f in docs/examples/*.js; do node $f; done`.
+4. Run the examples: `npm install --no-save @seneca/web-adapter-express`,
+   then `for f in docs/examples/*.js; do node $f; done`.
    Each one exits on its own.
 5. Run `npm version <major|minor|patch> -m "version %s"`. This updates
    `package.json`, commits, and tags.

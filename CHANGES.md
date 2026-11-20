@@ -41,8 +41,10 @@ published; its changes are part of this release.
 - `package.json`: `repository.url` in the `git+https` form,
   `publishConfig.access` `public`, `CHANGES.md` in `files`;
   `package-lock.json` is no longer committed. The examples use the
-  Express adapter under its new name, `@seneca/web-adapter-express`
-  (development dependency `^2.0.0`).
+  Express adapter under its new name, `@seneca/web-adapter-express`.
+  It is no longer a development dependency, because it depends on this
+  package; install it with `npm install --no-save
+  @seneca/web-adapter-express` to run the examples.
 - Documentation reorganized (tutorial, how-to guides, reference,
   explanation) under `docs/`, with runnable examples in `docs/examples`.
 

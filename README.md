@@ -153,9 +153,11 @@ npm test
 
 The tests run against the Seneca version in `devDependencies`
 (`^4.0.0`). `npm run coverage` writes a coverage report to
-`coverage/`. The examples in
-`docs/examples` run with `node docs/examples/<name>.js` and exit on
-their own.
+`coverage/`. The examples in `docs/examples` also need the Express
+adapter, which is not a development dependency because it depends on
+this package: run `npm install --no-save @seneca/web-adapter-express`
+once, then `node docs/examples/<name>.js`. Each example exits on its
+own.
 
 The GitHub Actions workflow for continuous integration is provided as a
 patch in [`.patches/`](.patches/README.md), because adding workflow

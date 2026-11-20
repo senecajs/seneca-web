@@ -14,7 +14,8 @@ to understand the design.
 
 The programs from the tutorial and the guides are in
 [examples](examples/); each runs with `node docs/examples/<name>.js`
-and exits on its own.
+and exits on its own. In a checkout of this repository, first run
+`npm install --no-save @seneca/web-adapter-express`.
 
 ## How-to guides
 
