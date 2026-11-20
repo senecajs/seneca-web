@@ -52,9 +52,12 @@ assert on `seneca: Action ... failed`.
 ## 3. Plugin options
 
 Seneca 3 also merged a top level `web` property of the Seneca options
-into the plugin options (`Seneca({ web: { ... } })`). Seneca 4 reads
-plugin options only from `seneca.use(SenecaWeb, options)` and from
-`options.plugin.web`. Move any top level `web` options.
+into the plugin options (`Seneca({ web: { ... } })`). Seneca 4 rejects
+an unknown top level option: `Seneca()` throws a validation error
+(`the property "web" is not allowed`). It reads plugin options from
+`seneca.use(SenecaWeb, options)` and from `options.plugin.web`
+(`Seneca({ plugin: { web: { ... } } })`). Move any top level `web`
+options.
 
 ## 4. Remote actions need a transport
 

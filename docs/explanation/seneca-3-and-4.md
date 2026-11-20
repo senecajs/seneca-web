@@ -45,7 +45,7 @@ handlers that read `err.orig` must read `err` instead.
 | Topic | Seneca 3 | Seneca 4 |
 | ----- | -------- | -------- |
 | Node.js | 8 and later (3.38 is tested on recent versions too) | 24 and later |
-| Top level plugin options `Seneca({ web: {...} })` | merged into the plugin options | not merged; use `options.plugin.web` or `use()` |
+| Top level plugin options `Seneca({ web: {...} })` | merged into the plugin options | rejected: `Seneca()` throws a validation error (`the property "web" is not allowed`); use `options.plugin.web` or `use()` |
 | Network transport for remote actions | `web`, `http` and `tcp` built in | `@seneca/transport` must be loaded |
 | Promises | `seneca-promisify` | built in: `await seneca.ready()`, `seneca.post`, `await seneca.close()` |
 | Close hook | `role:seneca,cmd:close` | `this.destroy(fn)` in a plugin (this plugin has no close hook; servers are closed by the application) |
