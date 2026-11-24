@@ -57,8 +57,7 @@ routes it receives.
    and `response$`.
 2. Send it: `seneca.act(route.pattern, message, callback)`.
 3. In the callback: on error, hand the error to the framework's error
-   handling (on Seneca 4 `err` is the action's error, on Seneca 3 the
-   action's error is `err.orig`); otherwise redirect when
+   handling (`err` is the action's error); otherwise redirect when
    `route.redirect` is set; otherwise send the reply when
    `route.autoreply` is `true`; otherwise do nothing, the action has
    responded through `response$`.

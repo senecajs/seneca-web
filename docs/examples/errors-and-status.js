@@ -46,7 +46,7 @@ app.use(Express.json())
 const seneca = Seneca({ log: 'warn' })
   .use(shop)
   .use(SenecaWeb, {
-    adapter: require('seneca-web-adapter-express'),
+    adapter: require('@seneca/web-adapter-express'),
     context: app,
     routes: routes,
     options: { parseBody: false },
@@ -57,12 +57,10 @@ seneca.ready(function () {
   // error handler chooses the status code. Express only routes errors to
   // handlers added after the failing route, and the plugin adds its
   // routes while it loads, so the handler is added here, after ready.
-  // On Seneca 4 the error is the one the action replied with; on
-  // Seneca 3 it is wrapped and the original is err.orig.
+  // On Seneca 4 the error is the one the action replied with.
   app.use(function (err, req, res, next) {
-    const orig = err.orig || err
-    const status = 'not_found' === orig.code ? 404 : 500
-    res.status(status).json({ error: orig.message, code: orig.code })
+    const status = 'not_found' === err.code ? 404 : 500
+    res.status(status).json({ error: err.message, code: err.code })
   })
 
   const server = app.listen(0, async function () {

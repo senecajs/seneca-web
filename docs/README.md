@@ -14,7 +14,8 @@ to understand the design.
 
 The programs from the tutorial and the guides are in
 [examples](examples/); each runs with `node docs/examples/<name>.js`
-and exits on its own.
+and exits on its own. In a checkout of this repository, first run
+`npm install --no-save @seneca/web-adapter-express`.
 
 ## How-to guides
 
@@ -24,7 +25,7 @@ and exits on its own.
 | [Map several plugins under prefixes](how-to/map-several-plugins.md) | One plan entry per plugin, adding routes at runtime, mounting under a router, several servers. |
 | [Use custom middleware](how-to/use-custom-middleware.md) | Named and inline middleware, order, framework wide middleware, priors. |
 | [Secure routes](how-to/secure-routes.md) | `auth` and `secure`, Passport with Express, Hapi strategies. |
-| [Handle errors and status codes](how-to/handle-errors-and-status-codes.md) | Error handlers, status codes, `autoreply: false`, redirects, Seneca 3 and 4 error shapes. |
+| [Handle errors and status codes](how-to/handle-errors-and-status-codes.md) | Error handlers, status codes, `autoreply: false`, redirects, the Seneca 4 error shape. |
 | [Write an adapter](how-to/write-an-adapter.md) | A minimal adapter for Node's `http` module, step by step. |
 | [Migrate from Seneca 3](how-to/migrate-from-seneca-3.md) | What to change in an application moving to Seneca 4. |
 | [Create a release](how-to/create-a-release.md) | For maintainers: publishing a new version. |
@@ -68,7 +69,7 @@ with the page that documents it. The plugin defines no error codes
 | `middleware` | plugin option | [Options](reference/options.md), [Use custom middleware](how-to/use-custom-middleware.md) |
 | `role:web,routes:*` | message | [Messages](reference/messages.md#rolewebroutes) |
 | `role:web,set:server` | message | [Messages](reference/messages.md#rolewebsetserver) |
-| `role:web,set:server,routes:*` | message (added in 2.3.0) | [Messages](reference/messages.md#rolewebsetserver) |
+| `role:web,set:server,routes:*` | message (added in 3.0.0) | [Messages](reference/messages.md#rolewebsetserver) |
 | `init:web` | message (plugin initialization) | [Messages](reference/messages.md#initweb) |
 | `pin` | route plan entry | [Route mapping](reference/route-mapping.md#plan-entry) |
 | `map` | route plan entry | [Route mapping](reference/route-mapping.md#plan-entry) |
@@ -94,7 +95,7 @@ with the page that documents it. The plugin defines no error codes
 | `Provide a function as adapter` | error | [Messages](reference/messages.md#rolewebsetserver) |
 | `no context provided` | error (published adapters) | [Messages](reference/messages.md#rolewebroutes) |
 | `expected valid middleware, got <value>` | error (express, connect adapters) | [Messages](reference/messages.md#rolewebroutes) |
-| `peerDependencies.seneca: >=3 \|\| >=4.0.0-rc5` | package | [Migrate from Seneca 3](how-to/migrate-from-seneca-3.md) |
+| `peerDependencies.seneca: ^4.0.0` | package | [Migrate from Seneca 3](how-to/migrate-from-seneca-3.md) |
 | one configuration per process | limit | [Options](reference/options.md#one-configuration-per-process) |
 
 ## Other documents

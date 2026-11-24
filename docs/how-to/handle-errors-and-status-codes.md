@@ -17,10 +17,10 @@ to the framework:
 
 On Seneca 4 the error object is the one the action produced: `err.message`
 and `err.code` are the action's, and Seneca's own description of the
-failure is attached as `err.meta$`. On Seneca 3 the adapter receives a
-wrapper: `err.message` is `seneca: Action <pattern> failed: <message>.`
-and the action's error is `err.orig`. Code that must run on both reads
-`(err.orig || err)`.
+failure is attached as `err.meta$`. Seneca 3 passed a wrapper instead
+(`err.message` was `seneca: Action <pattern> failed: <message>.` and the
+action's error was `err.orig`); see
+[Migrate from Seneca 3](migrate-from-seneca-3.md).
 
 ## 1. Give errors a code
 
@@ -49,9 +49,8 @@ plugin adds its routes while it loads, so add the handler inside
 ```js
 seneca.ready(function () {
   app.use(function (err, req, res, next) {
-    const orig = err.orig || err
-    const status = 'not_found' === orig.code ? 404 : 500
-    res.status(status).json({ error: orig.message, code: orig.code })
+    const status = 'not_found' === err.code ? 404 : 500
+    res.status(status).json({ error: err.message, code: err.code })
   })
 
   app.listen(3000)
@@ -109,10 +108,10 @@ the plugin options, the same failure is fatal, because Seneca runs
 plugin initialization with `fatal$`; the process logs the error and
 exits. Check the plan with the log adapter first.
 
-## Before version 2.3.0
+## Before version 3.0.0
 
 Routes given in the plugin options sent fatal request messages (the
 adapter inherited the `fatal$` flag of the plugin init), so an action
 error during a request closed the Seneca instance and exited the
-process, on Seneca 3 and 4. Version 2.3.0 calls adapters with a delegate
+process, on Seneca 3 and 4. Version 3.0.0 calls adapters with a delegate
 of the root instance, and request errors are ordinary action errors.

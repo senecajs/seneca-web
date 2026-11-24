@@ -22,9 +22,9 @@ var locals = {
 
 module.exports = function web(options) {
   var seneca = this
-  var extend = seneca.util.deepextend
+  var extend = seneca.util.deep
 
-  // Avoid deepextending context and auth,
+  // Avoid deep merging context and auth,
   // they aren't stringify friendly
   opts = extend(opts, _.omit(options, ['context', 'auth']))
   opts.context = options.context || null

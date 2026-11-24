@@ -68,7 +68,7 @@ convention.
 The plugin does not translate Seneca errors into status codes. There is
 no single right mapping, and frameworks have their own error pipelines,
 so the adapter hands the error to the framework and the application
-decides there. What the plugin guarantees since version 2.3.0 is that
-request errors are ordinary action errors, not fatal ones; and the
-Seneca version decides the error's shape (the action's error on
-Seneca 4, a wrapper with `err.orig` on Seneca 3).
+decides there. What the plugin guarantees since version 3.0.0 is that
+request errors are ordinary action errors, not fatal ones. On Seneca 4
+the error is the one the action replied with (on Seneca 3, with
+`seneca-web` 2, it was a wrapper with `err.orig`).

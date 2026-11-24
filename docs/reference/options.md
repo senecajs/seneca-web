@@ -5,7 +5,7 @@ optional; the plugin starts with the log adapter when none are given.
 
 ```js
 seneca.use(SenecaWeb, {
-  adapter: require('seneca-web-adapter-express'),
+  adapter: require('@seneca/web-adapter-express'),
   context: app,
   auth: passport,
   routes: [...],
@@ -26,8 +26,9 @@ seneca.use(SenecaWeb, {
 The plugin does not validate these options (it has no `defaults`
 declaration). Seneca itself walks the plugin options when the plugin
 loads, so `context` and `auth` objects that contain circular references
-(for example a Hapi server) can not be given through `use()`: they hang
-or fail plugin loading on Seneca 3.38 and 4. Pass such objects with the
+(for example a Hapi server) can not be given through `use()`: they fail
+plugin loading (on Seneca 4 the stack overflows and the process exits).
+Pass such objects with the
 `role:web,set:server` message or the `web/setServer` export after the
 plugin has loaded instead; Express applications and routers are
 functions and are fine.
@@ -48,7 +49,7 @@ Properties of `options` read by the published adapters.
 
 The plugin keeps its configuration (`adapter`, `context`, `auth`,
 `options`, `routes`) in module level variables, not per Seneca instance.
-Consequences, verified with version 2.3.0 on Seneca 4.0.0-rc5:
+Consequences, verified with version 3.0.0 on Seneca 4.0.0:
 
 * Options from several `use()` calls in one process are merged, property
   by property, later calls winning. In particular a later instance that

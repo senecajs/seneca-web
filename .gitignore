@@ -11,3 +11,4 @@ docs/coverage
 .vscode
 .nyc_output
 coverage
+package-lock.json

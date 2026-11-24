@@ -43,7 +43,7 @@ const seneca = Seneca({ log: 'warn' })
   .use(todo)
   .use(admin)
   .use(SenecaWeb, {
-    adapter: require('seneca-web-adapter-express'),
+    adapter: require('@seneca/web-adapter-express'),
     context: app,
     routes: routes,
     options: { parseBody: false },
@@ -82,7 +82,7 @@ GET /todo -> 200 [ { id: 1, text: 'write docs' } ]
 POST /todo -> 200 { id: 2, text: 'run the examples' }
 GET /todo/2 -> 200 { id: 2, text: 'run the examples' }
 GET /admin/status -> 200 { ok: true, uptime: 0 }
-GET /admin/version -> 200 { version: '2.3.0' }
+GET /admin/version -> 200 { version: '3.0.0' }
 closed
 ```
 
@@ -93,7 +93,7 @@ With Express, use a router as the context and mount it where you like:
 ```js
 const router = Express.Router()
 
-seneca.use(SenecaWeb, { adapter: require('seneca-web-adapter-express'), context: router, routes })
+seneca.use(SenecaWeb, { adapter: require('@seneca/web-adapter-express'), context: router, routes })
 
 seneca.ready(function () {
   app.use('/api', seneca.export('web/context')())

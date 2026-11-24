@@ -62,7 +62,7 @@ app.use(function (req, res, next) {
 const seneca = Seneca({ log: 'warn' })
   .use(site)
   .use(SenecaWeb, {
-    adapter: require('seneca-web-adapter-express'),
+    adapter: require('@seneca/web-adapter-express'),
     context: app,
     routes: routes,
     auth: auth,
