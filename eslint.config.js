@@ -5,7 +5,9 @@ const globals = require('globals')
 
 module.exports = [
   {
-    ignores: ['node_modules/', 'coverage/', 'docs/annotated/', '.nyc_output/'],
+    // .github/scripts holds the release tooling, a copy of the template in
+    // senecajs/admin, where it is tested
+    ignores: ['node_modules/', 'coverage/', 'docs/annotated/', '.nyc_output/', '.github/'],
   },
   js.configs.recommended,
   {
